@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { cn, notifyWIP } from '../lib/utils';
 import { supabase } from '../lib/supabase';
 
+import { Logo } from '../components/Logo';
 type LoginType = 'admin' | 'aluno';
 
 export function LoginPage() {
@@ -84,9 +85,7 @@ export function LoginPage() {
         <div className="bg-white dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
           
           <div className="p-8 pb-4 flex flex-col items-center text-center">
-            <div className="bg-blue-600/10 p-3 rounded-xl mb-4">
-              <School className="text-blue-600" size={40} />
-            </div>
+            <Logo className="size-16 mb-4" />
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               PMJ - Educacional
             </h1>

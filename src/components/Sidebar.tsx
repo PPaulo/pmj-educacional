@@ -28,6 +28,7 @@ import { motion, AnimatePresence } from 'motion/react';
 
 import { supabase } from '../lib/supabase';
 
+import { Logo } from './Logo';
 // 1. Defina quais cargos podem ver cada item (Vazio = Público para Administradores/Secretaria)
 const navItems: any[] = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', roles: ['Admin', 'Diretor', 'Secretaria'] },
@@ -146,9 +147,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     )}>
       <div className="p-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="size-10 rounded-lg bg-blue-600 flex items-center justify-center text-white shrink-0">
-            <School size={24} />
-          </div>
+          <Logo className="size-10 shrink-0" />
           <div className="flex flex-col">
             <h1 className="text-slate-900 dark:text-white text-sm font-bold leading-none">PMJ - Educacional</h1>
             {userRole && <p className="text-blue-500 font-bold text-[10px] mt-0.5">{userRole}</p>}
