@@ -5,7 +5,7 @@ interface AvatarProps {
   src?: string;
   name: string;
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 export function Avatar({ src, name, className, size = 'md' }: AvatarProps) {
@@ -20,6 +20,7 @@ export function Avatar({ src, name, className, size = 'md' }: AvatarProps) {
     sm: 'size-6 text-[10px]',
     md: 'size-10 text-xs',
     lg: 'size-12 text-sm',
+    xl: 'size-24 text-xl',
   };
 
   return (

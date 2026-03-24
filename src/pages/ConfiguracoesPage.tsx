@@ -539,8 +539,8 @@ export function ConfiguracoesPage() {
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2"><User size={20} className="text-blue-600" /> Meus Dados</h3>
                         
                         <div className="flex justify-center pb-2">
-                             <div className="relative group cursor-pointer" onClick={() => document.getElementById('avatar-upload')?.click()}>
-                                  <Avatar src={profileData.avatarUrl} name={profileData.name} size="lg" className="border-2 border-blue-600/40 shadow-sm group-hover:opacity-80 transition-all pointer-events-auto" />
+                             <div className="relative group cursor-pointer w-fit mx-auto" onClick={() => document.getElementById('avatar-upload')?.click()}>
+                                  <Avatar src={profileData.avatarUrl} name={profileData.name} size="xl" className="border-2 border-blue-600/40 shadow-sm group-hover:opacity-80 transition-all pointer-events-auto" />
                                   <input id="avatar-upload" type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
                                   <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                        <Upload size={16} className="text-white" />
