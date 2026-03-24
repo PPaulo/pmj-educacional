@@ -85,7 +85,7 @@ export function LoginPage() {
         <div className="bg-white dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
           
           <div className="p-8 pb-4 flex flex-col items-center text-center">
-            <Logo className="size-16 mb-4" />
+            <Logo className="size-24 mb-4" />
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               PMJ - Educacional
             </h1>
