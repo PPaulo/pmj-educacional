@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: pmj-app
+    restart: always
+    ports:
+      - "80:3005" # Mapeia a porta 80 do Servidor (Web) para a porta 3005 do container
+    volumes:
+      - ./database:/app/database # Mantém o arquivo SQLite persistente no disco do servidor
+    environment:
+      - NODE_ENV=production

@@ -1,0 +1,3 @@
+Original: "NOME DO USUÃRIO</label>
+    "
+Hex: 4e 4f 4d 45 20 44 4f 20 55 53 55 c3 81 52 49 4f 3c 2f 6c 61 62 65 6c 3e 0d 0a 20 20 20 20

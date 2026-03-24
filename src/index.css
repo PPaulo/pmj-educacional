@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+
+  /* Font Scaling para facilitar a leitura */
+  --text-xs: 0.8125rem; /* 13px - ligeiramente maior */
+  --text-sm: 0.9375rem; /* 15px - ideal para leitura em dashboard */
+  --text-base: 1.0625rem; /* 17px */
+  
+  /* Paleta sugerida pelo usuário */
+  --color-blue-600: #1E3A8A; /* Azul Profundo: Confiança e Estabilidade */
+  --color-blue-700: #11275A; /* Variante Escura para Hover */
+  
+  --color-emerald-600: #10B981; /* Verde Médio: Ação Positiva e Confirmar */
+  --color-emerald-500: #10B981;
+  
+  --color-amber-500: #FACC15; /* Amarelo Suave: Alertas e Destaque */
+  --color-amber-600: #CA8A04;
+  
+  --color-slate-50: #F3F4F6; /* Cinza Claro de Fundo */
+}
+
+@layer base {
+  body {
+    @apply font-sans text-slate-900 bg-slate-50;
+  }
+  
+  /* Global Input Styles */
+  input:not([type="checkbox"]):not([type="radio"]), 
+  select, 
+  textarea {
+    @apply border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent rounded-lg;
+  }
+}

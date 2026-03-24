@@ -1,0 +1,4 @@
+﻿src/components/StudentModal.tsx(809,36): error TS2554: Expected 2 arguments, but got 1.
+src/pages/StudentFormPage.tsx(645,36): error TS2554: Expected 2 arguments, but got 1.
+src/pages/StudentsPage.tsx(388,44): error TS2554: Expected 2 arguments, but got 1.
+src/pages/StudentsPage.tsx(504,44): error TS2554: Expected 2 arguments, but got 1.

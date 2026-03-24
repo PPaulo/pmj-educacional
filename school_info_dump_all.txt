@@ -1,0 +1,32 @@
+--- DUMP TOTAL SCHOOL_INFO COLUMNS ---
+
+
+ID: bcc16300-6d84-4f11-bd12-f6771e421007
+ [id]: "bcc16300-6d84-4f11-bd12-f6771e421007"
+ [name]: "Escola Municipal PMJ"
+ [current_bimester]: "1º Bimestre"
+ [created_at]: "2026-03-20T19:32:30.194396+00:00"
+ [zone_type]: "Urbana"
+
+ID: 82e6a624-3d75-4d85-b005-0b33020bc9bc
+ [id]: "82e6a624-3d75-4d85-b005-0b33020bc9bc"
+ [name]: "Escola Municipal Padre Ruy"
+ [cnpj]: "52049663"
+ [phone]: "6136971155"
+ [email]: "escolapadrerui_educacao@hotmail.com.br"
+ [street]: "Avenida Brasil esquina com Avenida Minas Gerais"
+ [neighborhood]: "Mariápolis"
+ [city]: "Padre Bernardo"
+ [uf]: "GO"
+ [logo_url]: "https://ttzdtxwlopyifviuzwzk.supabase.co/storage/v1/object/public/student-documents/school-logo-0.18968998581220275.png"
+ [current_bimester]: "1º Bimestre"
+ [created_at]: "2026-03-20T19:32:00.812803+00:00"
+ [zone_type]: "Urbana"
+
+ID: 2460966d-98bf-4042-ad82-d28600148d19
+ [id]: "2460966d-98bf-4042-ad82-d28600148d19"
+ [name]: "Escola Municipal Aramides Fernandes de Godoy"
+ [cnpj]: "52069311"
+ [current_bimester]: "1º Bimestre"
+ [created_at]: "2026-03-20T22:41:30.613516+00:00"
+ [zone_type]: "Urbana"

@@ -1,0 +1,6 @@
+
+=== Diagnóstico Tabela: students ===
+
+=== Diagnóstico Tabela: occurrences ===
+
+=== Diagnóstico Tabela: employees ===

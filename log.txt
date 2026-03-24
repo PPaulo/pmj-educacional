@@ -1,0 +1,46 @@
+﻿node : file:///C:/Users/ppaul/
+Downloads/pmj---educacional%20
+(1)/tmp_fix_modal.js:1
+No linha:1 caractere:1
++ node tmp_fix_modal.js *>&1 
+| Out-File log.txt -Encoding 
+utf8
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: (file:///C  
+  :/User..._fix_modal.js:1:   
+ String) [], RemoteExcepti    
+on
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+const fs = require('fs');
+           ^
+
+ReferenceError: require is 
+not defined in ES module 
+scope, you can use import 
+instead
+This file is being treated as 
+an ES module because it has a 
+'.js' file extension and 'C:\U
+sers\ppaul\Downloads\pmj---edu
+cacional (1)\package.json' 
+contains "type": "module". To 
+treat it as a CommonJS 
+script, rename it to use the 
+'.cjs' file extension.
+    at file:///C:/Users/ppaul/
+Downloads/pmj---educacional%20
+(1)/tmp_fix_modal.js:1:12
+    at ModuleJob.run (node:int
+ernal/modules/esm/module_job:4
+30:25)
+    at async onImport.tracePro
+mise.__proto__ (node:internal/
+modules/esm/loader:661:26)
+    at async asyncRunEntryPoin
+tWithESMLoader (node:internal/
+modules/run_main:101:5)
+
+Node.js v24.14.0

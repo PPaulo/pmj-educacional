@@ -1,0 +1,26 @@
+--- Diagnóstico de Tabelas e Contagens ---
+Tabela students: 0 linhas
+Tabela occurrences: 0 linhas
+Tabela employees: 0 linhas
+Tabela classes: 0 linhas
+Tabela profiles: 3 linhas
+Tabela school_info: 3 linhas
+
+=== Detalhes Tabela: profiles ===
+ID: 52873e5d-a2da-46a0-8b33-59b7d0fcf389
+ [name]: "Pedro Paulo"
+ [role]: "Admin"
+ID: f151251a-da17-4889-ab0e-08d3eb56f4f4
+ [name]: "Pedro Paulo"
+ [role]: "Secretaria"
+ID: 1a4372d4-49a0-471e-a0db-5aeb194857b6
+ [name]: "Marcia"
+ [role]: "Secretaria"
+
+=== Detalhes Tabela: school_info ===
+ID: bcc16300-6d84-4f11-bd12-f6771e421007
+ [name]: "Escola Municipal PMJ"
+ID: 82e6a624-3d75-4d85-b005-0b33020bc9bc
+ [name]: "Escola Municipal Padre Ruy"
+ID: 2460966d-98bf-4042-ad82-d28600148d19
+ [name]: "Escola Municipal Aramides Fernandes de Godoy"

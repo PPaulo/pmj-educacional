@@ -1,0 +1,25 @@
+$filePath = "C:\Users\ppaul\Downloads\pmj---educacional (1)\src\pages\ConfiguracoesPage.tsx"
+$content = Get-Content -Raw -Encoding utf8 $filePath
+
+$content = $content -replace "Ã¡", "á"
+$content = $content -replace "Ã©", "é"
+$content = $content -replace "Ã³", "ó"
+$content = $content -replace "Ãº", "ú"
+$content = $content -replace "Ã­", "í"
+$content = $content -replace "Ã§", "ç"
+$content = $content -replace "Ã£", "ã"
+$content = $content -replace "Ãµ", "õ"
+$content = $content -replace "Ãª", "ê"
+$content = $content -replace "Ã´", "ô"
+$content = $content -replace "Ã‰", "É"
+$content = $content -replace "Ã“", "Ó"
+$content = $content -replace "Ãš", "Ú"
+$content = $content -replace "Ã‡", "Ç"
+$content = $content -replace "Ã ", "à"
+$content = $content -replace "Ã¢", "â"
+$content = $content -replace "Ãƒ", "ã"
+$content = $content -replace "Ã•", "õ"
+$content = $content -replace "Ã‘", "ñ"
+
+Set-Content -Path $filePath -Value $content -Encoding utf8 -NoNewline
+Write-Host "Encoding fixed successfully!"
