@@ -20,7 +20,8 @@ import {
   FileCheck,
   Soup,
   MessageCircle,
-  Building2
+  Building2,
+  Clock
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useState, useEffect } from 'react';
@@ -52,6 +53,7 @@ const navItems: any[] = [
       { label: 'Pré-Matrículas', path: '/pre-matriculas' },
     ]
   },
+  { icon: Clock, label: 'Folha de Ponto', path: '/ponto', roles: ['Admin', 'Diretor', 'Secretaria', 'Professor'] },
   { icon: CalendarIcon, label: 'Calendário', path: '/calendario' },
   { icon: BookOpen, label: 'Relatórios', path: '/relatorios', roles: ['Admin', 'Diretor', 'Secretaria'] },
 ];

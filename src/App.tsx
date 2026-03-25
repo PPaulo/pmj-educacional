@@ -32,6 +32,7 @@ const ManualPage = lazy(() => import('./pages/ManualPage').then(m => ({ default:
 const SchoolInfoPage = lazy(() => import('./pages/SchoolInfoPage').then(m => ({ default: m.SchoolInfoPage })));
 const FamilyCommunicationPage = lazy(() => import('./pages/FamilyCommunicationPage').then(m => ({ default: m.FamilyCommunicationPage })));
 const StaffCommunicationPage = lazy(() => import('./pages/StaffCommunicationPage').then(m => ({ default: m.StaffCommunicationPage })));
+const TimesheetsPage = lazy(() => import('./pages/TimesheetsPage').then(m => ({ default: m.TimesheetsPage })));
 
 const LoadingFallback = () => (
   <div className="flex h-screen w-full items-center justify-center bg-slate-50 dark:bg-slate-950">
@@ -73,6 +74,7 @@ export default function App() {
             <Route path="/calendario" element={<CalendarPage />} />
             <Route path="/configuracoes" element={<ConfiguracoesPage />} />
             <Route path="/escola-info" element={<SchoolInfoPage />} />
+            <Route path="/ponto" element={<TimesheetsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

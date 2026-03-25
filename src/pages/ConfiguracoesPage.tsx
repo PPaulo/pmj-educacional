@@ -728,13 +728,13 @@ export function ConfiguracoesPage() {
                                                <input type="number" value={schoolInfo.capacity} onChange={e => setSchoolInfo({...schoolInfo, capacity: Number(e.target.value)})} className="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl px-4 py-2 text-sm" />
                                            </div>
                                            <div className="space-y-1">
-                                               <label className="text-xs font-bold text-slate-400">TELEFONE DE CONTATO</label>
-                                               <input type="text" value={schoolInfo.phone} onChange={e => setSchoolInfo({...schoolInfo, phone: maskPhone(e.target.value)})} maxLength={15} className="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl px-4 py-2 text-sm" />
-                                           </div>
-                                           <div className="space-y-1">
-                                               <label className="text-xs font-bold text-slate-400">E-MAIL INSTITUCIONAL</label>
-                                               <input type="email" value={schoolInfo.email} onChange={e => setSchoolInfo({...schoolInfo, email: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl px-4 py-2 text-sm" />
-                                           </div>
+                                                <label className="text-xs font-bold text-slate-400">TELEFONE DE CONTATO</label>
+                                                <input type="text" value={schoolInfo.phone} onChange={e => setSchoolInfo({...schoolInfo, phone: maskPhone(e.target.value)})} maxLength={15} className="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl px-4 py-2 text-sm" />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-xs font-bold text-slate-400">E-MAIL INSTITUCIONAL</label>
+                                                <input type="email" value={schoolInfo.email} onChange={e => setSchoolInfo({...schoolInfo, email: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl px-4 py-2 text-sm" />
+                                            </div>
                                       </div>
                                       <h4 className="text-xs font-bold text-slate-400 mt-4">ENDEREÇO</h4>
                                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

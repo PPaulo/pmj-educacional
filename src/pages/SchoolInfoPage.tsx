@@ -78,7 +78,9 @@ export function SchoolInfoPage() {
     lixo_destino: 'Coleta pública',
     piso_tatil: false,
     corrimao: false,
-    portais_largos: false
+    portais_largos: false,
+    ano_letivo_inicio: '',
+    ano_letivo_fim: ''
   });
 
   const maskPhone = (v: string) => v.replace(/\D/g, '').replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2').replace(/(-\d{4})\d+?$/, '$1');
@@ -131,7 +133,8 @@ export function SchoolInfoPage() {
   const handleNewSchool = () => {
     setIsCreatingSchool(true); setSelectedSchool(null);
     setSchoolInfo({
-      name: '', inep: '', cnpj: '', phone: '', email: '', cep: '', street: '', number: '', neighborhood: '', city: '', uf: '', logo_url: '', current_bimester: '1º Bimestre', min_grade: '6.0', director: '', director_cpf: '', zone_type: 'Urbana', capacity: 0, dependencia_adm: 'Municipal', situacao_func: 'Em atividade', forma_ocupacao: 'Próprio', infra_refeitorio: false, infra_quadra: false, infra_biblioteca: false, infra_laboratorio: false, infra_agua_rede: false, infra_agua_poco: false, infra_energia_rede: false, infra_esgoto_rede: false, infra_lixo_coleta: false, infra_internet: false, infra_banheiro_pne: false, alimentacao_escolar: false, atendimento_aee: false, etapas_infantil: false, etapas_fundamental1: false, etapas_fundamental2: false, turno_matutino: false, turno_vespertino: false, turno_integral: false, comp_admin: 0, comp_alunos: 0, impressoras: 0, projetores: 0, tv: 0, aparelho_som: 0, internet_tipo: 'Banda Larga', acess_rampas: false, acess_elevador: false, sala_diretoria: false, sala_professor: false, secretaria: false, almoxarifado: false, cozinha: false, despensa: false, lavanderia: false, patio_coberto: false, patio_descoberto: false, parque_infantil: false, lixo_reciclagem: false, esgoto_fossa: false, lixo_destino: 'Coleta pública', piso_tatil: false, corrimao: false, portais_largos: false
+      name: '', inep: '', cnpj: '', phone: '', email: '', cep: '', street: '', number: '', neighborhood: '', city: '', uf: '', logo_url: '', current_bimester: '1º Bimestre', min_grade: '6.0', director: '', director_cpf: '', zone_type: 'Urbana', capacity: 0, dependencia_adm: 'Municipal', situacao_func: 'Em atividade', forma_ocupacao: 'Próprio', infra_refeitorio: false, infra_quadra: false, infra_biblioteca: false, infra_laboratorio: false, infra_agua_rede: false, infra_agua_poco: false, infra_energia_rede: false, infra_esgoto_rede: false, infra_lixo_coleta: false, infra_internet: false, infra_banheiro_pne: false, alimentacao_escolar: false, atendimento_aee: false, etapas_infantil: false, etapas_fundamental1: false, etapas_fundamental2: false, turno_matutino: false, turno_vespertino: false, turno_integral: false, comp_admin: 0, comp_alunos: 0, impressoras: 0, projetores: 0, tv: 0, aparelho_som: 0, internet_tipo: 'Banda Larga', acess_rampas: false, acess_elevador: false, sala_diretoria: false, sala_professor: false, secretaria: false, almoxarifado: false, cozinha: false, despensa: false, lavanderia: false, patio_coberto: false, patio_descoberto: false, parque_infantil: false, lixo_reciclagem: false, esgoto_fossa: false,      lixo_destino: 'Coleta pública', piso_tatil: false, corrimao: false, portais_largos: false,
+      ano_letivo_inicio: '', ano_letivo_fim: ''
     });
   };
 
@@ -210,6 +213,8 @@ export function SchoolInfoPage() {
                 <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400">SITUAÇÃO</label><select value={schoolInfo.situacao_func} onChange={e => setSchoolInfo({ ...schoolInfo, situacao_func: e.target.value })} className="w-full bg-slate-50 border rounded-xl px-3 py-1.5 text-sm"><option value="Em atividade">Em atividade</option><option value="Paralisada">Paralisada</option><option value="Extinta">Extinta</option></select></div>
                 <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400">DEPENDÊNCIA ADM.</label><select value={schoolInfo.dependencia_adm} onChange={e => setSchoolInfo({ ...schoolInfo, dependencia_adm: e.target.value })} className="w-full bg-slate-50 border rounded-xl px-3 py-1.5 text-sm"><option value="Municipal">Municipal</option><option value="Estadual">Estadual</option><option value="Federal">Federal</option><option value="Privada">Privada</option></select></div>
                 <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400">FORMA OCUPAÇÃO</label><select value={schoolInfo.forma_ocupacao} onChange={e => setSchoolInfo({ ...schoolInfo, forma_ocupacao: e.target.value })} className="w-full bg-slate-50 border rounded-xl px-3 py-1.5 text-sm"><option value="Próprio">Próprio</option><option value="Alugado">Alugado</option><option value="Cedido">Cedido</option><option value="Outros">Outros</option></select></div>
+                <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400">INÍCIO ANO LETIVO</label><input type="date" value={schoolInfo.ano_letivo_inicio || ''} onChange={e => setSchoolInfo({ ...schoolInfo, ano_letivo_inicio: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl px-3 py-1.5 text-sm" /></div>
+                <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400">TÉRMINO ANO LETIVO</label><input type="date" value={schoolInfo.ano_letivo_fim || ''} onChange={e => setSchoolInfo({ ...schoolInfo, ano_letivo_fim: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl px-3 py-1.5 text-sm" /></div>
               </div>
             </div>
           </div>

@@ -14,12 +14,13 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
-import { generateStudentRegistrationPDF, generateClassListPDF, generateTotalStudentsPDF, generateStudentLinkageStatementPDF, generateReportCardPDF, generateSchoolTranscriptPDF } from '../lib/pdf';
+import { generateStudentRegistrationPDF, generateClassListPDF, generateTotalStudentsPDF, generateStudentLinkageStatementPDF, generateReportCardPDF, generateSchoolTranscriptPDF, generateBolsaFamiliaAttendancePDF } from '../lib/pdf';
 import toast from 'react-hot-toast';
 import { snakeToCamel } from '../lib/utils';
 
 const reportsList = [
   { id: 'declaration', title: 'Declaração de Vínculo', description: 'Atestado de matrícula e frequência regular do aluno.', icon: FileCheck, color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20', scope: 'student' },
+  { id: 'bolsa_familia', title: 'Frequência Bolsa Família', description: 'Acompanhamento de frequência mensal para condicionalidades.', icon: ClipboardList, color: 'bg-rose-500/10 text-rose-600 border-rose-500/20', scope: 'student' },
   { id: 'registration', title: 'Ficha Individual', description: 'Dados cadastrais completos, endereço e responsáveis.', icon: UserSquare, color: 'bg-blue-500/10 text-blue-600 border-blue-500/20', scope: 'student' },
   { id: 'report', title: 'Boletim Escolar', description: 'Notas e faltas segmentadas por bimestre e disciplina.', icon: ClipboardList, color: 'bg-purple-500/10 text-purple-600 border-purple-500/20', scope: 'student' },
   { id: 'history', title: 'Histórico Escolar', description: 'Registro completo da trajetória acadêmica do aluno.', icon: History, color: 'bg-amber-500/10 text-amber-600 border-amber-500/20', scope: 'student' },
@@ -148,6 +149,10 @@ export function ReportsPage() {
         const { data: grades } = await supabase.from('grades').select('*').eq('student_id', selectedStudent.id);
         generateSchoolTranscriptPDF(selectedStudent, grades || [], school);
         toast.success('Histórico Escolar gerado com sucesso!');
+      } else if (selectedReport.id === 'bolsa_familia') {
+        const { data: attendance } = await supabase.from('attendance').select('*').eq('student_id', selectedStudent.id);
+        generateBolsaFamiliaAttendancePDF(selectedStudent, attendance || [], school);
+        toast.success('Declaração Bolsa Família gerada com sucesso!');
       } else {
         toast.success(`Relatório "${selectedReport.title}" gerado com sucesso!`);
       }
