@@ -11,7 +11,7 @@ const loadImg = (url: string): Promise<string> => {
          canvas.width = img.width; canvas.height = img.height;
          const ctx = canvas.getContext('2d');
          ctx?.drawImage(img, 0, 0);
-         resolve(canvas.toDataURL('image/jpeg'));
+         resolve(canvas.toDataURL('image/png'));
      };
      img.onerror = () => resolve(''); // fallback sem quebrar
      img.src = url;
@@ -28,22 +28,22 @@ export const generateStudentRegistrationPDF = async (formData: Partial<Student>,
   const labelColor: [number, number, number] = [100, 116, 139];
 
   doc.setFillColor(248, 250, 252);
-  doc.roundedRect(14, 10, pgWidth - 28, 25, 2, 2, 'F');
+  doc.roundedRect(14, 10, pgWidth - 28, 32, 2, 2, 'F');
 
   if (school?.logo_url) {
       const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'JPEG', 16, 12, 21, 21);
+      if (imgData) doc.addImage(imgData, 'PNG', 16, 12, 28, 28);
   }
 
-  const startX = school?.logo_url ? 40 : 18;
+  const startX = school?.logo_url ? 48 : 18;
 
   doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...secondaryColor);
-  doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 16);
-  doc.text('Secretaria Municipal de Educação', startX, 21);
+  doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 17);
+  doc.text('Secretaria Municipal de Educação', startX, 22);
   doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(...primaryColor);
-  doc.text((school?.name || 'ESCOLA MUNICIPAL PADRE RUY').toUpperCase(), startX, 27);
+  doc.text((school?.name || 'ESCOLA MUNICIPAL PADRE RUY').toUpperCase(), startX, 29);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...labelColor);
-  doc.text('Resolução :RESOLUÇÃO - CME Nº 017 - Início: 19/9/2024 - Fim: 31/12/2028', startX, 33);
+  doc.text('Resolução :RESOLUÇÃO - CME Nº 017 - Início: 19/9/2024 - Fim: 31/12/2028', startX, 36);
 
   doc.setFontSize(8); doc.setTextColor(...labelColor);
   doc.text('Página 1 de 1', pgWidth - 45, 16);
@@ -51,7 +51,7 @@ export const generateStudentRegistrationPDF = async (formData: Partial<Student>,
 
   const formatCell = (label: string, value: any) => `${label}\n${value || '---'}`;
 
-  let currentY = 42;
+  let currentY = 48;
   doc.setFillColor(...primaryColor);
   doc.roundedRect(14, currentY, pgWidth - 28, 12, 1, 1, 'F');
   doc.setFontSize(12); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255);
@@ -170,10 +170,10 @@ export const generateStudentLinkageStatementPDF = async (formData: any, school: 
 
   if (school?.logo_url) {
       const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'JPEG', 16, 15, 20, 20);
+      if (imgData) doc.addImage(imgData, 'PNG', 16, 15, 28, 28);
   }
 
-  const startX = school?.logo_url ? (pgWidth / 2) + 10 : pgWidth / 2;
+  const startX = school?.logo_url ? (pgWidth / 2) + 15 : pgWidth / 2;
 
   doc.setFontSize(12); doc.setFont('helvetica', 'bold');
   doc.text(ESTADO.toUpperCase(), startX, 20, { align: 'center' });
@@ -227,22 +227,22 @@ export const generateClassListPDF = async (className: string, students: any[], s
   };
 
   doc.setFillColor(248, 250, 252);
-  doc.roundedRect(14, 10, pgWidth - 28, 20, 2, 2, 'F');
+  doc.roundedRect(14, 10, pgWidth - 28, 28, 2, 2, 'F');
 
   if (school?.logo_url) {
       const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'JPEG', 17, 12, 16, 16);
+      if (imgData) doc.addImage(imgData, 'PNG', 17, 12, 24, 24);
   }
 
-  const startX = school?.logo_url ? 36 : 18;
+  const startX = school?.logo_url ? 46 : 18;
 
   doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(71, 85, 105);
-  doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 16);
-  doc.text('Secretaria Municipal de Educação', startX, 21);
-  doc.text((school?.name || 'ESCOLA MUNICIPAL').toUpperCase(), startX, 26);
+  doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 17);
+  doc.text('Secretaria Municipal de Educação', startX, 22);
+  doc.text((school?.name || 'ESCOLA MUNICIPAL').toUpperCase(), startX, 28);
   
   doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
-  doc.text(`LISTA DE ALUNOS - TURMA ${className.toUpperCase()}`, pgWidth / 2, 42, { align: 'center' });
+  doc.text(`LISTA DE ALUNOS - TURMA ${className.toUpperCase()}`, pgWidth / 2, 46, { align: 'center' });
 
   const bodyData = students.map((std, index) => {
     const bDate = std.birthDate || std.birth_date;
@@ -277,14 +277,14 @@ export const generateTotalStudentsPDF = async (students: any[], school: any) => 
   const pgWidth = doc.internal.pageSize.width;
 
   doc.setFillColor(248, 250, 252);
-  doc.roundedRect(14, 10, pgWidth - 28, 25, 2, 2, 'F');
+  doc.roundedRect(14, 10, pgWidth - 28, 30, 2, 2, 'F');
 
   if (school?.logo_url) {
       const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'JPEG', 16, 12, 21, 21);
+      if (imgData) doc.addImage(imgData, 'PNG', 16, 12, 26, 26);
   }
 
-  const startX = school?.logo_url ? 40 : 18;
+  const startX = school?.logo_url ? 46 : 18;
 
   doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(71, 85, 105);
   doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 16);
@@ -316,14 +316,14 @@ export const generateReportCardPDF = async (formData: any, grades: any[], school
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' }) as any;
   const pgWidth = doc.internal.pageSize.width;
 
-  doc.setFillColor(248, 250, 252); doc.roundedRect(14, 10, pgWidth - 28, 25, 2, 2, 'F');
+  doc.setFillColor(248, 250, 252); doc.roundedRect(14, 10, pgWidth - 28, 30, 2, 2, 'F');
 
   if (school?.logo_url) {
       const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'JPEG', 16, 12, 21, 21);
+      if (imgData) doc.addImage(imgData, 'PNG', 16, 12, 26, 26);
   }
 
-  const startX = school?.logo_url ? 40 : 18;
+  const startX = school?.logo_url ? 46 : 18;
 
   doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(71, 85, 105);
   doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 16);
@@ -404,14 +404,14 @@ export const generateSchoolTranscriptPDF = async (formData: any, grades: any[], 
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' }) as any;
   const pgWidth = doc.internal.pageSize.width;
 
-  doc.setFillColor(248, 250, 252); doc.roundedRect(14, 10, pgWidth - 28, 25, 2, 2, 'F');
+  doc.setFillColor(248, 250, 252); doc.roundedRect(14, 10, pgWidth - 28, 30, 2, 2, 'F');
 
   if (school?.logo_url) {
       const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'JPEG', 16, 12, 21, 21);
+      if (imgData) doc.addImage(imgData, 'PNG', 16, 12, 26, 26);
   }
 
-  const startX = school?.logo_url ? 40 : 18;
+  const startX = school?.logo_url ? 46 : 18;
 
   doc.setFontSize(8); doc.setTextColor(71, 85, 105);
   doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 16); doc.text(`Secretaria de Educação | ${(school?.name || 'ESCOLA MUNICIPAL').toUpperCase()}`, startX, 21);
@@ -450,14 +450,14 @@ export const generateBolsaFamiliaAttendancePDF = async (formData: any, attendanc
   const primaryColor: [number, number, number] = [30, 58, 138];
   const secondaryColor: [number, number, number] = [71, 85, 105];
 
-  doc.setFillColor(248, 250, 252); doc.roundedRect(14, 10, pgWidth - 28, 25, 2, 2, 'F');
+  doc.setFillColor(248, 250, 252); doc.roundedRect(14, 10, pgWidth - 28, 30, 2, 2, 'F');
 
   if (school?.logo_url) {
       const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'JPEG', 16, 12, 21, 21);
+      if (imgData) doc.addImage(imgData, 'PNG', 16, 12, 26, 26);
   }
 
-  const startX = school?.logo_url ? 40 : 18;
+  const startX = school?.logo_url ? 46 : 18;
 
   doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...secondaryColor);
   doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 16);

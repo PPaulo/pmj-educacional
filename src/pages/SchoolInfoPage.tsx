@@ -171,7 +171,7 @@ export function SchoolInfoPage() {
       <div className="flex justify-between items-center bg-white dark:bg-slate-900 border p-4 rounded-2xl shadow-sm">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-50 dark:bg-blue-900/40 rounded-xl text-blue-600"><School size={24} /></div>
-          <div><h2 className="text-lg font-black text-slate-900 dark:text-white">Escolas & Censo</h2><p className="text-xs text-slate-400">Dados estruturais exigidos pelo INEP</p></div>
+          <div><h2 className="text-lg font-black text-slate-900 dark:text-white">Escolas e Censo</h2><p className="text-xs text-slate-400">Dados estruturais exigidos pelo INEP</p></div>
         </div>
         {userRole === 'Admin' && !selectedSchool && !isCreatingSchool && (
           <button onClick={handleNewSchool} className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-600/20"><Plus size={16} /> Cadastrar Nova</button>
@@ -250,7 +250,7 @@ export function SchoolInfoPage() {
             </div>
           </div>
 
-          {/* GRID COMPOSTO: REDES & SUSTENTABILIDADE & ACESSIBILIDADE */}
+          {/* GRID COMPOSTO: REDES e SUSTENTABILIDADE e ACESSIBILIDADE */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* SUSTENTABILIDADE E REDES */}
             <div className="p-6 bg-white dark:bg-slate-900 border rounded-2xl shadow-sm space-y-4">

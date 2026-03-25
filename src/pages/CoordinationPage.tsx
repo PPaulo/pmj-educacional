@@ -53,6 +53,15 @@ export function CoordinationPage() {
   // Configurações mestre
   useEffect(() => {
     const loadConfigs = async () => {
+      // 1. Check for impersonation from localStorage
+      const impersonated = localStorage.getItem('impersonated_user');
+      if (impersonated) {
+          const data = JSON.parse(impersonated);
+          setUserRole(data.role || 'Admin');
+          setUserSchoolId(data.school_id || null);
+          return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase.from('profiles').select('role, school_id').eq('id', user.id).single();

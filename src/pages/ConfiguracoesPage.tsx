@@ -361,6 +361,22 @@ export function ConfiguracoesPage() {
   const loadProfile = async () => {
     setLoading(true);
     try {
+      // Check for impersonation first
+      const impersonated = localStorage.getItem('impersonated_user');
+      if (impersonated) {
+          const data = JSON.parse(impersonated);
+          setProfileData({ 
+              name: data.name || 'Simulado', 
+              role: data.role || 'Admin', 
+              id: data.id || '',
+              schoolName: '', // Impersonated users school might not be available here easily
+              avatarUrl: ''
+          });
+          setUserRole(data.role || 'Admin');
+          setLoading(false);
+          return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase
@@ -526,9 +542,11 @@ export function ConfiguracoesPage() {
                 <User size={16} /> Perfil
             </button>
 
-            <button onClick={() => setActiveTab('usuarios')} className={`flex items-center gap-2 px-4 py-2 border-b-2 font-semibold text-sm transition-colors ${activeTab === 'usuarios' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500'}`}>
-                <ShieldCheck size={16} /> Usuários
-            </button>
+            {userRole === 'Admin' && (
+              <button onClick={() => setActiveTab('usuarios')} className={`flex items-center gap-2 px-4 py-2 border-b-2 font-semibold text-sm transition-colors ${activeTab === 'usuarios' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500'}`}>
+                  <ShieldCheck size={16} /> Usuários
+              </button>
+            )}
          </div>
 
          <AnimatePresence mode="wait">
@@ -953,9 +971,11 @@ export function ConfiguracoesPage() {
                                            <div className="space-y-1">
                                               <label className="text-xs font-bold text-slate-500">CARGO INICIAL</label>
                                               <select value={newUserRole} onChange={e => setNewUserRole(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl px-4 py-2 text-sm">
-                                                   <option value="Secretaria">Secretaria</option>
-                                                   <option value="Professor">Professor</option>
-                                                   <option value="Diretor">Diretor</option>
+                                                   <option value="Secretaria">Secretária (Geral)</option>
+                                                    <option value="Professor">Professor(a)</option>
+                                                    <option value="Diretor">Diretor(a)</option>
+                                                    <option value="Coordenador">Coordenador(a)</option>
+                                                    <option value="Nutricionista">Nutricionista</option>
                                                    {userRole === 'Admin' && <option value="Admin">Admin</option>}
                                               </select>
                                            </div>
@@ -1000,9 +1020,11 @@ export function ConfiguracoesPage() {
                                            <div className="space-y-1">
                                               <label className="text-xs font-bold text-slate-500">CARGO</label>
                                               <select value={editUserRole} onChange={e => setEditUserRole(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl px-4 py-2 text-sm">
-                                                   <option value="Secretaria">Secretaria</option>
-                                                   <option value="Professor">Professor</option>
-                                                   <option value="Diretor">Diretor</option>
+                                                   <option value="Secretaria">Secretária (Geral)</option>
+                                                    <option value="Professor">Professor(a)</option>
+                                                    <option value="Diretor">Diretor(a)</option>
+                                                    <option value="Coordenador">Coordenador(a)</option>
+                                                    <option value="Nutricionista">Nutricionista</option>
                                                    {userRole === 'Admin' && <option value="Admin">Admin</option>}
                                               </select>
                                            </div>

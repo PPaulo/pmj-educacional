@@ -50,11 +50,19 @@ export function HRPage() {
   
 
 
-
-
   // Carga inicial do perfil
   useEffect(() => {
+    document.title = "Recursos Humanos - Sistema Escolar"; // Set document title for HR page
     const loadConfig = async () => {
+      // 1. Check for impersonation from localStorage
+      const impersonated = localStorage.getItem('impersonated_user');
+      if (impersonated) {
+          const data = JSON.parse(impersonated);
+          setUserRole(data.role || 'Admin');
+          setUserSchoolId(data.school_id || null);
+          return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase.from('profiles').select('role, school_id').eq('id', user.id).single();
@@ -71,7 +79,7 @@ export function HRPage() {
     loadConfig();
   }, []);
   
-  // Edit & Delete States
+  // Edit e Delete States
   const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
@@ -247,8 +255,8 @@ export function HRPage() {
         <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
-              <h3 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Gestão de Funcionários</h3>
-              <p className="text-slate-500 mt-1">Administre a equipe escolar.</p>
+              <h3 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">Recursos Humanos</h3>
+              <p className="text-slate-500 mt-1 font-medium">Gestão estratégica do quadro funcional e administrativo.</p>
             </div>
               <button
                 onClick={handleAddClick}
@@ -320,7 +328,20 @@ export function HRPage() {
                   </select>
                   <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
                 </div>
-                <button onClick={notifyWIP} className="hidden sm:flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors dark:text-white dark:hover:bg-slate-700">
+                <button onClick={() => {
+                   const headers = ['ID', 'Nome', 'Cargo', 'Departamento', 'CPF'];
+                   const rows = employees.map(e => [e.id, e.name, e.role, e.department, e.cpf || '---']);
+                   const csvContent = "data:text/csv;charset=utf-8," 
+                     + headers.join(",") + "\n" 
+                     + rows.map(r => r.join(",")).join("\n");
+                   const encodedUri = encodeURI(csvContent);
+                   const link = document.createElement("a");
+                   link.setAttribute("href", encodedUri);
+                   link.setAttribute("download", "lista_funcionarios.csv");
+                   document.body.appendChild(link);
+                   link.click();
+                   toast.success('Lista de funcionários exportada!');
+                }} className="hidden sm:flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors dark:text-white dark:hover:bg-slate-700">
                   <Download size={16} /> Exportar
                 </button>
               </div>

@@ -512,6 +512,7 @@ export function EmployeeModal({ isOpen, onClose, onSave, employee, existingCPFs 
                       <option value="Merendeiro(a)">Merendeiro(a)</option>
                       <option value="Porteiro / Vigia">Porteiro / Vigia</option>
                       <option value="Monitor(a)">Monitor(a)</option>
+                      <option value="Jovem Aprendiz">Jovem Aprendiz</option>
                     </select>
                   </div>
                   <div className="space-y-1">
@@ -532,6 +533,7 @@ export function EmployeeModal({ isOpen, onClose, onSave, employee, existingCPFs 
                       <option value="Serviços Gerais / Limpeza">Serviços Gerais / Limpeza</option>
                       <option value="Alimentação / Cantina">Alimentação / Cantina</option>
                       <option value="Segurança">Segurança</option>
+                      <option value="Arquivo Passivo">Arquivo Passivo</option>
                     </select>
                   </div>
                 </div>

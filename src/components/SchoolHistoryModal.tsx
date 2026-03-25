@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Edit2, Trash2, GraduationCap, FileText } from 'lucide-react';
+import { X, Plus, Edit2, Trash2, GraduationCap, FileText, FileSignature, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import toast from 'react-hot-toast';
 import { Student, SchoolHistory, SubjectRecord } from '../types';
 import { SCHOOL_HISTORY } from '../data';
 import { jsPDF } from 'jspdf';
@@ -153,7 +154,7 @@ export function SchoolHistoryModal({ isOpen, onClose, student }: SchoolHistoryMo
     }
   };
 
-  const handleGeneratePDF = () => {
+  const handleGeneratePDF = (autoSign = false) => {
     if (!student) return;
     const doc = new jsPDF();
     
@@ -252,6 +253,15 @@ export function SchoolHistoryModal({ isOpen, onClose, student }: SchoolHistoryMo
     }
 
     doc.save(`Historico_${student.name.replace(/\s+/g, '_')}.pdf`);
+    
+    if (autoSign) {
+        toast.success('PDF Gerado. Redirecionando para Assinaturas Gov.br...');
+        setTimeout(() => {
+            window.open('https://assinador.iti.br/assinatura/index.xhtml', '_blank');
+        }, 1500);
+    } else {
+        toast.success('Histórico gerado com sucesso!');
+    }
   };
 
   return (
@@ -474,7 +484,15 @@ export function SchoolHistoryModal({ isOpen, onClose, student }: SchoolHistoryMo
                     <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Registros Acadêmicos</h4>
                     <div className="flex gap-2">
                       <button
-                        onClick={handleGeneratePDF}
+                        onClick={() => handleGeneratePDF(true)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 border border-emerald-600 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg text-sm font-bold transition-colors"
+                      >
+                        <FileSignature size={16} />
+                        Assinar (Gov.br)
+                        <ExternalLink size={14} className="opacity-70" />
+                      </button>
+                      <button
+                        onClick={() => handleGeneratePDF(false)}
                         className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 rounded-lg text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                       >
                         <FileText size={16} />

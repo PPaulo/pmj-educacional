@@ -12,7 +12,9 @@ import {
   Utensils,
   AlertTriangle,
   CheckCircle,
-  FileText
+  FileText,
+  X,
+  Save
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
@@ -25,24 +27,26 @@ const tabs = [
   { id: 'inventory', label: 'Controle de Estoque', icon: Package },
 ];
 
-const mockMenu: any[] = [];
-const mockInventory: any[] = [];
-
 export function MerendaPage() {
   const [activeTab, setActiveTab] = useState('menu');
   const [students, setStudents] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   
-  // States para gerenciar edições (simulado)
-  const [inventory, setInventory] = useState(mockInventory);
-  const [menu, setMenu] = useState(mockMenu);
+  const [inventory, setInventory] = useState<any[]>([]);
+  const [menu, setMenu] = useState<any[]>([]);
 
   // Admin Controls
   const [userRole, setUserRole] = useState('Secretaria');
   const [userSchoolId, setUserSchoolId] = useState<string | null>(null);
   const [schoolFilter, setSchoolFilter] = useState('Todas');
   const [schoolsList, setSchoolsList] = useState<any[]>([]);
+
+  // Modais de Cadastro
+  const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
+  const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false);
+  const [menuFormData, setMenuFormData] = useState({ day: 'Segunda-feira', breakfast: '', lunch: '', snack: '' });
+  const [inventoryFormData, setInventoryFormData] = useState({ item_name: '', category: 'Perecíveis', quantity: 0, min_quantity: 10, unit: 'kg' });
 
   // Carregar Configurações
   useEffect(() => {
@@ -79,7 +83,7 @@ export function MerendaPage() {
       let query = supabase
         .from('students')
         .select('id, name, class, alergias, observations')
-        .not('alergias', 'is', null) // Traz quem tem alergia alimentada
+        .not('alergias', 'is', null)
         .not('alergias', 'eq', '')
         .order('name');
 
@@ -90,7 +94,6 @@ export function MerendaPage() {
       }
 
       const { data, error } = await query;
-
       if (error) throw error;
       setStudents(data || []);
     } catch (err) {
@@ -135,12 +138,48 @@ export function MerendaPage() {
     }
   };
 
+  const handleSaveMenu = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const payload = { ...menuFormData, school_id: userRole === 'Admin' && schoolFilter !== 'Todas' ? schoolFilter : userSchoolId };
+      const { error } = await supabase.from('merenda_menu').insert(payload);
+      if (error) throw error;
+      toast.success('Cardápio salvo com sucesso!');
+      setIsMenuModalOpen(false);
+      setMenuFormData({ day: 'Segunda-feira', breakfast: '', lunch: '', snack: '' });
+      loadMenu();
+    } catch (err: any) {
+      toast.error('Erro ao salvar cardápio.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveInventory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const payload = { ...inventoryFormData, item_name: inventoryFormData.item_name, school_id: userRole === 'Admin' && schoolFilter !== 'Todas' ? schoolFilter : userSchoolId };
+      const { error } = await supabase.from('merenda_inventory').insert(payload);
+      if (error) throw error;
+      toast.success('Item de estoque salvo!');
+      setIsInventoryModalOpen(false);
+      setInventoryFormData({ item_name: '', category: 'Perecíveis', quantity: 0, min_quantity: 10, unit: 'kg' });
+      loadInventory();
+    } catch (err: any) {
+      toast.error('Erro ao salvar item.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredStudents = students.filter(std => 
     std.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     std.class.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const lowStockCount = inventory.filter(i => i.quantity < i.minQuantity).length;
+  const lowStockCount = inventory.filter(i => i.quantity < i.min_quantity).length;
 
   return (
     <>
@@ -196,12 +235,11 @@ export function MerendaPage() {
         </div>
 
         <AnimatePresence mode="wait">
-           {/* 1. ABA CARDÁPIO */}
            {activeTab === 'menu' && (
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+             <motion.div key="menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
                 <div className="flex justify-between items-center">
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">Opções Gerais do Cardápio Semanal</h3>
-                    <button onClick={() => toast('Em breve: Customização de cardápio!')} className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold"><Plus size={14} /> Novo Cardápio</button>
+                    <button onClick={() => setIsMenuModalOpen(true)} className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold transition-all hover:bg-blue-700 shadow-lg shadow-blue-600/20"><Plus size={14} /> Novo Cardápio</button>
                 </div>
                 
                 {menu.length > 0 ? (
@@ -214,6 +252,12 @@ export function MerendaPage() {
                                          <span className="font-bold text-slate-400">Café da Manhã:</span>
                                          <p className="text-slate-700 dark:text-slate-300 font-medium mt-0.5">{m.breakfast}</p>
                                      </div>
+                                     {m.lunch && (
+                                       <div>
+                                           <span className="font-bold text-slate-400">Almoço:</span>
+                                           <p className="text-slate-700 dark:text-slate-300 font-medium mt-0.5">{m.lunch}</p>
+                                       </div>
+                                     )}
                                  </div>
                             </div>
                         ))}
@@ -224,13 +268,12 @@ export function MerendaPage() {
              </motion.div>
            )}
 
-           {/* 2. ABA RESTRICOES */}
            {activeTab === 'restrictions' && (
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+             <motion.div key="restrictions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                  <div className="flex justify-between items-center flex-wrap gap-2">
                      <div className="relative flex-1 max-w-sm">
                           <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
-                          <input type="text" placeholder="Pesquisar por aluno ou turma..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-xl bg-white dark:bg-slate-900 text-sm outline-none" />
+                          <input type="text" placeholder="Pesquisar por aluno ou turma..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-xl bg-white dark:bg-slate-900 text-sm outline-none shadow-sm transition-all focus:ring-2 focus:ring-blue-600" />
                      </div>
                  </div>
 
@@ -265,12 +308,11 @@ export function MerendaPage() {
              </motion.div>
            )}
 
-           {/* 3. ABA ESTOQUE */}
            {activeTab === 'inventory' && (
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+             <motion.div key="inventory" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                  <div className="flex justify-between items-center">
                       <h3 className="font-bold text-slate-900 dark:text-white">Almoxarifado da Cozinha</h3>
-                      <button onClick={() => toast('Em breve: Adição/Saída de estoque!')} className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-bold"><Plus size={14} /> Novo Item</button>
+                      <button onClick={() => setIsInventoryModalOpen(true)} className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-bold transition-all hover:bg-green-700 shadow-lg shadow-green-600/20"><Plus size={14} /> Novo Item</button>
                  </div>
 
                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
@@ -278,22 +320,18 @@ export function MerendaPage() {
                          <thead>
                               <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-800">
                                    <th className="px-6 py-3 font-bold text-slate-600">Item</th>
-                                   <th className="px-6 py-3 font-bold text-slate-600">Categoria</th>
                                    <th className="px-6 py-3 font-bold text-slate-600">Saldo Atual</th>
-                                   <th className="px-6 py-3 font-bold text-slate-600">Qtd Mínima</th>
                                    <th className="px-6 py-3 font-bold text-slate-600 text-center">Status</th>
                               </tr>
                          </thead>
                          <tbody className="divide-y divide-slate-100 dark:divide-slate-800/40">
                               {inventory.length > 0 ? (
                                   inventory.map((i: any) => {
-                                      const isLow = i.quantity < i.minQuantity;
+                                      const isLow = i.quantity < (i.min_quantity || 10);
                                       return (
                                           <tr key={i.id} className="hover:bg-slate-50/50">
-                                              <td className="px-6 py-3 font-bold text-slate-800 dark:text-white">{i.item}</td>
-                                              <td className="px-6 py-3 text-slate-500 text-xs">{i.category}</td>
+                                              <td className="px-6 py-3 font-bold text-slate-800 dark:text-white">{i.item_name}</td>
                                               <td className="px-6 py-3 font-black text-slate-900 dark:text-white">{i.quantity} {i.unit}</td>
-                                              <td className="px-6 py-3 text-slate-400 text-xs">{i.minQuantity} {i.unit}</td>
                                               <td className="px-6 py-3 text-center">
                                                   {isLow ? (
                                                       <span className="inline-flex px-2 py-1 rounded bg-red-100 text-red-700 text-[10px] font-black uppercase">Crítico</span>
@@ -305,7 +343,7 @@ export function MerendaPage() {
                                       )
                                   })
                               ) : (
-                                  <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400">Nenhum suprimento no estoque. Para começar, adicione um novo item.</td></tr>
+                                  <tr><td colSpan={3} className="px-6 py-8 text-center text-slate-400">Nenhum suprimento no estoque. Para começar, adicione um novo item.</td></tr>
                               )}
                          </tbody>
                      </table>
@@ -314,6 +352,89 @@ export function MerendaPage() {
            )}
         </AnimatePresence>
       </div>
+
+      {/* Modal NOVO CARDÁPIO */}
+      <AnimatePresence>
+        {isMenuModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsMenuModalOpen(false)} className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative bg-white dark:bg-slate-900 w-full max-w-md p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-between mb-4 pb-2 border-b">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Novo Cardápio</h3>
+                <button onClick={() => setIsMenuModalOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+              </div>
+              <form onSubmit={handleSaveMenu} className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-500">Dia da Semana</label>
+                  <select value={menuFormData.day} onChange={e => setMenuFormData({...menuFormData, day: e.target.value})} className="w-full mt-1 px-3 py-2 border rounded-lg bg-slate-50 dark:bg-slate-800 text-sm">
+                    {['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira'].map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-500">Café da Manhã</label>
+                  <input required value={menuFormData.breakfast} onChange={e => setMenuFormData({...menuFormData, breakfast: e.target.value})} className="w-full mt-1 px-3 py-2 border rounded-lg bg-slate-50 dark:bg-slate-800 text-sm" placeholder="Ex: Pão com manteiga e café com leite" />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-500">Almoço</label>
+                  <input required value={menuFormData.lunch} onChange={e => setMenuFormData({...menuFormData, lunch: e.target.value})} className="w-full mt-1 px-3 py-2 border rounded-lg bg-slate-50 dark:bg-slate-800 text-sm" placeholder="Ex: Arroz, feijão e carne moída" />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-500">Lanche</label>
+                  <input required value={menuFormData.snack} onChange={e => setMenuFormData({...menuFormData, snack: e.target.value})} className="w-full mt-1 px-3 py-2 border rounded-lg bg-slate-50 dark:bg-slate-800 text-sm" placeholder="Ex: Fruta ou suco natural" />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setIsMenuModalOpen(false)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm">Cancelar</button>
+                  <button disabled={loading} type="submit" className="flex items-center gap-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold shadow-lg shadow-blue-600/20 hover:bg-blue-700">
+                    <Save size={16} /> {loading ? 'Salvando...' : 'Salvar'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal NOVO ITEM ESTOQUE */}
+      <AnimatePresence>
+        {isInventoryModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsInventoryModalOpen(false)} className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative bg-white dark:bg-slate-900 w-full max-w-md p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-between mb-4 pb-2 border-b">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Entrada de Estoque</h3>
+                <button onClick={() => setIsInventoryModalOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+              </div>
+              <form onSubmit={handleSaveInventory} className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-500">Nome do Item</label>
+                  <input required value={inventoryFormData.item_name} onChange={e => setInventoryFormData({...inventoryFormData, item_name: e.target.value})} className="w-full mt-1 px-3 py-2 border rounded-lg bg-slate-50 dark:bg-slate-800 text-sm" placeholder="Ex: Arroz Tipo 1" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-bold text-slate-500">Saldo Atual</label>
+                    <input type="number" required value={inventoryFormData.quantity} onChange={e => setInventoryFormData({...inventoryFormData, quantity: parseFloat(e.target.value)})} className="w-full mt-1 px-3 py-2 border rounded-lg bg-slate-50 dark:bg-slate-800 text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-500">Unidade</label>
+                    <select value={inventoryFormData.unit} onChange={e => setInventoryFormData({...inventoryFormData, unit: e.target.value})} className="w-full mt-1 px-3 py-2 border rounded-lg bg-slate-50 dark:bg-slate-800 text-sm">
+                      <option value="kg">kg</option>
+                      <option value="litros">litros</option>
+                      <option value="unidades">unidades</option>
+                      <option value="pacotes">pacotes</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button type="button" onClick={() => setIsInventoryModalOpen(false)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm">Cancelar</button>
+                  <button disabled={loading} type="submit" className="flex items-center gap-1 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-bold shadow-lg shadow-green-600/20 hover:bg-green-700">
+                    <Save size={16} /> {loading ? 'Processando...' : 'Gravar'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

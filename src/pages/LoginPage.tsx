@@ -42,11 +42,20 @@ export function LoginPage() {
 
     try {
       if (loginType === 'admin') {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
+
+        if (data.user) {
+          const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
+          if (profile?.role === 'Jovem Aprendiz') {
+            navigate('/dashboard');
+            return;
+          }
+        }
+        
         navigate('/dashboard');
       } else {
         // Aluno Portal Verification
@@ -127,7 +136,7 @@ export function LoginPage() {
                      <div className="space-y-1">
                        <div className="flex justify-between">
                          <label className="text-xs font-bold text-slate-500">SENHA</label>
-                         <button type="button" onClick={notifyWIP} className="text-xs text-blue-600 hover:underline">Esqueceu?</button>
+                          <button type="button" onClick={() => toast.error('A recuperação de senha deve ser solicitada formalmente ao Administrador da sua Unidade Escolar.', { duration: 5000 })} className="text-xs text-blue-600 hover:underline">Esqueceu?</button>
                        </div>
                        <div className="relative">
                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
@@ -164,9 +173,9 @@ export function LoginPage() {
 
           <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t text-center text-xs text-slate-500">
             {loginType === 'admin' ? (
-                <span>Dúvidas? <a href="#" className="font-bold text-blue-600">Suporte</a></span>
+                 <span>Dúvidas? <a href="mailto:admin@pmj.gov.br" className="font-bold text-blue-600">Suporte Central</a></span>
              ) : (
-                <span>Não consegue logar? <a href="#" className="font-bold text-blue-600">Fale com a Secretaria</a></span>
+                <span>Não consegue logar? <a href="mailto:secretaria@pmj.gov.br" className="font-bold text-blue-600">Suporte ao Aluno</a></span>
              )}
           </div>
         </div>

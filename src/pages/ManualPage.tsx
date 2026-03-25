@@ -6,7 +6,7 @@ export function ManualPage() {
   
   // Set explicit document title for better PDF naming
   useEffect(() => {
-    document.title = "Manual do Usuario - Sistema Escolar";
+    document.title = "Manual do Usuário - Sistema Escolar";
   }, []);
 
   return (
@@ -141,8 +141,8 @@ export function ManualPage() {
               <h2 className="text-xl font-black text-slate-900 dark:text-white m-0">Recursos Humanos e Ajustes (Avançado)</h2>
             </div>
             <ul className="list-disc pl-5 mt-3 space-y-2">
-              <li><strong>RH:</strong> Aqui ficam o controle de dados todos os professores, serviços gerias, secretários, entre outros. Use para cadastrar quem vai ganhar acesso ao sistema ou quem precisa ser desligado do quadro de efetivos.</li>
-              <li><strong>Configurações:</strong> Módulo exclusivo para Administradores, que permite formatar os dados e endereços Base da Instituição, mudar logo da prefeitura/escola e criar os Logins protegidos para acesso ao sistema.</li>
+              <li><strong>RH:</strong> Aqui ficam o controle de dados de todos os professores, serviços gerais, secretários, entre outros. Use para cadastrar quem vai ganhar acesso ao sistema ou quem precisa ser desligado do quadro de efetivos.</li>
+              <li><strong>Configurações:</strong> Módulo exclusivo para Administradores, que permite formatar os dados e endereços base da Instituição, mudar o logo da prefeitura/escola e criar os logins protegidos para acesso ao sistema.</li>
             </ul>
           </section>
 

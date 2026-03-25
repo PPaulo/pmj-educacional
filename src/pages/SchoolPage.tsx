@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Header } from '../components/Header';
 import { Plus, Search, Edit2, Trash2, Filter, ClipboardList } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { GradesModal } from '../components/GradesModal';
 import { supabase } from '../lib/supabase';
 import { AcademicClass, Employee } from '../types';
@@ -189,11 +190,12 @@ export function SchoolPage() {
 
   return (
     <>
-      <Header title="Gestão Escolar" />
+      <Header title="Turmas" />
       <div className="flex-1 p-4 md:p-8 overflow-y-auto">
+        <Breadcrumbs />
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div className="space-y-1">
-            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Escola</h1>
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Gestão de Turmas</h1>
             <p className="text-slate-500 text-sm">Gerencie turmas, salas e alocações de professores.</p>
           </div>
           <button 

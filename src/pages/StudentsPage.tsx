@@ -13,7 +13,8 @@ import {
   ChevronRight,
   GraduationCap,
   Printer,
-  ClipboardList
+  ClipboardList,
+  FileText
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { snakeToCamel, camelToSnake } from '../lib/utils';
@@ -26,9 +27,15 @@ import { ConfirmationModal } from '../components/ConfirmationModal';
 import { StudentModal } from '../components/StudentModal';
 import { SchoolHistoryModal } from '../components/SchoolHistoryModal';
 import { Student } from '../types';
-import { generateStudentRegistrationPDF } from '../lib/pdf';
+import { 
+  generateStudentRegistrationPDF, 
+  generateStudentLinkageStatementPDF,
+  generateBolsaFamiliaAttendancePDF,
+  generateTotalStudentsPDF
+} from '../lib/pdf';
 
 import { useNavigate } from 'react-router-dom';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 
 export function StudentsPage() {
   const navigate = useNavigate();
@@ -80,7 +87,7 @@ export function StudentsPage() {
     loadConfig();
   }, []);
 
-  // Load students from database with Server-side Pagination & Filtering
+  // Load students from database with Server-side Pagination e Filtering
   useEffect(() => {
     const loadStudents = async () => {
       try {
@@ -269,6 +276,7 @@ export function StudentsPage() {
     <>
       <Header title="Gestão de Alunos" />
       <div className="flex-1 overflow-y-auto p-4 md:p-8">
+        <Breadcrumbs />
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 md:mb-8">
           <div className="space-y-1">
             <h3 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Alunos</h3>
@@ -304,9 +312,9 @@ export function StudentsPage() {
               </select>
               <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
             </div>
-            <button onClick={notifyWIP} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors dark:text-white">
+            <button onClick={() => generateTotalStudentsPDF(snakeToCamel(students), schoolsList.find(s => s.id === schoolFilter))} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors dark:text-white">
               <Download size={16} />
-              Exportar
+              Exportar Resumo
             </button>
             <button 
               onClick={handleAddClick}
@@ -384,13 +392,26 @@ export function StudentsPage() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
-                          <button 
-                            onClick={() => generateStudentRegistrationPDF(student)}
-                            className="p-1 text-slate-400 hover:text-emerald-600 transition-colors"
-                            title="Imprimir Ficha"
-                          >
-                            <Printer size={16} />
-                          </button>
+                          <div className="relative group/menu">
+                              <button className="p-1 text-slate-400 hover:text-blue-600 transition-colors">
+                                  <Printer size={16} />
+                              </button>
+                              <div className="absolute right-0 bottom-full mb-2 hidden group-hover/menu:block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 p-1 w-48 animate-in fade-in slide-in-from-bottom-2">
+                                  <button onClick={() => generateStudentRegistrationPDF(student, schoolsList.find(s => s.id === student.schoolId))} className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                                      <FileText size={14} className="text-blue-500" /> Ficha de Matrícula
+                                  </button>
+                                  <button onClick={() => generateStudentLinkageStatementPDF(student, schoolsList.find(s => s.id === student.schoolId))} className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                                      <ClipboardList size={14} className="text-emerald-500" /> Declaração de Vínculo
+                                  </button>
+                                  <button onClick={async () => {
+                                      const { data: att } = await supabase.from('attendance').select('*').eq('student_id', student.id);
+                                      generateBolsaFamiliaAttendancePDF(student, att || [], schoolsList.find(s => s.id === student.schoolId));
+                                  }} className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                                      <Users size={14} className="text-amber-500" /> Bolsa Família (Freq.)
+                                  </button>
+                              </div>
+                          </div>
+                          
                           <button 
                             onClick={() => handleHistoryClick(student)}
                             className="p-1 text-slate-400 hover:text-purple-600 transition-colors"
