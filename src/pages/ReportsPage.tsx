@@ -137,7 +137,7 @@ export function ReportsPage() {
         generateStudentRegistrationPDF(selectedStudent, school);
         toast.success('Ficha Individual gerada com sucesso!');
       } else if (selectedReport.id === 'total_students') {
-        generateTotalStudentsPDF(students, school);
+        generateTotalStudentsPDF(students, classes, school);
         toast.success(`Relatório: Total de Alunos (${students.length}) gerado com sucesso!`);
       } else if (selectedReport.id === 'class_list') {
         const classStudents = students.filter(s => s.class === selectedClass.name);

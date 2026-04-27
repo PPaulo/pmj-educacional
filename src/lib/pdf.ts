@@ -272,7 +272,7 @@ export const generateClassListPDF = async (className: string, students: any[], s
   doc.save(`Lista_Alunos_${className.replace(/\s+/g, '_')}.pdf`);
 };
 
-export const generateTotalStudentsPDF = async (students: any[], school: any) => {
+export const generateTotalStudentsPDF = async (students: any[], classes: any[], school: any) => {
   const doc = new jsPDF() as any;
   const pgWidth = doc.internal.pageSize.width;
 
@@ -294,19 +294,35 @@ export const generateTotalStudentsPDF = async (students: any[], school: any) => 
   doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
   doc.text('RESUMO GERAL DE MATRÍCULAS', pgWidth / 2, 42, { align: 'center' });
 
+  // Summary Boxes
+  const totalStudents = students.length;
+  const totalClasses = classes.length;
+
+  doc.setFillColor(241, 245, 249);
+  doc.roundedRect(14, 48, (pgWidth - 32) / 2, 20, 2, 2, 'F');
+  doc.roundedRect(pgWidth / 2 + 2, 48, (pgWidth - 32) / 2, 20, 2, 2, 'F');
+
+  doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(71, 85, 105);
+  doc.text('TOTAL DE TURMAS', 14 + (pgWidth - 32) / 4, 56, { align: 'center' });
+  doc.text('TOTAL DE ALUNOS', pgWidth / 2 + 2 + (pgWidth - 32) / 4, 56, { align: 'center' });
+
+  doc.setFontSize(14); doc.setFont('helvetica', 'bold'); doc.setTextColor(37, 99, 235);
+  doc.text(totalClasses.toString(), 14 + (pgWidth - 32) / 4, 63, { align: 'center' });
+  doc.text(totalStudents.toString(), pgWidth / 2 + 2 + (pgWidth - 32) / 4, 63, { align: 'center' });
+
   const groups: { [key: string]: number } = {};
   students.forEach(s => { const key = s.class || 'Sem Turma'; groups[key] = (groups[key] || 0) + 1; });
 
   const bodyData = Object.entries(groups).map(([cls, count]) => [cls, count]);
-  const total = students.length;
-  bodyData.push([{ content: 'TOTAL GERAL', styles: { fontStyle: 'bold', fillColor: [241, 245, 249] } }, { content: total, styles: { fontStyle: 'bold', fillColor: [241, 245, 249] } }] as any);
-
+  
   autoTable(doc, {
-    startY: 50,
+    startY: 75,
     head: [['Turma', 'Quantidade de Alunos']],
     body: bodyData,
     styles: { fontSize: 9, cellPadding: 2 },
-    headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontStyle: 'bold' }
+    headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontStyle: 'bold' },
+    foot: [['TOTAL GERAL', totalStudents]],
+    footStyles: { fillColor: [241, 245, 249], textColor: [15, 23, 42], fontStyle: 'bold' }
   });
 
   doc.save(`Resumo_Geral_Alunos.pdf`);
