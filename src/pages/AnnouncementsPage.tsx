@@ -29,8 +29,7 @@ export function AnnouncementsPage() {
   const [schoolsList, setSchoolsList] = useState<any[]>([]);
 
   // Admin Controls
-  const [userRole, setUserRole] = useState('Secretaria');
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userSchoolId, setUserSchoolId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadConfig = async () => {
@@ -40,6 +39,7 @@ export function AnnouncementsPage() {
          const { data: profile } = await supabase.from('profiles').select('role, school_id').eq('id', user.id).single();
          if (profile) {
              setUserRole(profile.role);
+             setUserSchoolId(profile.school_id);
              if (profile.role === 'Admin') {
                  const { data } = await supabase.from('school_info').select('id, name');
                  setSchoolsList(data || []);
@@ -52,13 +52,17 @@ export function AnnouncementsPage() {
 
   useEffect(() => {
     loadAnnouncements();
-  }, [userRole]);
+  }, [userRole, userSchoolId]);
 
   const loadAnnouncements = async () => {
     setLoading(true);
     try {
       let query = supabase.from('announcements').select('*, school_info(name)').order('created_at', { ascending: false });
       
+      if (userRole !== 'Admin' && userSchoolId) {
+          query = query.or(`school_id.eq.${userSchoolId},school_id.is.null`);
+      }
+
       const { data, error } = await query;
       if (error) throw error;
       setAnnouncements(data || []);
@@ -76,11 +80,13 @@ export function AnnouncementsPage() {
 
     setLoading(true);
     try {
+      const finalSchoolId = userRole === 'Admin' ? (schoolId === '' ? null : schoolId) : userSchoolId;
+
       const { error } = await supabase.from('announcements').insert([{
         title,
         content,
         target_role: targetRole,
-        school_id: schoolId === '' ? null : schoolId,
+        school_id: finalSchoolId,
         author_id: userId
       }]);
 

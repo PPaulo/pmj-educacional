@@ -49,7 +49,18 @@ export function PreRegistrationsPage() {
   const loadRegistrations = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('pre_registrations').select('*').order('created_at', { ascending: false });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase.from('profiles').select('role, school_id').eq('id', user.id).single();
+      
+      let query = supabase.from('pre_registrations').select('*').order('created_at', { ascending: false });
+      
+      if (profile && profile.role !== 'Admin' && profile.school_id) {
+          query = query.eq('school_id', profile.school_id);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       setRegistrations(snakeToCamel(data || []));
     } catch (err) {

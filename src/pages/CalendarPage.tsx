@@ -32,9 +32,28 @@ export function CalendarPage() {
     time: ''
   });
 
+  const [userRole, setUserRole] = useState('Secretaria');
+  const [userSchoolId, setUserSchoolId] = useState<string | null>(null);
+
   const loadEvents = async () => {
     try {
-      const { data } = await supabase.from('events').select('*');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase.from('profiles').select('role, school_id').eq('id', user.id).single();
+      
+      let query = supabase.from('events').select('*');
+      
+      if (profile) {
+          setUserRole(profile.role);
+          setUserSchoolId(profile.school_id);
+          
+          if (profile.role !== 'Admin' && profile.school_id) {
+              query = query.eq('school_id', profile.school_id);
+          }
+      }
+
+      const { data } = await query;
       setEvents(data || []);
     } catch (err) {
       console.error(err);
@@ -83,7 +102,12 @@ export function CalendarPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.from('events').insert(formData);
+      const eventData = {
+          ...formData,
+          school_id: userSchoolId
+      };
+
+      const { error } = await supabase.from('events').insert(eventData);
       if (error) throw error;
       toast.success('Evento criado com sucesso!');
       setIsModalOpen(false);

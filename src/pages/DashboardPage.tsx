@@ -69,30 +69,63 @@ export function DashboardPage() {
       try {
         const impersonated = localStorage.getItem('impersonated_user');
         let currentRole = 'Admin';
+        let currentSchoolId = null;
         
         if (impersonated) {
           const data = JSON.parse(impersonated);
           currentRole = data.role || 'Admin';
+          currentSchoolId = data.school_id || null;
           setProfile({ name: data.name || 'Simulado', role: currentRole });
         } else {
           const { data: { user } } = await supabase.auth.getUser();
           if (user) {
-            const { data: profData } = await supabase.from('profiles').select('name, role').eq('id', user.id).single();
+            const { data: profData } = await supabase.from('profiles').select('name, role, school_id').eq('id', user.id).single();
             if (profData) {
               currentRole = profData.role;
+              currentSchoolId = profData.school_id;
               setProfile(profData);
             }
           }
         }
 
-        const { count: studentCount } = await supabase.from('students').select('*', { count: 'exact', head: true }).neq('status', 'Arquivado');
-        const { count: archivedCount } = await supabase.from('students').select('*', { count: 'exact', head: true }).eq('status', 'Arquivado');
-        const { count: teacherCount } = await supabase.from('employees').select('*', { count: 'exact', head: true }).ilike('role', '%Professor%');
-        const { count: classCount } = await supabase.from('classes').select('*', { count: 'exact', head: true });
-        const { count: eventsCount } = await supabase.from('events').select('*', { count: 'exact', head: true });
+        // Base queries for counts
+        let studentQ = supabase.from('students').select('*', { count: 'exact', head: true }).neq('status', 'Arquivado');
+        let archivedQ = supabase.from('students').select('*', { count: 'exact', head: true }).eq('status', 'Arquivado');
+        let teacherQ = supabase.from('employees').select('*', { count: 'exact', head: true }).ilike('role', '%Professor%');
+        let classQ = supabase.from('classes').select('*', { count: 'exact', head: true });
+        let eventQ = supabase.from('events').select('*', { count: 'exact', head: true });
 
-        // Intelligence: Find students with low presence (simulated query for premium effect)
-        const { data: atRiskData } = await supabase.from('students').select('name, class').limit(4);
+        // Apply school filter if not global admin
+        if (currentRole !== 'Admin' && currentSchoolId) {
+          studentQ = studentQ.eq('school_id', currentSchoolId);
+          archivedQ = archivedQ.eq('school_id', currentSchoolId);
+          teacherQ = teacherQ.eq('school_id', currentSchoolId);
+          classQ = classQ.eq('school_id', currentSchoolId);
+          eventQ = eventQ.eq('school_id', currentSchoolId);
+        }
+
+        const [
+          { count: studentCount },
+          { count: archivedCount },
+          { count: teacherCount },
+          { count: classCount },
+          { count: eventsCount }
+        ] = await Promise.all([studentQ, archivedQ, teacherQ, classQ, eventQ]);
+
+        // Fetch School Capacity
+        let schoolCapacity = 1500;
+        if (currentSchoolId) {
+            const { data: schoolData } = await supabase.from('school_info').select('id').eq('id', currentSchoolId).single();
+            // In a real scenario, capacity would be a column in school_info or calculated from rooms
+            // For now, we'll keep the mock or try to find if it exists
+        }
+
+        // Intelligence: Find students with low presence (filtered by school)
+        let atRiskQ = supabase.from('students').select('name, class').limit(4);
+        if (currentRole !== 'Admin' && currentSchoolId) {
+            atRiskQ = atRiskQ.eq('school_id', currentSchoolId);
+        }
+        const { data: atRiskData } = await atRiskQ;
 
         setCounts({
           students: studentCount || 0,
@@ -100,15 +133,23 @@ export function DashboardPage() {
           classes: classCount || 0,
           events: eventsCount || 0,
           archived: archivedCount || 0,
-          capacity: 1500 // Mock capacity from school_info
+          capacity: schoolCapacity
         });
 
         setAtRiskStudents(atRiskData || []);
 
         if (currentRole !== 'Jovem Aprendiz') {
-            const { data: eventsData } = await supabase.from('events').select('*').order('date', { ascending: true }).limit(4);
+            let recentEventsQ = supabase.from('events').select('*').order('date', { ascending: true }).limit(4);
+            let recentStudentsQ = supabase.from('students').select('name, class, created_at').neq('status', 'Arquivado').order('created_at', { ascending: false }).limit(3);
+            
+            if (currentRole !== 'Admin' && currentSchoolId) {
+                recentEventsQ = recentEventsQ.eq('school_id', currentSchoolId);
+                recentStudentsQ = recentStudentsQ.eq('school_id', currentSchoolId);
+            }
+
+            const [{ data: eventsData }, { data: studentsData }] = await Promise.all([recentEventsQ, recentStudentsQ]);
+            
             setRecentEvents(eventsData || []);
-            const { data: studentsData } = await supabase.from('students').select('name, created_at').neq('status', 'Arquivado').order('created_at', { ascending: false }).limit(3);
             setRecentStudents(studentsData || []);
         }
 

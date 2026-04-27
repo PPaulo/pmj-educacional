@@ -193,7 +193,7 @@ export function Header({ title }: HeaderProps) {
                         initial={{ opacity: 0, y: 10, scale: 0.95 }} 
                         animate={{ opacity: 1, y: 0, scale: 1 }} 
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 mt-3 w-64 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-2xl z-[100] overflow-hidden p-3 origin-top-right border-b-4 border-b-blue-600"
+                        className="fixed sm:absolute top-20 sm:top-auto right-4 sm:right-0 left-4 sm:left-auto mt-3 w-auto sm:w-64 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-2xl z-[100] overflow-hidden p-3 origin-top-right border-b-4 border-b-blue-600"
                       >
                            <div className="px-4 py-2 mb-2 border-b border-slate-50 dark:border-slate-800/60">
                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tarefas Frequentes</p>
@@ -256,7 +256,7 @@ export function Header({ title }: HeaderProps) {
                              className="fixed inset-0 z-[90]" 
                              onClick={() => setIsNotificationsOpen(false)}
                         />
-                        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                        <div className="fixed sm:absolute top-20 sm:top-auto right-4 sm:right-0 left-4 sm:left-auto mt-2 w-auto sm:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
                              <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
                                   <h3 className="font-bold text-slate-900 dark:text-white text-sm">Notificações</h3>
                                   {unreadCount > 0 && <span className="text-[10px] px-2 py-0.5 bg-red-100 text-red-600 rounded-full font-black">{unreadCount} Alertas</span>}

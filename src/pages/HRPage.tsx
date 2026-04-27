@@ -175,6 +175,11 @@ export function HRPage() {
     try {
       const mappedData = camelToSnake(employeeData);
       
+      // Ensure empty dates or strings are sent as null to Supabase
+      Object.keys(mappedData).forEach(key => {
+          if (mappedData[key] === '') mappedData[key] = null;
+      });
+      
       if (employeeData.id) {
         // Edit 
         const { error } = await supabase
