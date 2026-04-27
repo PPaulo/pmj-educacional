@@ -50,6 +50,7 @@ export function PreRegistrationForm() {
   const [responsavelName, setResponsavelName] = useState('');
   const [responsavelPhone, setResponsavelPhone] = useState('');
   const [classInterest, setClassInterest] = useState('');
+  const [levelOfInterest, setLevelOfInterest] = useState('Ensino Fundamental I');
   const [schoolInterest, setSchoolInterest] = useState('');
 
   // States de Consulta
@@ -180,58 +181,82 @@ export function PreRegistrationForm() {
                                </div>
                           </div>
                           <div className="grid grid-cols-2 gap-3">
-                               <div>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1">Série Desejada *</label>
-                                    <select value={classInterest} onChange={e => setClassInterest(e.target.value)} className="w-full px-3 py-2.5 border rounded-xl text-sm font-medium bg-white dark:bg-slate-800" required>
-                                         <option value="">Selecione...</option>
-                                          <optgroup label="Educação Infantil (Agrupamentos)">
-                                               <option value="Agrupamento 1 (Bercário I)">Agrupamento 1 (Bercário I)</option>
-                                               <option value="Agrupamento 2 (Bercário II)">Agrupamento 2 (Bercário II)</option>
-                                               <option value="Agrupamento 3 (Maternal I)">Agrupamento 3 (Maternal I)</option>
-                                               <option value="Agrupamento 4 (Pré-Escola I)">Agrupamento 4 (Pré-Escola I)</option>
-                                               <option value="Agrupamento 5 (Pré-Escola II)">Agrupamento 5 (Pré-Escola II)</option>
-                                          </optgroup>
-                                          <optgroup label="Ensino Fundamental - Anos Iniciais">
-                                               <option value="1º Ano">1º Ano</option>
-                                               <option value="2º Ano">2º Ano</option>
-                                               <option value="3º Ano">3º Ano</option>
-                                               <option value="4º Ano">4º Ano</option>
-                                               <option value="5º Ano">5º Ano</option>
-                                          </optgroup>
-                                          <optgroup label="Ensino Fundamental - Anos Finais">
-                                               <option value="6º Ano">6º Ano</option>
-                                               <option value="7º Ano">7º Ano</option>
-                                               <option value="8º Ano">8º Ano</option>
-                                               <option value="9º Ano">9º Ano</option>
-                                          </optgroup>
-                                          <optgroup label="Ensino Médio">
-                                               <option value="1ª Série">1ª Série</option>
-                                               <option value="2ª Série">2ª Série</option>
-                                               <option value="3ª Série">3ª Série</option>
-                                          </optgroup>
-                                          <optgroup label="EJA - Fundamental (Etapas)">
-                                               <option value="EJA - Etapa I (1º Ano)">EJA - Etapa I (1º Ano)</option>
-                                               <option value="EJA - Etapa II (2º/3º Ano)">EJA - Etapa II (2º/3º Ano)</option>
-                                               <option value="EJA - Etapa III (4º/5º Ano)">EJA - Etapa III (4º/5º Ano)</option>
-                                               <option value="EJA - Etapa IV (6º Ano)">EJA - Etapa IV (6º Ano)</option>
-                                               <option value="EJA - Etapa V (7º Ano)">EJA - Etapa V (7º Ano)</option>
-                                               <option value="EJA - Etapa VI (8º Ano)">EJA - Etapa VI (8º Ano)</option>
-                                               <option value="EJA - Etapa VII (9º Ano)">EJA - Etapa VII (9º Ano)</option>
-                                          </optgroup>
-                                          <optgroup label="EJA - Médio">
-                                               <option value="EJA - Ensino Médio - 1ª Etapa">EJA - Ensino Médio - 1ª Etapa</option>
-                                               <option value="EJA - Ensino Médio - 2ª Etapa">EJA - Ensino Médio - 2ª Etapa</option>
-                                               <option value="EJA - Ensino Médio - 3ª Etapa">EJA - Ensino Médio - 3ª Etapa</option>
-                                          </optgroup>
+                                <div>
+                                     <label className="block text-xs font-bold text-slate-500 mb-1">Nível de Ensino *</label>
+                                     <select value={levelOfInterest} onChange={e => { setLevelOfInterest(e.target.value); setClassInterest(''); }} className="w-full px-3 py-2.5 border rounded-xl text-sm font-medium bg-white dark:bg-slate-800" required>
+                                          <option value="Educação Infantil">Educação Infantil</option>
+                                          <option value="Ensino Fundamental I">Ensino Fundamental I</option>
+                                          <option value="Ensino Fundamental II">Ensino Fundamental II</option>
+                                          <option value="Ensino Médio">Ensino Médio</option>
+                                          <option value="EJA">EJA</option>
                                      </select>
-                               </div>
-                               <div>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1">Escola</label>
-                                    <select value={schoolInterest} onChange={e => setSchoolInterest(e.target.value)} className="w-full px-3 py-2.5 border rounded-xl text-sm font-medium bg-white dark:bg-slate-800">
-                                         <option value="">Indiferente...</option>
-                                         {schoolsList.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                                    </select>
-                               </div>
+                                </div>
+                                <div>
+                                     <label className="block text-xs font-bold text-slate-500 mb-1">Série Desejada *</label>
+                                     <select value={classInterest} onChange={e => setClassInterest(e.target.value)} className="w-full px-3 py-2.5 border rounded-xl text-sm font-medium bg-white dark:bg-slate-800" required>
+                                          <option value="">Selecione...</option>
+                                          {(levelOfInterest === 'Educação Infantil') && (
+                                               <optgroup label="Educação Infantil (Agrupamentos)">
+                                                    <option value="Agrupamento 1 (Bercário I)">Agrupamento 1 (Bercário I)</option>
+                                                    <option value="Agrupamento 2 (Bercário II)">Agrupamento 2 (Bercário II)</option>
+                                                    <option value="Agrupamento 3 (Maternal I)">Agrupamento 3 (Maternal I)</option>
+                                                    <option value="Agrupamento 4 (Pré-Escola I)">Agrupamento 4 (Pré-Escola I)</option>
+                                                    <option value="Agrupamento 5 (Pré-Escola II)">Agrupamento 5 (Pré-Escola II)</option>
+                                               </optgroup>
+                                          )}
+                                          {(levelOfInterest === 'Ensino Fundamental I') && (
+                                               <optgroup label="Ensino Fundamental - Anos Iniciais">
+                                                    <option value="1º Ano">1º Ano</option>
+                                                    <option value="2º Ano">2º Ano</option>
+                                                    <option value="3º Ano">3º Ano</option>
+                                                    <option value="4º Ano">4º Ano</option>
+                                                    <option value="5º Ano">5º Ano</option>
+                                               </optgroup>
+                                          )}
+                                          {(levelOfInterest === 'Ensino Fundamental II') && (
+                                               <optgroup label="Ensino Fundamental - Anos Finais">
+                                                    <option value="6º Ano">6º Ano</option>
+                                                    <option value="7º Ano">7º Ano</option>
+                                                    <option value="8º Ano">8º Ano</option>
+                                                    <option value="9º Ano">9º Ano</option>
+                                               </optgroup>
+                                          )}
+                                          {(levelOfInterest === 'Ensino Médio') && (
+                                               <optgroup label="Ensino Médio">
+                                                    <option value="1ª Série">1ª Série</option>
+                                                    <option value="2ª Série">2ª Série</option>
+                                                    <option value="3ª Série">3ª Série</option>
+                                               </optgroup>
+                                          )}
+                                          {(levelOfInterest === 'EJA') && (
+                                               <>
+                                                    <optgroup label="EJA - Fundamental (Etapas)">
+                                                         <option value="EJA - Etapa I (1º Ano)">EJA - Etapa I (1º Ano)</option>
+                                                         <option value="EJA - Etapa II (2º/3º Ano)">EJA - Etapa II (2º/3º Ano)</option>
+                                                         <option value="EJA - Etapa III (4º/5º Ano)">EJA - Etapa III (4º/5º Ano)</option>
+                                                         <option value="EJA - Etapa IV (6º Ano)">EJA - Etapa IV (6º Ano)</option>
+                                                         <option value="EJA - Etapa V (7º Ano)">EJA - Etapa V (7º Ano)</option>
+                                                         <option value="EJA - Etapa VI (8º Ano)">EJA - Etapa VI (8º Ano)</option>
+                                                         <option value="EJA - Etapa VII (9º Ano)">EJA - Etapa VII (9º Ano)</option>
+                                                    </optgroup>
+                                                    <optgroup label="EJA - Médio">
+                                                         <option value="EJA - Ensino Médio - 1ª Etapa">EJA - Ensino Médio - 1ª Etapa</option>
+                                                         <option value="EJA - Ensino Médio - 2ª Etapa">EJA - Ensino Médio - 2ª Etapa</option>
+                                                         <option value="EJA - Ensino Médio - 3ª Etapa">EJA - Ensino Médio - 3ª Etapa</option>
+                                                    </optgroup>
+                                               </>
+                                          )}
+                                     </select>
+                                </div>
+                          </div>
+                          <div className="grid grid-cols-1">
+                                <div>
+                                     <label className="block text-xs font-bold text-slate-500 mb-1">Escola de Interesse (Opcional)</label>
+                                     <select value={schoolInterest} onChange={e => setSchoolInterest(e.target.value)} className="w-full px-3 py-2.5 border rounded-xl text-sm font-medium bg-white dark:bg-slate-800">
+                                          <option value="">Indiferente (Qualquer Escola)</option>
+                                          {schoolsList.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                     </select>
+                                </div>
                           </div>
                      </div>
                      <div className="space-y-4 pt-2 border-t">
