@@ -348,31 +348,44 @@ export function SchoolPage() {
                       <label className="text-sm font-medium">Série / Etapa</label>
                       <select value={formData.grade} onChange={e => setFormData({...formData, grade: e.target.value})} className="w-full mt-1 px-3 py-2 border rounded-lg bg-slate-50 dark:bg-slate-800 text-sm" required>
                         <option value="">Selecione...</option>
-                        <optgroup label="Educação Infantil">
-                          <option value="Berçário I">Berçário I</option>
-                          <option value="Berçário II">Berçário II</option>
-                          <option value="Maternal I">Maternal I</option>
-                          <option value="Maternal II">Maternal II</option>
-                          <option value="Pré I">Pré I</option>
-                          <option value="Pré II">Pré II</option>
+                        <optgroup label="Educação Infantil (Agrupamentos)">
+                          <option value="Agrupamento 1 (Bercário I)">Agrupamento 1 (Bercário I)</option>
+                          <option value="Agrupamento 2 (Bercário II)">Agrupamento 2 (Bercário II)</option>
+                          <option value="Agrupamento 3 (Maternal I)">Agrupamento 3 (Maternal I)</option>
+                          <option value="Agrupamento 4 (Pré-Escola I)">Agrupamento 4 (Pré-Escola I)</option>
+                          <option value="Agrupamento 5 (Pré-Escola II)">Agrupamento 5 (Pré-Escola II)</option>
                         </optgroup>
-                        <optgroup label="Ensino Fundamental I">
+                        <optgroup label="Ensino Fundamental - Anos Iniciais">
                           <option value="1º Ano">1º Ano</option>
                           <option value="2º Ano">2º Ano</option>
                           <option value="3º Ano">3º Ano</option>
                           <option value="4º Ano">4º Ano</option>
                           <option value="5º Ano">5º Ano</option>
                         </optgroup>
-                        <optgroup label="Ensino Fundamental II">
+                        <optgroup label="Ensino Fundamental - Anos Finais">
                           <option value="6º Ano">6º Ano</option>
                           <option value="7º Ano">7º Ano</option>
                           <option value="8º Ano">8º Ano</option>
                           <option value="9º Ano">9º Ano</option>
                         </optgroup>
                         <optgroup label="Ensino Médio">
-                          <option value="1º Ano (Médio)">1º Ano (Médio)</option>
-                          <option value="2º Ano (Médio)">2º Ano (Médio)</option>
-                          <option value="3º Ano (Médio)">3º Ano (Médio)</option>
+                          <option value="1ª Série">1ª Série</option>
+                          <option value="2ª Série">2ª Série</option>
+                          <option value="3ª Série">3ª Série</option>
+                        </optgroup>
+                        <optgroup label="EJA - Fundamental (Etapas)">
+                          <option value="EJA - Etapa I (1º Ano)">EJA - Etapa I (1º Ano)</option>
+                          <option value="EJA - Etapa II (2º/3º Ano)">EJA - Etapa II (2º/3º Ano)</option>
+                          <option value="EJA - Etapa III (4º/5º Ano)">EJA - Etapa III (4º/5º Ano)</option>
+                          <option value="EJA - Etapa IV (6º Ano)">EJA - Etapa IV (6º Ano)</option>
+                          <option value="EJA - Etapa V (7º Ano)">EJA - Etapa V (7º Ano)</option>
+                          <option value="EJA - Etapa VI (8º Ano)">EJA - Etapa VI (8º Ano)</option>
+                          <option value="EJA - Etapa VII (9º Ano)">EJA - Etapa VII (9º Ano)</option>
+                        </optgroup>
+                        <optgroup label="EJA - Médio">
+                          <option value="EJA - Ensino Médio - 1ª Etapa">EJA - Ensino Médio - 1ª Etapa</option>
+                          <option value="EJA - Ensino Médio - 2ª Etapa">EJA - Ensino Médio - 2ª Etapa</option>
+                          <option value="EJA - Ensino Médio - 3ª Etapa">EJA - Ensino Médio - 3ª Etapa</option>
                         </optgroup>
                       </select>
                     </div>
