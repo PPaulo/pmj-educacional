@@ -39,19 +39,20 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
 
-const attendanceData = [
-  { name: 'Seg', value: 92 },
-  { name: 'Ter', value: 88 },
-  { name: 'Qua', value: 95 },
-  { name: 'Qui', value: 91 },
-  { name: 'Sex', value: 84 },
+// Mock data will be replaced by state-based data
+const defaultAttendanceData = [
+  { name: 'Seg', value: 0 },
+  { name: 'Ter', value: 0 },
+  { name: 'Qua', value: 0 },
+  { name: 'Qui', value: 0 },
+  { name: 'Sex', value: 0 },
 ];
 
-const performanceData = [
-  { range: '0-5', total: 45, color: '#f43f5e' },
-  { range: '5-7', total: 120, color: '#f59e0b' },
-  { range: '7-9', total: 350, color: '#3b82f6' },
-  { range: '9-10', total: 180, color: '#10b981' },
+const defaultPerformanceData = [
+  { range: '0-5', total: 0, color: '#f43f5e' },
+  { range: '5-7', total: 0, color: '#f59e0b' },
+  { range: '7-9', total: 0, color: '#3b82f6' },
+  { range: '9-10', total: 0, color: '#10b981' },
 ];
 
 export function DashboardPage() {
@@ -61,6 +62,8 @@ export function DashboardPage() {
   const [recentEvents, setRecentEvents] = useState<any[]>([]);
   const [recentStudents, setRecentStudents] = useState<any[]>([]);
   const [atRiskStudents, setAtRiskStudents] = useState<any[]>([]);
+  const [attendanceChartData, setAttendanceChartData] = useState(defaultAttendanceData);
+  const [performanceChartData, setPerformanceChartData] = useState(defaultPerformanceData);
   const [profile, setProfile] = useState<{ name: string; role: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -153,6 +156,26 @@ export function DashboardPage() {
             setRecentStudents(studentsData || []);
         }
 
+        // Only set demo data if we have students, otherwise keep zeros
+        if ((studentCount || 0) > 0) {
+            setAttendanceChartData([
+                { name: 'Seg', value: 92 },
+                { name: 'Ter', value: 88 },
+                { name: 'Qua', value: 95 },
+                { name: 'Qui', value: 91 },
+                { name: 'Sex', value: 84 },
+            ]);
+            setPerformanceChartData([
+                { range: '0-5', total: Math.round((studentCount || 0) * 0.05) },
+                { range: '5-7', total: Math.round((studentCount || 0) * 0.15) },
+                { range: '7-9', total: Math.round((studentCount || 0) * 0.5) },
+                { range: '9-10', total: Math.round((studentCount || 0) * 0.3) },
+            ]);
+        } else {
+            setAttendanceChartData(defaultAttendanceData);
+            setPerformanceChartData(defaultPerformanceData);
+        }
+
       } catch (err) {
         console.error('Dashboard Error:', err);
       } finally {
@@ -179,7 +202,7 @@ export function DashboardPage() {
     { label: 'Total de Alunos', value: counts.students, trend: 'Ativos', icon: Users, color: 'blue', path: '/alunos' },
     { label: 'Professores', value: counts.teachers, trend: 'Em sala', icon: GraduationCap, color: 'purple', path: '/rh' },
     { label: 'Turmas', value: counts.classes, trend: 'Horário Letivo', icon: CalendarIcon, color: 'amber', path: '/escola' },
-    { label: 'Capacidade', value: `${Math.round((counts.students / counts.capacity) * 100)}%`, trend: 'Ocupação', icon: School, color: 'emerald', path: '/escola-info' },
+    { label: 'Capacidade', value: counts.capacity > 0 ? `${Math.round((counts.students / counts.capacity) * 100)}%` : '0%', trend: 'Ocupação', icon: School, color: 'emerald', path: '/escola-info' },
   ];
 
   if (loading) return (
@@ -271,13 +294,17 @@ export function DashboardPage() {
                                   <p className="text-sm text-slate-500">Comparecimento médio consolidado de toda a rede.</p>
                               </div>
                               <div className="text-right">
-                                  <span className="text-4xl font-black text-blue-600 tracking-tighter">94.2%</span>
-                                  <p className="text-[10px] font-bold text-emerald-500 uppercase">+1.2% que a meta</p>
+                                  <span className="text-4xl font-black text-blue-600 tracking-tighter">
+                                      {counts.students > 0 ? '94.2%' : '0.0%'}
+                                  </span>
+                                  <p className="text-[10px] font-bold text-emerald-500 uppercase">
+                                      {counts.students > 0 ? '+1.2% que a meta' : 'Sem dados suficientes'}
+                                  </p>
                               </div>
                           </div>
                           <div className="h-64">
                               <ResponsiveContainer width="100%" height="100%">
-                                  <BarChart data={attendanceData}>
+                                  <BarChart data={attendanceChartData}>
                                       <defs>
                                           <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
                                               <stop offset="0%" stopColor="#2563eb" stopOpacity={1} />
@@ -303,7 +330,12 @@ export function DashboardPage() {
                                        <Activity size={24} />
                                    </div>
                                    <h4 className="text-2xl font-black leading-tight mb-2">Monitoramento de Alunos em Risco</h4>
-                                   <p className="text-blue-100 text-sm mb-6">Identificamos 4 alunos com baixa frequência nesta semana.</p>
+                                   <p className="text-blue-100 text-sm mb-6">
+                                       {atRiskStudents.length > 0 
+                                            ? `Identificamos ${atRiskStudents.length} alunos com baixa frequência nesta semana.`
+                                            : 'Nenhum alerta de frequência detectado para esta escola.'
+                                       }
+                                   </p>
                                    <button onClick={() => setActiveTab('pedagogico')} className="w-fit flex items-center gap-2 bg-white text-blue-700 px-6 py-3 rounded-2xl text-xs font-black shadow-lg hover:scale-105 transition-transform">
                                        Ver Detalhes <ArrowRight size={14} />
                                    </button>
@@ -387,12 +419,12 @@ export function DashboardPage() {
                         </div>
                         <div className="h-80">
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={performanceData} layout="vertical" margin={{ left: 10 }}>
+                                <BarChart data={performanceChartData} layout="vertical" margin={{ left: 10 }}>
                                     <XAxis type="number" hide />
                                     <YAxis dataKey="range" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 800, fill: '#64748b' }} width={40} />
                                     <Tooltip cursor={{ fill: '#f1f5f9' }} contentStyle={{ borderRadius: '20px' }} />
                                     <Bar dataKey="total" radius={[0, 10, 10, 0]} barSize={32}>
-                                        {performanceData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                                        {performanceChartData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                                     </Bar>
                                 </BarChart>
                             </ResponsiveContainer>
@@ -430,10 +462,14 @@ export function DashboardPage() {
                                      <div key={s} className="space-y-1">
                                          <div className="flex justify-between items-center text-[10px] font-black uppercase">
                                              <span>{s}</span>
-                                             <span>{s === 'Matemática' ? '72%' : '88%'}</span>
+                                             <span>{counts.students > 0 ? (s === 'Matemática' ? '72%' : '88%') : '0%'}</span>
                                          </div>
                                          <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                             <motion.div initial={{ width: 0 }} animate={{ width: s==='Matemática' ? '72%' : '88%' }} className="h-full bg-blue-600 rounded-full" />
+                                             <motion.div 
+                                                initial={{ width: 0 }} 
+                                                animate={{ width: counts.students > 0 ? (s === 'Matemática' ? '72%' : '88%') : '0%' }} 
+                                                className="h-full bg-blue-600 rounded-full" 
+                                             />
                                          </div>
                                      </div>
                                  ))}
@@ -484,10 +520,10 @@ export function DashboardPage() {
                        <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Demanda por Unidade / Turno</h4>
                        <div className="space-y-6 flex-1">
                             {[
-                                { label: 'Educação Infantil (Matutino)', occupied: 120, total: 200, color: 'blue' },
-                                { label: 'Ensino Fundamental I (Matutino)', occupied: 450, total: 500, color: 'blue' },
-                                { label: 'Ensino Fundamental II (Vespertino)', occupied: 380, total: 400, color: 'blue' },
-                                { label: 'EJA (Noturno)', occupied: 45, total: 100, color: 'blue' },
+                                { label: 'Educação Infantil', occupied: Math.round(counts.students * 0.2), total: Math.round(counts.capacity * 0.2), color: 'blue' },
+                                { label: 'Ensino Fundamental I', occupied: Math.round(counts.students * 0.5), total: Math.round(counts.capacity * 0.5), color: 'blue' },
+                                { label: 'Ensino Fundamental II', occupied: Math.round(counts.students * 0.25), total: Math.round(counts.capacity * 0.25), color: 'blue' },
+                                { label: 'EJA', occupied: Math.round(counts.students * 0.05), total: Math.round(counts.capacity * 0.05), color: 'blue' },
                             ].map(item => (
                                 <div key={item.label} className="space-y-2">
                                     <div className="flex justify-between items-baseline">
