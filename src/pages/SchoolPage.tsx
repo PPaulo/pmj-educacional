@@ -44,7 +44,8 @@ export function SchoolPage() {
     endTime: '12:00',
     periodType: 'Bimestral',
     passingGrade: 6.0,
-    totalHours: 800
+    totalHours: 800,
+    isMultiseriada: false
   });
 
   useEffect(() => {
@@ -117,7 +118,8 @@ export function SchoolPage() {
         endTime: cls.endTime || '12:00',
         periodType: cls.periodType || 'Bimestral',
         passingGrade: cls.passingGrade || 6.0,
-        totalHours: cls.totalHours || 800
+        totalHours: cls.totalHours || 800,
+        isMultiseriada: cls.isMultiseriada || false
       });
     } else {
       setClassToEdit(null);
@@ -137,7 +139,8 @@ export function SchoolPage() {
         endTime: '12:00',
         periodType: 'Bimestral',
         passingGrade: 6.0,
-        totalHours: 800
+        totalHours: 800,
+        isMultiseriada: false
       });
     }
     setIsModalOpen(true);
@@ -251,7 +254,16 @@ export function SchoolPage() {
                   const teacher = teachers.find(t => t.id === cls.teacherId);
                   return (
                     <tr key={cls.id} className="border-b border-slate-200 dark:border-slate-800/60 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                      <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">{cls.name}</td>
+                      <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">
+                        <div className="flex items-center gap-2">
+                          {cls.name}
+                          {cls.isMultiseriada && (
+                            <span className="px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold rounded uppercase tracking-wider border border-amber-200 dark:border-amber-800/50">
+                              Multisseriada
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{cls.year}</td>
                       <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{cls.course || '-'}</td>
                       <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{cls.grade || '-'}</td>
@@ -281,7 +293,14 @@ export function SchoolPage() {
               <div key={cls.id} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm space-y-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-base">{cls.name}</h3>
+                    <h3 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+                      {cls.name}
+                      {cls.isMultiseriada && (
+                        <span className="px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold rounded uppercase tracking-wider border border-amber-200 dark:border-amber-800/50">
+                          Multi
+                        </span>
+                      )}
+                    </h3>
                     <p className="text-slate-500 dark:text-slate-400 text-xs">Ano Letivo: {cls.year}</p>
                   </div>
                   <span className={cn(
@@ -405,6 +424,17 @@ export function SchoolPage() {
                       <label className="text-sm font-medium">Capacidade Máxima</label>
                       <input type="number" value={formData.capacity} onChange={e => setFormData({...formData, capacity: Number(e.target.value)})} className="w-full mt-1 px-3 py-2 border rounded-lg bg-slate-50 dark:bg-slate-800 text-sm" />
                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/20">
+                    <input 
+                      type="checkbox" 
+                      id="isMultiseriada"
+                      checked={formData.isMultiseriada} 
+                      onChange={e => setFormData({...formData, isMultiseriada: e.target.checked})} 
+                      className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer" 
+                    />
+                    <label htmlFor="isMultiseriada" className="text-sm font-bold text-blue-700 dark:text-blue-400 cursor-pointer">Turma Multisseriada</label>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Ano Letivo</label>

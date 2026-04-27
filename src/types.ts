@@ -170,4 +170,5 @@ export interface AcademicClass {
   periodType?: 'Bimestral' | 'Trimestral';
   passingGrade?: number;
   totalHours?: number;
+  isMultiseriada?: boolean;
 }

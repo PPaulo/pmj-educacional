@@ -83,6 +83,7 @@ CREATE TABLE IF NOT EXISTS public.classes (
     shift TEXT CHECK (shift IN ('Matutino', 'Vespertino', 'Noturno', 'Integral')),
     room TEXT,
     teacher_id UUID REFERENCES public.employees(id) ON DELETE SET NULL,
+    is_multiseriada BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
