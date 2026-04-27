@@ -38,8 +38,10 @@ export function HRPage() {
   const [pageSize, setPageSize] = useState(5);
   const [searchQuery, setSearchQuery] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('Todos');
+  const [roleFilter, setRoleFilter] = useState('Todos');
   const [totalEmployees, setTotalEmployees] = useState(0);
   const [allDepartments, setAllDepartments] = useState<string[]>([]);
+  const [allRoles, setAllRoles] = useState<string[]>([]);
 
   const [userRole, setUserRole] = useState('Secretaria');
   const [userSchoolId, setUserSchoolId] = useState<string | null>(null);
@@ -101,6 +103,10 @@ export function HRPage() {
           query = query.eq('department', departmentFilter);
         }
 
+        if (roleFilter !== 'Todos') {
+          query = query.eq('role', roleFilter);
+        }
+
         if (searchQuery) {
           query = query.or(`name.ilike.%${searchQuery}%,role.ilike.%${searchQuery}%,cpf.ilike.%${searchQuery}%`);
         }
@@ -121,12 +127,12 @@ export function HRPage() {
       }
     };
     loadEmployees();
-  }, [currentPage, pageSize, searchQuery, departmentFilter, schoolFilter, userRole, userSchoolId]);
+  }, [currentPage, pageSize, searchQuery, departmentFilter, roleFilter, schoolFilter, userRole, userSchoolId]);
 
   useEffect(() => {
     const loadUniques = async () => {
       try {
-        let query = supabase.from('employees').select('department');
+        let query = supabase.from('employees').select('department, role');
         if (userRole !== 'Admin' && userSchoolId) {
           query = query.eq('school_id', userSchoolId);
         } else if (userRole === 'Admin' && schoolFilter !== 'Todas') {
@@ -136,13 +142,14 @@ export function HRPage() {
         const { data } = await query;
         if (data) {
           setAllDepartments(Array.from(new Set(data.map((e: any) => e.department).filter(Boolean))));
+          setAllRoles(Array.from(new Set(data.map((e: any) => e.role).filter(Boolean))));
         }
       } catch (err) {
         console.error(err);
       }
     };
     loadUniques();
-  }, []);
+  }, [schoolFilter, userRole, userSchoolId]);
 
   // Compute unique departments for filter dropdown
   const uniqueDepartments = allDepartments;
@@ -157,6 +164,11 @@ export function HRPage() {
 
   const handleDepartmentFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setDepartmentFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleRoleFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRoleFilter(e.target.value);
     setCurrentPage(1);
   };
 
@@ -279,7 +291,7 @@ export function HRPage() {
             <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col gap-1 shadow-sm">
               <span className="text-slate-500 text-sm font-medium">Total de Colaboradores</span>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold dark:text-white">{employees.length}</span>
+                <span className="text-3xl font-bold dark:text-white">{totalEmployees}</span>
               </div>
               <div className="mt-4 w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-blue-600 h-full" style={{ width: employees.length > 0 ? '100%' : '0%' }}></div>
@@ -329,6 +341,20 @@ export function HRPage() {
                     <option value="Todos">Todos os Departamentos</option>
                     {uniqueDepartments.map(dep => (
                       <option key={dep} value={dep}>{dep}</option>
+                    ))}
+                  </select>
+                  <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                </div>
+
+                <div className="relative flex-1 sm:flex-none">
+                  <select 
+                    value={roleFilter}
+                    onChange={handleRoleFilter}
+                    className="appearance-none pl-10 pr-8 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-600 outline-none"
+                  >
+                    <option value="Todos">Todos os Cargos</option>
+                    {allRoles.map(role => (
+                      <option key={role} value={role}>{role}</option>
                     ))}
                   </select>
                   <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
@@ -442,6 +468,7 @@ export function HRPage() {
                                 onClick={() => {
                                   setSearchQuery('');
                                   setDepartmentFilter('Todos');
+                                  setRoleFilter('Todos');
                                 }}
                                 className="text-xs text-blue-600 font-bold hover:underline mt-2"
                               >
