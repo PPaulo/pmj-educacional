@@ -63,6 +63,9 @@ export interface Student {
   tipoCertidao?: string;
   modeloCertidao?: string;
   certidaoNumero?: string;
+  certidaoTermo?: string;
+  certidaoLivro?: string;
+  certidaoFolha?: string;
   certidaoData?: string;
   alergias?: string;
   tipoSanguineo?: string;

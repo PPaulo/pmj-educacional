@@ -561,21 +561,32 @@ export function StudentModal({ isOpen, onClose, onSave, student, nextRegistratio
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
                     <div>
-                      <label className="text-xs font-slate-500">Tipo</label>
-                      <select name="tipoCertidao" value={formData.tipoCertidao || 'Nascimento'} onChange={handleChange} className="w-full bg-slate-50 text-xs py-1.5 rounded">
-                        <option value="Nascimento">Nascimento</option><option value="Casamento">Casamento</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-xs font-slate-500">Modelo</label>
+                      <label className="text-xs font-slate-500">Modelo da Certidão</label>
                       <select name="modeloCertidao" value={formData.modeloCertidao || 'Modelo Novo'} onChange={handleChange} className="w-full bg-slate-50 text-xs py-1.5 rounded">
                         <option value="Modelo Novo">Modelo Novo</option><option value="Modelo Antigo">Modelo Antigo</option>
                       </select>
                     </div>
-                    <div className="sm:col-span-2">
-                      <label className="text-xs font-slate-500">Número da Certidão</label>
-                      <input name="certidaoNumero" value={formData.certidaoNumero || ''} onChange={handleChange} className="w-full bg-slate-50 text-xs py-1.5 rounded" />
-                    </div>
+                    {(!formData.modeloCertidao || formData.modeloCertidao === 'Modelo Novo') ? (
+                      <div className="sm:col-span-3">
+                        <label className="text-xs font-slate-500">Número da Matrícula (Certidão)</label>
+                        <input name="certidaoNumero" value={formData.certidaoNumero || ''} onChange={handleChange} className="w-full bg-slate-50 text-xs py-1.5 rounded" />
+                      </div>
+                    ) : (
+                      <div className="sm:col-span-3 grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="text-xs font-slate-500">Termo</label>
+                          <input name="certidaoTermo" value={formData.certidaoTermo || ''} onChange={handleChange} className="w-full bg-slate-50 text-xs py-1.5 rounded" />
+                        </div>
+                        <div>
+                          <label className="text-xs font-slate-500">Livro</label>
+                          <input name="certidaoLivro" value={formData.certidaoLivro || ''} onChange={handleChange} className="w-full bg-slate-50 text-xs py-1.5 rounded" />
+                        </div>
+                        <div>
+                          <label className="text-xs font-slate-500">Folha</label>
+                          <input name="certidaoFolha" value={formData.certidaoFolha || ''} onChange={handleChange} className="w-full bg-slate-50 text-xs py-1.5 rounded" />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
