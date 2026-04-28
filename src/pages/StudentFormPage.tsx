@@ -169,7 +169,22 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement 
       return;
     }
 
-    if (name === 'responsiblePhone') {
+    if (name === 'certidaoNumero') {
+      setFormData(prev => ({ ...prev, [name]: maskCertidao(value) }));
+      return;
+    }
+
+    if (name === 'nis') {
+      setFormData(prev => ({ ...prev, [name]: maskNIS(value) }));
+      return;
+    }
+
+    if (name === 'cartaoSus') {
+      setFormData(prev => ({ ...prev, [name]: maskSUS(value) }));
+      return;
+    }
+
+    if (name.includes('Phone') || name === 'fatherPhoneResidencial' || name === 'fatherPhoneCelular' || name === 'fatherPhoneTrabalho' || name === 'motherPhoneResidencial' || name === 'motherPhoneCelular' || name === 'motherPhoneTrabalho') {
       setFormData(prev => ({ ...prev, [name]: maskPhone(value) }));
       return;
     }
@@ -219,6 +234,35 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement 
       .replace(/(\d{2})(\d)/, '($1) $2')
       .replace(/(\d{5})(\d)/, '$1-$2')
       .replace(/(-\d{4})\d+?$/, '$1');
+  };
+
+  const maskCertidao = (value: string) => {
+    let v = value.replace(/\D/g, '').substring(0, 32);
+    v = v.replace(/^(\d{6})(\d)/, '$1.$2');
+    v = v.replace(/^(\d{6}\.\d{2})(\d)/, '$1.$2');
+    v = v.replace(/^(\d{6}\.\d{2}\.\d{2})(\d)/, '$1.$2');
+    v = v.replace(/^(\d{6}\.\d{2}\.\d{2}\.\d{4})(\d)/, '$1.$2');
+    v = v.replace(/^(\d{6}\.\d{2}\.\d{2}\.\d{4}\.\d{1})(\d)/, '$1.$2');
+    v = v.replace(/^(\d{6}\.\d{2}\.\d{2}\.\d{4}\.\d{1}\.\d{5})(\d)/, '$1.$2');
+    v = v.replace(/^(\d{6}\.\d{2}\.\d{2}\.\d{4}\.\d{1}\.\d{5}\.\d{3})(\d)/, '$1.$2');
+    v = v.replace(/^(\d{6}\.\d{2}\.\d{2}\.\d{4}\.\d{1}\.\d{5}\.\d{3}\.\d{7})(\d)/, '$1-$2');
+    return v;
+  };
+
+  const maskNIS = (value: string) => {
+    let v = value.replace(/\D/g, '').substring(0, 11);
+    v = v.replace(/^(\d{3})(\d)/, '$1.$2');
+    v = v.replace(/^(\d{3}\.\d{5})(\d)/, '$1.$2');
+    v = v.replace(/^(\d{3}\.\d{5}\.\d{2})(\d)/, '$1-$2');
+    return v;
+  };
+
+  const maskSUS = (value: string) => {
+    let v = value.replace(/\D/g, '').substring(0, 15);
+    v = v.replace(/^(\d{3})(\d)/, '$1 $2');
+    v = v.replace(/^(\d{3}\ \d{4})(\d)/, '$1 $2');
+    v = v.replace(/^(\d{3}\ \d{4}\ \d{4})(\d)/, '$1 $2');
+    return v;
   };
 
   const handleInvalid = (e: React.FormEvent<HTMLFormElement>) => {
