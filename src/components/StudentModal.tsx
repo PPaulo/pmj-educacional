@@ -799,7 +799,7 @@ export function StudentModal({ isOpen, onClose, onSave, student, nextRegistratio
                       <input type="date" name="entryDate" required value={formData.entryDate} onChange={handleChange} className="w-full text-sm bg-slate-50 py-2 rounded-lg" />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs">Data Início Exercício</label>
+                      <label className="text-xs">Data de Início na Turma</label>
                       <input name="exercicio" value={formData.exercicio || ''} onChange={handleChange} className="w-full text-sm bg-slate-50 py-2 rounded-lg" />
                     </div>
                   </div>

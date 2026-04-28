@@ -641,7 +641,7 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement 
                       <input type="date" name="entryDate" required value={formData.entryDate} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 dark:text-white" />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Data Início Exercício</label>
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Data de Início na Turma</label>
                       <input name="exercicio" value={formData.exercicio || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 dark:text-white" />
                     </div>
                   </div>
