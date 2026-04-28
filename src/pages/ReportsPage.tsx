@@ -18,7 +18,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import { generateStudentRegistrationPDF, generateClassListPDF, generateTotalStudentsPDF, generateStudentLinkageStatementPDF, generateReportCardPDF, generateSchoolTranscriptPDF, generateBolsaFamiliaAttendancePDF } from '../lib/pdf';
 import toast from 'react-hot-toast';
-import { snakeToCamel } from '../lib/utils';
+import { snakeToCamel, sortStudents } from '../lib/utils';
 
 const reportsList = [
   { id: 'declaration', title: 'Declaração de Vínculo', description: 'Atestado de matrícula e frequência regular do aluno.', icon: FileCheck, color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20', scope: 'student' },
@@ -76,7 +76,7 @@ export function ReportsPage() {
   // Carregar Dados Conforme Filtros
   useEffect(() => {
     const loadData = async () => {
-      let stdQuery = supabase.from('students').select('*').order('name');
+      let stdQuery = supabase.from('students').select('*');
       let clsQuery = supabase.from('classes').select('*').order('name');
 
       if (userRole !== 'Admin' && userSchoolId) {
@@ -91,7 +91,8 @@ export function ReportsPage() {
            stdQuery, clsQuery
       ]);
 
-      setStudents(snakeToCamel(stds || []));
+      const allStudents = snakeToCamel(stds || []);
+      setStudents(sortStudents(allStudents));
       setClasses(snakeToCamel(cls || []));
 
       // Atualizar info da escola para o cabeçalho do PDF

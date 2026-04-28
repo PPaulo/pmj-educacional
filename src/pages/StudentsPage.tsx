@@ -21,7 +21,7 @@ import { snakeToCamel, camelToSnake } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import toast from 'react-hot-toast';
 import { GradesModal } from '../components/GradesModal';
-import { cn, notifyWIP } from '../lib/utils';
+import { cn, notifyWIP, sortStudents } from '../lib/utils';
 import { Avatar } from '../components/Avatar';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 import { StudentModal } from '../components/StudentModal';
@@ -87,13 +87,13 @@ export function StudentsPage() {
     loadConfig();
   }, []);
 
-  // Load students from database with Server-side Pagination e Filtering
+  // Load students from database with Client-side Pagination and custom Sorting
   useEffect(() => {
     const loadStudents = async () => {
       try {
         let query = supabase
           .from('students')
-          .select('*', { count: 'exact' })
+          .select('*')
           .neq('status', 'Arquivado');
 
         if (userRole !== 'Admin' && userSchoolId) {
@@ -110,23 +110,23 @@ export function StudentsPage() {
           query = query.or(`name.ilike.%${searchQuery}%,registration.ilike.%${searchQuery}%,cpf.ilike.%${searchQuery}%`);
         }
 
-        const from = (currentPage - 1) * pageSize;
-        const to = from + pageSize - 1;
-
-        const { data, count, error } = await query
-          .order('name')
-          .range(from, to);
+        const { data, error } = await query;
 
         if (error) throw error;
-        setStudents(snakeToCamel(data || []));
-        setTotalStudents(count || 0);
+        const allStudents = snakeToCamel(data || []) as Student[];
+        
+        // Custom sorting
+        const sortedStudents = sortStudents(allStudents);
+        
+        setStudents(sortedStudents);
+        setTotalStudents(sortedStudents.length);
       } catch (err) {
         console.error('Failed to load students:', err);
         toast.error('Erro ao carregar do Supabase');
       }
     };
     loadStudents();
-  }, [currentPage, pageSize, searchQuery, statusFilter, schoolFilter, userRole, userSchoolId]);
+  }, [searchQuery, statusFilter, schoolFilter, userRole, userSchoolId]);
 
   // Se o servidor retornar o código de registro, vamos fazer um fetch auxiliar para obter o max_id para o formulário se necessário
   const getAllStudentsForCodes = async () => {
@@ -169,7 +169,7 @@ export function StudentsPage() {
     return String(nextReg);
   };
 
-  const paginatedStudents = students;
+  const paginatedStudents = students.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const totalPages = Math.ceil(totalStudents / pageSize);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

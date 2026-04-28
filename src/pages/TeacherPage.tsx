@@ -19,7 +19,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
-import { snakeToCamel } from '../lib/utils';
+import { snakeToCamel, sortStudents } from '../lib/utils';
 
 const tabs = [
   { id: 'dashboard', label: 'Início', icon: LayoutDashboard },
@@ -95,11 +95,11 @@ export function TeacherPage() {
     try {
       const { data: stds } = await supabase
         .from('students')
-        .select('id, name, registration')
-        .eq('class', selectedClass.name)
-        .order('name');
+        .select('id, name, registration, entry_date')
+        .eq('class', selectedClass.name);
 
-      setStudents(stds || []);
+      const allStudents = snakeToCamel(stds || []);
+      setStudents(sortStudents(allStudents));
 
       const { data: grades } = await supabase
         .from('grades')

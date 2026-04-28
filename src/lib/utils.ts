@@ -36,3 +36,29 @@ export function snakeToCamel(obj: any): any {
     return acc;
   }, {});
 }
+
+export function sortStudents(students: any[]) {
+  return students.sort((a, b) => {
+    const getGroup = (s: any) => {
+      if (!s.entryDate) return 1;
+      const month = parseInt(s.entryDate.substring(5, 7), 10);
+      return isNaN(month) ? 1 : (month <= 3 ? 1 : 2);
+    };
+
+    const groupA = getGroup(a);
+    const groupB = getGroup(b);
+
+    if (groupA !== groupB) {
+      return groupA - groupB;
+    }
+
+    if (groupA === 1) {
+      return (a.name || '').localeCompare(b.name || '');
+    } else {
+      if (a.entryDate !== b.entryDate) {
+        return (a.entryDate || '').localeCompare(b.entryDate || '');
+      }
+      return (a.name || '').localeCompare(b.name || '');
+    }
+  });
+}

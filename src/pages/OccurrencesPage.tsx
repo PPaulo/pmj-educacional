@@ -14,7 +14,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
-import { snakeToCamel } from '../lib/utils';
+import { snakeToCamel, sortStudents } from '../lib/utils';
 
 export function OccurrencesPage() {
   const [occurrences, setOccurrences] = useState<any[]>([]);
@@ -42,12 +42,12 @@ export function OccurrencesPage() {
              setUserSchoolId(profile.school_id);
              
              // Carregar alunos para o Select do formulário
-             let studQuery = supabase.from('students').select('id, name').order('name');
+             let studQuery = supabase.from('students').select('id, name, entry_date');
              if (profile.role !== 'Admin' && profile.school_id) {
                  studQuery = studQuery.eq('school_id', profile.school_id);
              }
              const { data: stds } = await studQuery;
-             setStudentsList(stds || []);
+             setStudentsList(sortStudents(snakeToCamel(stds || [])));
          }
       }
     };
