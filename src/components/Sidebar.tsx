@@ -235,7 +235,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           value={localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString()}
           onChange={(e) => {
             localStorage.setItem('pmj_ano_letivo', e.target.value);
-            window.location.href = '/';
+            window.location.href = '/dashboard';
           }}
         >
           {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 2 + i).map(year => (

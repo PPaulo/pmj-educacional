@@ -91,12 +91,14 @@ export function DashboardPage() {
           }
         }
 
+        const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
+
         // Base queries for counts
-        let studentQ = supabase.from('students').select('*', { count: 'exact', head: true }).neq('status', 'Arquivado');
-        let archivedQ = supabase.from('students').select('*', { count: 'exact', head: true }).eq('status', 'Arquivado');
+        let studentQ = supabase.from('students').select('*', { count: 'exact', head: true }).neq('status', 'Arquivado').eq('ano_letivo', activeYear);
+        let archivedQ = supabase.from('students').select('*', { count: 'exact', head: true }).eq('status', 'Arquivado').eq('ano_letivo', activeYear);
         let teacherQ = supabase.from('employees').select('*', { count: 'exact', head: true }).ilike('role', '%Professor%');
-        let classQ = supabase.from('classes').select('*', { count: 'exact', head: true });
-        let eventQ = supabase.from('events').select('*', { count: 'exact', head: true });
+        let classQ = supabase.from('classes').select('*', { count: 'exact', head: true }).eq('year', activeYear);
+        let eventQ = supabase.from('events').select('*', { count: 'exact', head: true }).gte('date', `${activeYear}-01-01`).lte('date', `${activeYear}-12-31`);
 
         // Apply school filter if not global admin
         if (currentRole !== 'Admin' && currentSchoolId) {
@@ -124,7 +126,7 @@ export function DashboardPage() {
         }
 
         // Intelligence: Find students with low presence (filtered by school)
-        let atRiskQ = supabase.from('students').select('name, class').limit(4);
+        let atRiskQ = supabase.from('students').select('name, class').eq('ano_letivo', activeYear).limit(4);
         if (currentRole !== 'Admin' && currentSchoolId) {
             atRiskQ = atRiskQ.eq('school_id', currentSchoolId);
         }
@@ -142,8 +144,8 @@ export function DashboardPage() {
         setAtRiskStudents(atRiskData || []);
 
         if (currentRole !== 'Jovem Aprendiz') {
-            let recentEventsQ = supabase.from('events').select('*').order('date', { ascending: true }).limit(4);
-            let recentStudentsQ = supabase.from('students').select('name, class, created_at').neq('status', 'Arquivado').order('created_at', { ascending: false }).limit(3);
+            let recentEventsQ = supabase.from('events').select('*').gte('date', `${activeYear}-01-01`).lte('date', `${activeYear}-12-31`).order('date', { ascending: true }).limit(4);
+            let recentStudentsQ = supabase.from('students').select('name, class, created_at').eq('ano_letivo', activeYear).neq('status', 'Arquivado').order('created_at', { ascending: false }).limit(3);
             
             if (currentRole !== 'Admin' && currentSchoolId) {
                 recentEventsQ = recentEventsQ.eq('school_id', currentSchoolId);
