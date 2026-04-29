@@ -29,8 +29,7 @@ export function HRPage() {
   const handleImpersonate = (emp: any) => {
        localStorage.setItem('impersonated_user', JSON.stringify({ id: emp.id, role: emp.role, name: emp.name, school_id: emp.schoolId || emp.school_id }));
        toast.success(`Modo Simulação Ativado: ${emp.name}`);
-       navigate(emp.role === 'Professor' ? '/professor' : '/dashboard');
-       window.location.reload();
+       window.location.href = emp.role === 'Professor' ? '/professor' : '/dashboard';
   };
 
   const [employees, setEmployees] = useState<Employee[]>([]);

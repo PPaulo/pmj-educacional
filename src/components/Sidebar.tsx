@@ -236,12 +236,8 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           onChange={(e) => {
             const newYear = e.target.value;
             localStorage.setItem('pmj_ano_letivo', newYear);
-            // Navigate to root first to avoid 404 on subpaths during full reload if server is not perfect
-            navigate('/');
-            // Small delay to ensure router has changed the URL, then full refresh
-            setTimeout(() => {
-              window.location.reload();
-            }, 50);
+            // Direct redirect to root with hard reload to reset all states and avoid Vercel 404s
+            window.location.href = '/';
           }}
         >
           {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 2 + i).map(year => (
