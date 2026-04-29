@@ -58,17 +58,18 @@ export function LoginPage() {
         
         navigate('/dashboard');
       } else {
-        // Aluno Portal Verification
-        const { data: student, error } = await supabase
-          .from('students')
-          .select('*')
-          .eq('registration', registration.trim())
-          .eq('birth_date', birthDate)
-          .single();
+        // Aluno Portal Verification via Secure RPC
+        const { data, error } = await supabase
+          .rpc('verify_student_login', { 
+            reg_input: registration.trim(), 
+            bday_input: birthDate 
+          });
 
-        if (error || !student) {
+        if (error || !data || data.length === 0) {
           throw new Error('Matrícula ou Data de Nascimento incorretos, ou aluno não cadastrado.');
         }
+
+        const student = data[0];
 
         const greeting = student.gender === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo';
         toast.success(`${greeting}, ${student.name}!`);

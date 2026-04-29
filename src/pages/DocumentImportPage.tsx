@@ -17,9 +17,6 @@ interface ExtractedStudent {
 const subjects = ['Português', 'Matemática', 'História', 'Geografia', 'Ciências', 'Artes', 'Educação Física'];
 
 export function DocumentImportPage() {
-  const [apiKey, setApiKey] = useState(localStorage.getItem('pmj_openai_key') || '');
-  const [isConfiguring, setIsConfiguring] = useState(!localStorage.getItem('pmj_openai_key'));
-  
   const [classes, setClasses] = useState<AcademicClass[]>([]);
   const [selectedClass, setSelectedClass] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
@@ -48,12 +45,6 @@ export function DocumentImportPage() {
     fetchClasses();
   }, [activeYear]);
 
-  const saveApiKey = () => {
-    if (!apiKey) return toast.error('Informe a chave da API.');
-    localStorage.setItem('pmj_openai_key', apiKey);
-    setIsConfiguring(false);
-    toast.success('Chave salva com sucesso!');
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -72,7 +63,6 @@ export function DocumentImportPage() {
   const processImage = async () => {
     if (!selectedClass) return toast.error('Selecione uma turma.');
     if (!file) return toast.error('Anexe a imagem da ata.');
-    if (!apiKey) return toast.error('Configure a Chave da OpenAI primeiro.');
 
     setLoading(true);
     const toastId = toast.loading('Analisando documento com Inteligência Artificial...');
@@ -80,48 +70,15 @@ export function DocumentImportPage() {
     try {
       const base64Image = previewUrl.split(',')[1];
       
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [
-            {
-              role: 'system',
-              content: `Você é um assistente de extração de dados de atas escolares de resultados finais. Extraia os dados para um array JSON. 
-Retorne APENAS o JSON bruto, sem blocos de código (sem \`\`\`json). O formato deve ser uma lista de objetos: 
-[{ 
-  "name": "Nome do Aluno", 
-  "status": "Aprovado" | "Reprovado" | "Transferido" | "Abandono", 
-  "grades": { "Português": 8.5, "Matemática": 6.0, ... }, 
-  "absences": numero_total_faltas 
-}]
-As matérias padrão são: Português, Matemática, História, Geografia, Ciências, Artes, Educação Física. Se não encontrar nota para uma matéria, deixe nulo ou omita.`
-            },
-            {
-              role: 'user',
-              content: [
-                { type: 'text', text: 'Extraia os dados desta ata de resultados escolares finais.' },
-                { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
-              ]
-            }
-          ],
-          temperature: 0,
-        })
+      const { data, error } = await supabase.functions.invoke('process-ata', {
+        body: { image: base64Image }
       });
 
-      const result = await response.json();
-      if (result.error) throw new Error(result.error.message);
+      if (error) throw error;
       
-      let content = result.choices[0].message.content.trim();
-      if (content.startsWith('\`\`\`json')) {
-        content = content.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '');
-      }
-
-      const parsedData = JSON.parse(content);
+      // The function already returns the parsed JSON or a valid JSON string
+      const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+      
       if (!Array.isArray(parsedData)) throw new Error('Formato inválido retornado pela IA');
       
       setExtractedData(parsedData);
@@ -218,24 +175,7 @@ As matérias padrão são: Português, Matemática, História, Geografia, Ciênc
           <p className="text-slate-500 mt-2">Digitalize atas físicas e cadastre alunos e notas automaticamente com Inteligência Artificial.</p>
         </div>
 
-        {isConfiguring ? (
-          <div className="bg-white dark:bg-slate-900 border border-indigo-100 dark:border-indigo-900/30 p-6 rounded-2xl max-w-2xl shadow-sm">
-            <div className="flex items-center gap-3 mb-4 text-indigo-600 dark:text-indigo-400">
-              <Key size={24} />
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Configuração da API (OpenAI)</h3>
-            </div>
-            <p className="text-sm text-slate-500 mb-6">Para utilizar o reconhecimento óptico de caracteres (OCR) com IA, é necessário informar uma chave válida da OpenAI. Ela ficará salva apenas no seu navegador.</p>
-            <input 
-              type="password" 
-              value={apiKey} 
-              onChange={e => setApiKey(e.target.value)} 
-              placeholder="sk-..." 
-              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-3 rounded-xl mb-4"
-            />
-            <button onClick={saveApiKey} className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-indigo-700 transition">Salvar Chave e Continuar</button>
-          </div>
-        ) : (
-          <div className="max-w-5xl mx-auto space-y-6">
+        <div className="max-w-5xl mx-auto space-y-6">
             
             {/* Indicador de Passos */}
             <div className="flex items-center justify-between mb-8 relative">
@@ -271,14 +211,6 @@ As matérias padrão são: Português, Matemática, História, Geografia, Ciênc
                     </select>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <button 
-                      onClick={() => setIsConfiguring(true)} 
-                      className="text-sm text-indigo-600 font-semibold hover:underline flex items-center gap-1"
-                    >
-                      <Key size={14} /> Alterar Chave de API
-                    </button>
-                  </div>
                 </div>
 
                 <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -397,7 +329,6 @@ As matérias padrão são: Português, Matemática, História, Geografia, Ciênc
               </div>
             )}
           </div>
-        )}
       </div>
     </>
   );

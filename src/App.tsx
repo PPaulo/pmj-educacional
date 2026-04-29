@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { LoginPage } from './pages/LoginPage';
 import { Layout } from './components/Layout';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 // Lazy loading components for optimization
 const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
@@ -55,27 +56,27 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/vagas" element={<PreRegistrationForm />} />
           <Route path="/manual" element={<ManualPage />} />
-          <Route element={<Layout />}>
+          <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/professor" element={<TeacherPage />} />
-            <Route path="/coordenacao" element={<CoordinationPage />} />
-            <Route path="/merenda" element={<MerendaPage />} />
-            <Route path="/importacao-atas" element={<DocumentImportPage />} />
-            <Route path="/aluno-portal" element={<StudentPortalPage />} />
+            <Route path="/professor" element={<ProtectedRoute allowedRoles={['Professor']}><TeacherPage /></ProtectedRoute>} />
+            <Route path="/coordenacao" element={<ProtectedRoute allowedRoles={['Admin', 'Diretor', 'Coordenador']}><CoordinationPage /></ProtectedRoute>} />
+            <Route path="/merenda" element={<ProtectedRoute allowedRoles={['Admin', 'Diretor', 'Nutricionista', 'Secretaria']}><MerendaPage /></ProtectedRoute>} />
+            <Route path="/importacao-atas" element={<ProtectedRoute allowedRoles={['Admin', 'Diretor', 'Secretaria']}><DocumentImportPage /></ProtectedRoute>} />
+            <Route path="/aluno-portal" element={<ProtectedRoute allowedRoles={['Aluno']}><StudentPortalPage /></ProtectedRoute>} />
             <Route path="/arquivos" element={<ArchivePage />} />
             <Route path="/ocorrencias" element={<OccurrencesPage />} />
-            <Route path="/pre-matriculas" element={<PreRegistrationsPage />} />
-            <Route path="/alunos" element={<StudentsPage />} />
-            <Route path="/alunos/novo" element={<StudentFormPage />} />
-            <Route path="/alunos/editar/:id" element={<StudentFormPage />} />
-            <Route path="/rh" element={<HRPage />} />
+            <Route path="/pre-matriculas" element={<ProtectedRoute allowedRoles={['Admin', 'Diretor', 'Secretaria']}><PreRegistrationsPage /></ProtectedRoute>} />
+            <Route path="/alunos" element={<ProtectedRoute allowedRoles={['Admin', 'Diretor', 'Secretaria']}><StudentsPage /></ProtectedRoute>} />
+            <Route path="/alunos/novo" element={<ProtectedRoute allowedRoles={['Admin', 'Diretor', 'Secretaria']}><StudentFormPage /></ProtectedRoute>} />
+            <Route path="/alunos/editar/:id" element={<ProtectedRoute allowedRoles={['Admin', 'Diretor', 'Secretaria']}><StudentFormPage /></ProtectedRoute>} />
+            <Route path="/rh" element={<ProtectedRoute allowedRoles={['Admin', 'Diretor', 'Secretaria']}><HRPage /></ProtectedRoute>} />
             <Route path="/escola" element={<SchoolPage />} />
             <Route path="/comunicados" element={<AnnouncementsPage />} />
             <Route path="/familia" element={<FamilyCommunicationPage />} />
             <Route path="/comunicacao-rh" element={<StaffCommunicationPage />} />
             <Route path="/relatorios" element={<ReportsPage />} />
             <Route path="/calendario" element={<CalendarPage />} />
-            <Route path="/configuracoes" element={<ConfiguracoesPage />} />
+            <Route path="/configuracoes" element={<ProtectedRoute allowedRoles={['Admin', 'Diretor', 'Secretaria']}><ConfiguracoesPage /></ProtectedRoute>} />
             <Route path="/escola-info" element={<SchoolInfoPage />} />
             <Route path="/ponto" element={<TimesheetsPage />} />
           </Route>
