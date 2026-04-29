@@ -160,7 +160,7 @@ export function StudentModal({ isOpen, onClose, onSave, student, nextRegistratio
         responsibleCpf: student.responsibleCpf || '',
         serie: student.serie || '',
         turno: student.turno || 'Matutino',
-        exercicio: student.exercicio || new Date().getFullYear().toString(),
+        exercicio: student.exercicio || '',
         motorista: student.motorista || '',
         deficienciaAuditiva: student.deficienciaAuditiva || false,
         deficienciaVisual: student.deficienciaVisual || false,
@@ -235,7 +235,7 @@ export function StudentModal({ isOpen, onClose, onSave, student, nextRegistratio
         responsibleCpf: '',
         serie: '',
         turno: 'Matutino',
-        exercicio: new Date().getFullYear().toString(),
+        exercicio: '',
         motorista: '',
         deficienciaAuditiva: false,
         deficienciaVisual: false,
@@ -793,22 +793,14 @@ export function StudentModal({ isOpen, onClose, onSave, student, nextRegistratio
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-xs">Data Matrícula*</label>
                       <input type="date" name="entryDate" required value={formData.entryDate} onChange={handleChange} className="w-full text-sm bg-slate-50 py-2 rounded-lg" />
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs">Data de Início na Turma</label>
-                      <input name="exercicio" value={formData.exercicio || ''} onChange={handleChange} className="w-full text-sm bg-slate-50 py-2 rounded-lg" />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs">Ano Letivo</label>
-                      <select name="anoLetivo" value={formData.anoLetivo || localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString()} onChange={handleChange} className="w-full text-sm bg-slate-50 py-2 rounded-lg">
-                        {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 2 + i).map(year => (
-                          <option key={year} value={year}>{year}</option>
-                        ))}
-                      </select>
+                      <input type="date" name="exercicio" value={formData.exercicio || ''} onChange={handleChange} className="w-full text-sm bg-slate-50 py-2 rounded-lg" />
                     </div>
                   </div>
 

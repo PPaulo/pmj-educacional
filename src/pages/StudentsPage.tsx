@@ -241,7 +241,12 @@ export function StudentsPage() {
 
   const handleSaveStudent = async (studentData: Omit<Student, 'id'> & { id?: string }) => {
     try {
-      const mappedData = camelToSnake(studentData);
+      const mappedData = camelToSnake(studentData) as any;
+      mappedData.ano_letivo = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
+      
+      if (userRole !== 'Admin' && userSchoolId && !mappedData.school_id) {
+          mappedData.school_id = userSchoolId;
+      }
       
       if (studentData.id) {
         const { error } = await supabase

@@ -28,7 +28,7 @@ export function StudentFormPage() {
     fatherProfession: '', fatherPhoneResidencial: '', fatherPhoneCelular: '', fatherPhoneTrabalho: '',
     motherProfession: '', motherPhoneResidencial: '', motherPhoneCelular: '', motherPhoneTrabalho: '',
     numero: '', complemento: '', responsibleCpf: '', serie: '', turno: 'Matutino',
-    exercicio: new Date().getFullYear().toString(), motorista: '',
+    exercicio: '', motorista: '',
     deficienciaAuditiva: false, deficienciaVisual: false, deficienciaFisica: false,
     deficienciaIntelectual: false, deficienciaAutismo: false, auxilioLedor: false,
     auxilioTranscricao: false, guiaInterprete: false, interpreteLibras: false,
@@ -39,19 +39,43 @@ export function StudentFormPage() {
   const [classesList, setClassesList] = useState<string[]>([]);
   const [seriesList, setSeriesList] = useState<string[]>([]);
 
+  const [userSchoolId, setUserSchoolId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>('Secretaria');
+
   useEffect(() => {
-    supabase.from('classes').select('name').then(({ data }) => {
+    const initData = async () => {
+      const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      let sId = null;
+      let role = 'Secretaria';
+      if (user) {
+        const { data: profile } = await supabase.from('profiles').select('school_id, role').eq('id', user.id).single();
+        if (profile) {
+          sId = profile.school_id;
+          role = profile.role;
+          setUserSchoolId(sId);
+          setUserRole(role);
+        }
+      }
+
+      let q = supabase.from('classes').select('name').eq('year', activeYear);
+      if (role !== 'Admin' && sId) {
+        q = q.eq('school_id', sId);
+      }
+      
+      const { data } = await q;
       const names = (data || []).map(d => d.name).filter(Boolean);
       setClassesList(Array.from(new Set(names)) as string[]);
       
       const prefixes = names.map(n => {
         const parts = n.split(' ');
-        // If "1º Ano - A", removes "A" and "-" then joins to "1º Ano"
         const res = parts.length > 1 ? parts.slice(0, -1).filter(p => p !== '-').join(' ') : n;
         return res.replace(/-$/, '').trim();
       });
       setSeriesList(Array.from(new Set(prefixes)) as string[]);
-    });
+    };
+    initData();
   }, []);
 
   useEffect(() => {
@@ -132,6 +156,12 @@ export function StudentFormPage() {
     try {
       setLoading(true);
       const mappedData = camelToSnake(formData) as any;
+      mappedData.ano_letivo = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
+      
+      if (userRole !== 'Admin' && userSchoolId && !mappedData.school_id) {
+          mappedData.school_id = userSchoolId;
+      }
+
       if (id) {
         const { error } = await supabase.from('students').update(mappedData).eq('id', id);
         if (error) throw error;
@@ -635,22 +665,14 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement 
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Data Matrícula*</label>
                       <input type="date" name="entryDate" required value={formData.entryDate} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 dark:text-white" />
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Data de Início na Turma</label>
-                      <input name="exercicio" value={formData.exercicio || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 dark:text-white" />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Ano Letivo</label>
-                      <select name="anoLetivo" value={formData.anoLetivo || localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString()} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 dark:text-white">
-                        {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 2 + i).map(year => (
-                          <option key={year} value={year}>{year}</option>
-                        ))}
-                      </select>
+                      <input type="date" name="exercicio" value={formData.exercicio || ''} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 dark:text-white" />
                     </div>
                   </div>
 
