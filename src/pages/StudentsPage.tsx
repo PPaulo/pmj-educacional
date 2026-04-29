@@ -138,8 +138,8 @@ export function StudentsPage() {
   };
 
   const handleImpersonate = (student: any, role: string) => {
-       localStorage.setItem('student_session', JSON.stringify(student));
-       localStorage.setItem('impersonated_user', JSON.stringify({ ...student, role }));
+       sessionStorage.setItem('student_session', JSON.stringify(student));
+       sessionStorage.setItem('impersonated_user', JSON.stringify({ ...student, role }));
        toast.success(`Modo Simulação Ativado: ${student.name}`);
        navigate('/aluno-portal');
        window.location.reload();

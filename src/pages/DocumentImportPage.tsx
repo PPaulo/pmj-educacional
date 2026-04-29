@@ -60,6 +60,44 @@ export function DocumentImportPage() {
     }
   };
 
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Max dimension 1600px (Good for OCR, small enough for payload)
+          const MAX_SIZE = 1600;
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Quality 0.7 is perfect for OCR
+          resolve(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const processImage = async () => {
     if (!selectedClass) return toast.error('Selecione uma turma.');
     if (!file) return toast.error('Anexe a imagem da ata.');
@@ -68,28 +106,43 @@ export function DocumentImportPage() {
     const toastId = toast.loading('Analisando documento com Inteligência Artificial...');
     
     try {
-      const base64Image = previewUrl.split(',')[1];
+      // Compress and resize image before sending (Edge Functions have 10MB limit)
+      const compressedBase64 = await compressImage(file);
       
       const { data, error } = await supabase.functions.invoke('process-ata', {
-        body: { image: base64Image }
+        body: { image: compressedBase64 }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro na invocação da função:', error);
+        // Tenta extrair mensagem útil se houver
+        const errorMsg = error instanceof Error ? error.message : JSON.stringify(error);
+        throw new Error(`Erro na Edge Function: ${errorMsg}`);
+      }
+
+      // Se a função retornou 200 mas com um campo de erro (meu novo padrão de segurança)
+      if (data && data.error) {
+        console.error('Erro retornado pelo Gemini:', data.error, data.detalhes);
+        throw new Error(data.error + (data.detalhes ? ` (${data.detalhes})` : ''));
+      }
       
-      // The function already returns the parsed JSON or a valid JSON string
       const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
       
-      if (!Array.isArray(parsedData)) throw new Error('Formato inválido retornado pela IA');
+      if (!Array.isArray(parsedData)) {
+        console.error('Dados inválidos da IA:', parsedData);
+        throw new Error('A Inteligência Artificial não retornou uma lista de alunos válida.');
+      }
       
       setExtractedData(parsedData);
       setStep(2);
       toast.success('Documento processado com sucesso!', { id: toastId });
     } catch (err: any) {
-      console.error(err);
-      toast.error(`Erro ao processar: ${err.message}`, { id: toastId });
+      console.error('Erro detalhado no processamento:', err);
+      toast.error(`Erro: ${err.message}`, { id: toastId });
     } finally {
       setLoading(false);
     }
+
   };
 
   const saveToDatabase = async () => {
@@ -116,10 +169,13 @@ export function DocumentImportPage() {
         const std = extractedData[i];
         baseReg++;
         
+        // Mapeamento de status para o que o banco aceita ('Ativo' | 'Inativo' | 'Pendente')
+        const studentStatus = (std.status === 'Aprovado' || std.status === 'Reprovado') ? 'Ativo' : 'Inativo';
+
         // 1. Inserir Aluno
         const { data: insertedStudent, error: stdError } = await supabase.from('students').insert({
           name: std.name,
-          status: std.status === 'Aprovado' || std.status === 'Reprovado' ? 'Ativo' : std.status,
+          status: studentStatus,
           class: cls.name,
           ano_letivo: activeYear,
           school_id: schoolId,
@@ -133,17 +189,18 @@ export function DocumentImportPage() {
 
         // 2. Inserir Notas (Média Final no 4º Bimestre)
         const gradesInserts = [];
-        for (const sub of subjects) {
-          if (std.grades && typeof std.grades[sub] === 'number') {
-            gradesInserts.push({
-              student_id: insertedStudent.id,
-              class_id: cls.id,
-              subject: sub,
-              period: '4º Bimestre', // Simula como a média final para esse import
-              grade: std.grades[sub],
-              absences: i === 0 ? std.absences : 0 // Faltas totais atribuídas à primeira matéria
-            });
-          }
+        const subjectsWithGrades = subjects.filter(sub => std.grades && typeof std.grades[sub] === 'number');
+        
+        for (let j = 0; j < subjectsWithGrades.length; j++) {
+          const sub = subjectsWithGrades[j];
+          gradesInserts.push({
+            student_id: insertedStudent.id,
+            class_id: cls.id,
+            subject: sub,
+            period: '4º Bimestre', // Simula como a média final para esse import
+            grade: std.grades[sub],
+            absences: j === 0 ? (std.absences || 0) : 0 // Faltas totais atribuídas apenas à primeira matéria do aluno
+          });
         }
         
         if (gradesInserts.length > 0) {

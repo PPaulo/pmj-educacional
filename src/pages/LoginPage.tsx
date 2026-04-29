@@ -73,7 +73,7 @@ export function LoginPage() {
 
         const greeting = student.gender === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo';
         toast.success(`${greeting}, ${student.name}!`);
-        localStorage.setItem('student_session', JSON.stringify(student));
+        sessionStorage.setItem('student_session', JSON.stringify(student));
         navigate('/aluno-portal');
       }
     } catch (err: any) {

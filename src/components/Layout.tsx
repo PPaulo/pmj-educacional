@@ -17,12 +17,12 @@ export function Layout() {
 
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden w-full relative">
-        {localStorage.getItem('impersonated_user') && (
+        {sessionStorage.getItem('impersonated_user') && (
            <div className="bg-amber-600 text-white p-2.5 font-bold text-center text-xs flex justify-center items-center gap-3 shadow-md z-50">
                <span>⚠️ Você está visualizando o sistema no modo Simulação de Usuário.</span>
                <button 
                   onClick={() => {
-                      localStorage.removeItem('impersonated_user');
+                      sessionStorage.removeItem('impersonated_user');
                       window.location.href = '/dashboard';
                   }} 
                   className="bg-white/20 hover:bg-white/30 transition-colors px-2 py-1 rounded-md font-black"

@@ -54,7 +54,7 @@ export function CoordinationPage() {
   useEffect(() => {
     const loadConfigs = async () => {
       // 1. Check for impersonation from localStorage
-      const impersonated = localStorage.getItem('impersonated_user');
+      const impersonated = sessionStorage.getItem('impersonated_user');
       if (impersonated) {
           const data = JSON.parse(impersonated);
           setUserRole(data.role || 'Admin');

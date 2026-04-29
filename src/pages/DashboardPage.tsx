@@ -70,7 +70,7 @@ export function DashboardPage() {
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const impersonated = localStorage.getItem('impersonated_user');
+        const impersonated = sessionStorage.getItem('impersonated_user');
         let currentRole = 'Admin';
         let currentSchoolId = null;
         

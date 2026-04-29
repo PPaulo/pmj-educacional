@@ -27,7 +27,7 @@ export function HRPage() {
   const navigate = useNavigate();
   
   const handleImpersonate = (emp: any) => {
-       localStorage.setItem('impersonated_user', JSON.stringify({ id: emp.id, role: emp.role, name: emp.name, school_id: emp.schoolId || emp.school_id }));
+       sessionStorage.setItem('impersonated_user', JSON.stringify({ id: emp.id, role: emp.role, name: emp.name, school_id: emp.schoolId || emp.school_id }));
        toast.success(`Modo Simulação Ativado: ${emp.name}`);
        window.location.href = emp.role === 'Professor' ? '/professor' : '/dashboard';
   };
@@ -57,7 +57,7 @@ export function HRPage() {
     document.title = "Recursos Humanos - Sistema Escolar"; // Set document title for HR page
     const loadConfig = async () => {
       // 1. Check for impersonation from localStorage
-      const impersonated = localStorage.getItem('impersonated_user');
+      const impersonated = sessionStorage.getItem('impersonated_user');
       if (impersonated) {
           const data = JSON.parse(impersonated);
           setUserRole(data.role || 'Admin');

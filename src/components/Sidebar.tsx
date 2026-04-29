@@ -147,7 +147,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const [userRole, setUserRole] = useState<string>('Secretaria');
 
   useEffect(() => {
-    const imp = localStorage.getItem('impersonated_user');
+    const imp = sessionStorage.getItem('impersonated_user');
     if (imp) {
          try {
              const { role } = JSON.parse(imp);
@@ -156,7 +156,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
          } catch(e) {}
     }
 
-    const studentSession = localStorage.getItem('student_session');
+    const studentSession = sessionStorage.getItem('student_session');
     if (studentSession) {
        setUserRole('Aluno');
        return;
@@ -306,8 +306,8 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         )}
         <button 
           onClick={async () => {
-              localStorage.removeItem('student_session');
-              localStorage.removeItem('impersonated_user');
+              sessionStorage.removeItem('student_session');
+              sessionStorage.removeItem('impersonated_user');
               await supabase.auth.signOut();
               navigate('/');
           }}

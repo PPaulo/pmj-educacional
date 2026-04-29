@@ -362,7 +362,7 @@ export function ConfiguracoesPage() {
     setLoading(true);
     try {
       // Check for impersonation first
-      const impersonated = localStorage.getItem('impersonated_user');
+      const impersonated = sessionStorage.getItem('impersonated_user');
       if (impersonated) {
           const data = JSON.parse(impersonated);
           setProfileData({ 

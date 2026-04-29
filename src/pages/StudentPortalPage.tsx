@@ -42,7 +42,7 @@ export function StudentPortalPage() {
   ]);
 
   useEffect(() => {
-    const sessionStr = localStorage.getItem('student_session');
+    const sessionStr = sessionStorage.getItem('student_session');
     if (!sessionStr) {
         navigate('/');
         return;

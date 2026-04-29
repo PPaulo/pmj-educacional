@@ -17,7 +17,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     async function checkAuth() {
       try {
         // 1. Check for student session (Legacy/Portal do Aluno)
-        const studentSession = localStorage.getItem('student_session');
+        const studentSession = sessionStorage.getItem('student_session');
         if (studentSession && location.pathname.startsWith('/aluno-portal')) {
           setAuthenticated(true);
           setUserRole('Aluno');
@@ -26,7 +26,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
         }
 
         // 2. Check for impersonation
-        const impersonated = localStorage.getItem('impersonated_user');
+        const impersonated = sessionStorage.getItem('impersonated_user');
         if (impersonated) {
           const data = JSON.parse(impersonated);
           setAuthenticated(true);

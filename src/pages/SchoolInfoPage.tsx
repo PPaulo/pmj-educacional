@@ -109,7 +109,7 @@ export function SchoolInfoPage() {
   }, [schoolInfo.cep]);
 
   const loadUserRole = async () => {
-    const imp = localStorage.getItem('impersonated_user');
+    const imp = sessionStorage.getItem('impersonated_user');
     if (imp) { setUserRole(JSON.parse(imp).role); return; }
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
