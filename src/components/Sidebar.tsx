@@ -94,12 +94,12 @@ function SubMenu({ item, setIsSidebarOpen }: { item: any, setIsSidebarOpen: (v: 
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "w-full flex items-center gap-3 px-4 py-2 rounded-xl transition-all text-sm font-semibold group cursor-pointer",
-          isOpen ? "text-white bg-white/10" : "text-blue-100/70 hover:bg-white/5 hover:text-white"
+          isOpen ? "text-white bg-white/10" : "text-white/70 hover:bg-white/5 hover:text-white"
         )}
       >
-        <item.icon size={18} className={cn("transition-colors", isOpen ? "text-blue-300" : "text-blue-200/50 group-hover:text-white")} />
+        <item.icon size={18} className={cn("transition-colors", isOpen ? "text-white" : "text-white/40 group-hover:text-white")} />
         <span className="flex-1 text-left">{item.label}</span>
-        <ChevronDown size={14} className={cn("ml-auto transition-transform duration-300 text-blue-200/40 group-hover:text-blue-200", isOpen && "rotate-180")} />
+        <ChevronDown size={14} className={cn("ml-auto transition-transform duration-300 text-white/30 group-hover:text-white", isOpen && "rotate-180")} />
       </button>
       <AnimatePresence>
         {isOpen && (
@@ -117,8 +117,8 @@ function SubMenu({ item, setIsSidebarOpen }: { item: any, setIsSidebarOpen: (v: 
                 className={({ isActive }) => cn(
                   "flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-xs font-bold",
                   isActive 
-                    ? "text-blue-300 bg-white/5" 
-                    : "text-blue-200/40 hover:text-blue-100 hover:bg-white/5"
+                    ? "text-white bg-white/10" 
+                    : "text-white/40 hover:text-white hover:bg-white/5"
                 )}
               >
                 <span>{child.label}</span>
@@ -208,7 +208,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
              <School className="text-white" size={20} />
           </div>
           <div className="flex flex-col">
-            <h1 className="text-white text-base font-black leading-tight tracking-tight uppercase">PMJ <span className="text-blue-300 block text-[8px] tracking-[0.25em] font-medium">Educacional</span></h1>
+            <h1 className="text-white text-base font-black leading-tight tracking-tight uppercase">PMJ <span className="text-white/60 block text-[8px] tracking-[0.25em] font-medium">Educacional</span></h1>
           </div>
         </div>
         
@@ -221,7 +221,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       <div className="px-6 pb-6">
         <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
           <div className="flex items-center justify-between gap-2">
-            <label className="text-[8px] font-bold uppercase tracking-[0.2em] text-blue-200/50">Exercício</label>
+            <label className="text-[8px] font-bold uppercase tracking-[0.2em] text-blue-100/70">Exercício</label>
             <select 
               className="bg-transparent border-none text-xs font-bold text-white outline-none cursor-pointer text-right appearance-none hover:text-blue-300 transition-colors"
               value={localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString()}
@@ -246,7 +246,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
             return (
                 <div key={idx} className="space-y-1">
-                    <h3 className="px-4 text-[8px] font-bold uppercase tracking-[0.3em] text-blue-200/40 mb-1">{section.title}</h3>
+                    <h3 className="px-4 text-[9px] font-black uppercase tracking-[0.2em] text-blue-100 mb-1">{section.title}</h3>
                     <div className="space-y-0.5">
                         {visibleItems.map((item: any) => (
                             item.children ? (
@@ -259,18 +259,18 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                                     className={({ isActive }) => cn(
                                         "group flex items-center gap-3 px-4 py-1.5 rounded-xl transition-all text-sm font-semibold relative",
                                         isActive 
-                                            ? "bg-white/10 text-white shadow-lg shadow-black/5" 
-                                            : "text-blue-100/70 hover:bg-white/5 hover:text-white"
+                                            ? "bg-white/20 text-white shadow-lg shadow-black/10" 
+                                            : "text-white/70 hover:bg-white/10 hover:text-white"
                                     )}
                                 >
                                     {({ isActive }) => (
                                         <>
                                             <item.icon size={18} className={cn(
                                                 "transition-colors",
-                                                isActive ? "text-blue-300" : "text-blue-200/50 group-hover:text-white"
+                                                isActive ? "text-white" : "text-white/40 group-hover:text-white"
                                             )} />
                                             <span className="flex-1 truncate">{item.label}</span>
-                                            {isActive && <div className="size-1 rounded-full bg-blue-300 shadow-[0_0_8px_rgba(147,197,253,0.6)]" />}
+                                            {isActive && <div className="size-1 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.6)]" />}
                                         </>
                                     )}
                                 </NavLink>
@@ -291,8 +291,8 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                 className={({ isActive }) => cn(
                   "flex items-center gap-3 px-4 py-2 rounded-xl transition-all text-xs font-semibold",
                   isActive 
-                    ? "bg-white/10 text-white" 
-                    : "text-blue-200/50 hover:bg-white/5 hover:text-white"
+                    ? "bg-white/20 text-white" 
+                    : "text-white/50 hover:bg-white/10 hover:text-white"
                 )}
               >
                 <Settings size={16} />
@@ -306,7 +306,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                 await supabase.auth.signOut();
                 navigate('/');
             }}
-            className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-rose-300/60 hover:bg-rose-500/10 hover:text-rose-300 transition-all text-xs font-semibold"
+            className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-rose-200/60 hover:bg-rose-500/20 hover:text-rose-100 transition-all text-xs font-semibold"
           >
             <LogOut size={16} />
             <span>Sair</span>
