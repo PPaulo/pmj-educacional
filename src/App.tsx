@@ -34,6 +34,8 @@ const FamilyCommunicationPage = lazy(() => import('./pages/FamilyCommunicationPa
 const StaffCommunicationPage = lazy(() => import('./pages/StaffCommunicationPage').then(m => ({ default: m.StaffCommunicationPage })));
 const TimesheetsPage = lazy(() => import('./pages/TimesheetsPage').then(m => ({ default: m.TimesheetsPage })));
 
+const DocumentImportPage = lazy(() => import('./pages/DocumentImportPage').then(m => ({ default: m.DocumentImportPage })));
+
 const LoadingFallback = () => (
   <div className="flex h-screen w-full items-center justify-center bg-slate-50 dark:bg-slate-950">
     <div className="flex flex-col items-center gap-3">
@@ -58,6 +60,7 @@ export default function App() {
             <Route path="/professor" element={<TeacherPage />} />
             <Route path="/coordenacao" element={<CoordinationPage />} />
             <Route path="/merenda" element={<MerendaPage />} />
+            <Route path="/importacao-atas" element={<DocumentImportPage />} />
             <Route path="/aluno-portal" element={<StudentPortalPage />} />
             <Route path="/arquivos" element={<ArchivePage />} />
             <Route path="/ocorrencias" element={<OccurrencesPage />} />

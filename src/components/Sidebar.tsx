@@ -63,6 +63,7 @@ const navSections: any[] = [
           { label: 'Matrículas Ativas', path: '/alunos' },
           { label: 'Pré-Matrículas Online', path: '/pre-matriculas' },
           { label: 'Arquivo Passivo', path: '/arquivos' },
+          { label: 'Importação de Atas (IA)', path: '/importacao-atas' },
         ]
       },
       { icon: FileText, label: 'Relatórios e BI', path: '/relatorios', roles: ['Admin', 'Diretor', 'Secretaria', 'Coordenador'] },
