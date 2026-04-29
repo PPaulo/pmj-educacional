@@ -227,6 +227,22 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         </button>
       </div>
 
+      <div className="px-6 pb-6">
+        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-200/50 mb-1.5 block">Ano Letivo de Trabalho</label>
+        <select 
+          className="w-full bg-white/10 border border-white/10 rounded-lg px-3 py-2 text-sm font-bold text-white outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
+          value={localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString()}
+          onChange={(e) => {
+            localStorage.setItem('pmj_ano_letivo', e.target.value);
+            window.location.reload();
+          }}
+        >
+          {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 2 + i).map(year => (
+            <option key={year} value={year} className="text-slate-900">{year}</option>
+          ))}
+        </select>
+      </div>
+
       <nav className="flex-1 px-4 space-y-8 overflow-y-auto pb-8 scrollbar-hide">
         {navSections.map((section, idx) => {
             const visibleItems = filterItems(section.items);

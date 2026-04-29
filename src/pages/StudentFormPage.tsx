@@ -646,7 +646,7 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement 
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Ano Letivo</label>
-                      <select name="anoLetivo" value={formData.anoLetivo || new Date().getFullYear().toString()} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 dark:text-white">
+                      <select name="anoLetivo" value={formData.anoLetivo || localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString()} onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-600 dark:text-white">
                         {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 2 + i).map(year => (
                           <option key={year} value={year}>{year}</option>
                         ))}

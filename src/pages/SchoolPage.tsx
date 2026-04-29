@@ -70,7 +70,8 @@ export function SchoolPage() {
           }
         }
 
-        let classQuery = supabase.from('classes').select('*');
+        const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
+        let classQuery = supabase.from('classes').select('*').eq('year', activeYear);
         let teacherQuery = supabase.from('employees').select('*').ilike('role', '%Professor%');
 
         if (userRole !== 'Admin' && schoolId) {
@@ -123,9 +124,10 @@ export function SchoolPage() {
       });
     } else {
       setClassToEdit(null);
+      const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
       setFormData({
         name: '',
-        year: '2026',
+        year: activeYear,
         shift: 'Matutino',
         room: '',
         teacherId: '',

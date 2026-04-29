@@ -804,7 +804,7 @@ export function StudentModal({ isOpen, onClose, onSave, student, nextRegistratio
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs">Ano Letivo</label>
-                      <select name="anoLetivo" value={formData.anoLetivo || new Date().getFullYear().toString()} onChange={handleChange} className="w-full text-sm bg-slate-50 py-2 rounded-lg">
+                      <select name="anoLetivo" value={formData.anoLetivo || localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString()} onChange={handleChange} className="w-full text-sm bg-slate-50 py-2 rounded-lg">
                         {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 2 + i).map(year => (
                           <option key={year} value={year}>{year}</option>
                         ))}

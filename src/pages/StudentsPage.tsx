@@ -91,10 +91,13 @@ export function StudentsPage() {
   useEffect(() => {
     const loadStudents = async () => {
       try {
+        const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
+        
         let query = supabase
           .from('students')
           .select('*')
-          .neq('status', 'Arquivado');
+          .neq('status', 'Arquivado')
+          .eq('ano_letivo', activeYear);
 
         if (userRole !== 'Admin' && userSchoolId) {
             query = query.eq('school_id', userSchoolId);

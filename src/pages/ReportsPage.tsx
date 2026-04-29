@@ -76,8 +76,9 @@ export function ReportsPage() {
   // Carregar Dados Conforme Filtros
   useEffect(() => {
     const loadData = async () => {
-      let stdQuery = supabase.from('students').select('*');
-      let clsQuery = supabase.from('classes').select('*').order('name');
+      const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
+      let stdQuery = supabase.from('students').select('*').eq('ano_letivo', activeYear);
+      let clsQuery = supabase.from('classes').select('*').eq('year', activeYear).order('name');
 
       if (userRole !== 'Admin' && userSchoolId) {
            stdQuery = stdQuery.eq('school_id', userSchoolId);
