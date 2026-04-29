@@ -96,7 +96,7 @@ export function DashboardPage() {
         // Base queries for counts
         let studentQ = supabase.from('students').select('*', { count: 'exact', head: true }).neq('status', 'Arquivado').eq('ano_letivo', activeYear);
         let archivedQ = supabase.from('students').select('*', { count: 'exact', head: true }).eq('status', 'Arquivado').eq('ano_letivo', activeYear);
-        let teacherQ = supabase.from('employees').select('*', { count: 'exact', head: true }).ilike('role', '%Professor%');
+        let teacherQ = supabase.from('employees').select('*', { count: 'exact', head: true }).ilike('role', '%Professor%').eq('status', 'Ativo');
         let classQ = supabase.from('classes').select('*', { count: 'exact', head: true }).eq('year', activeYear);
         let eventQ = supabase.from('events').select('*', { count: 'exact', head: true }).gte('date', `${activeYear}-01-01`).lte('date', `${activeYear}-12-31`);
 

@@ -41,6 +41,7 @@ export function CalendarPage() {
       if (!user) return;
 
       const { data: profile } = await supabase.from('profiles').select('role, school_id').eq('id', user.id).single();
+      const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
       
       let query = supabase.from('events').select('*');
       
@@ -54,7 +55,11 @@ export function CalendarPage() {
       }
 
       const { data } = await query;
-      setEvents(data || []);
+      // Note: If events don't have a year column yet, we could filter by date prefix.
+      // But for now let's just ensure we only show events whose date starts with the current year if we want strictly year-based.
+      // However, most calendars show all events.
+      // Let's filter by year if the column exists or by date string.
+      setEvents(data?.filter(e => e.date.startsWith(activeYear)) || []);
     } catch (err) {
       console.error(err);
     }

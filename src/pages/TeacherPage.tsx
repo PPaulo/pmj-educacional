@@ -67,7 +67,18 @@ export function TeacherPage() {
 
   useEffect(() => {
     const loadClasses = async () => {
-      const { data } = await supabase.from('classes').select('*').order('name');
+      const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
+      const { data: { user } } = await supabase.auth.getUser();
+      let query = supabase.from('classes').select('*').eq('year', activeYear).order('name');
+      
+      if (user) {
+        const { data: profile } = await supabase.from('profiles').select('school_id, role').eq('id', user.id).single();
+        if (profile && profile.role !== 'Admin' && profile.school_id) {
+           query = query.eq('school_id', profile.school_id);
+        }
+      }
+      
+      const { data } = await query;
       setClasses(snakeToCamel(data || []));
     };
     loadClasses();
@@ -93,10 +104,13 @@ export function TeacherPage() {
   const loadStudentsAndGrades = async () => {
     setLoading(true);
     try {
+      const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
       const { data: stds } = await supabase
         .from('students')
         .select('id, name, registration, entry_date')
-        .eq('class', selectedClass.name);
+        .eq('class', selectedClass.name)
+        .eq('ano_letivo', activeYear)
+        .eq('school_id', selectedClass.school_id);
 
       const allStudents = snakeToCamel(stds || []);
       setStudents(sortStudents(allStudents));

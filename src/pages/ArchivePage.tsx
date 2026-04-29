@@ -59,12 +59,29 @@ export function ArchivePage() {
   }, [selectedStudent]);
 
   const loadStudents = async () => {
-    const { data, error } = await supabase
-      .from('students')
-      .select('id, name, birth_date, mother_name, father_name, registration')
-      .neq('status', 'Ativo')
-      .order('name');
-    if (!error) setStudents(snakeToCamel(data || []));
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      const { data: profile } = await supabase.from('profiles').select('school_id, role').eq('id', user.id).single();
+      const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
+
+      let query = supabase
+        .from('students')
+        .select('id, name, birth_date, mother_name, father_name, registration')
+        .neq('status', 'Ativo')
+        .eq('ano_letivo', activeYear)
+        .order('name');
+      
+      if (profile && profile.role !== 'Admin' && profile.school_id) {
+        query = query.eq('school_id', profile.school_id);
+      }
+      
+      const { data, error } = await query;
+      if (!error) setStudents(snakeToCamel(data || []));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const loadFiles = async () => {

@@ -1,9 +1,20 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Heart, LogIn, GraduationCap, School } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export function LandingPage() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate('/dashboard');
+      }
+    });
+  }, [navigate]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-indigo-700 to-slate-900 flex flex-col items-center justify-center p-4">
       

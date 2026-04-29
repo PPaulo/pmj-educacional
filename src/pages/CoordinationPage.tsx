@@ -85,8 +85,10 @@ export function CoordinationPage() {
   const loadAllData = async () => {
     setLoading(true);
     try {
+      const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
+
       // Builders
-      let classesQuery = supabase.from('classes').select('*').order('name');
+      let classesQuery = supabase.from('classes').select('*').eq('year', activeYear).order('name');
       let planningsQuery = supabase.from('plannings').select('*').order('date', { ascending: false });
       let gradesQuery = supabase.from('grades').select('*');
       let attendQuery = supabase.from('attendance').select('*').limit(1000);

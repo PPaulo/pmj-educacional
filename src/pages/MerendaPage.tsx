@@ -80,9 +80,11 @@ export function MerendaPage() {
   const loadRestrictions = async () => {
     setLoading(true);
     try {
+      const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
       let query = supabase
         .from('students')
         .select('id, name, class, alergias, observations')
+        .eq('ano_letivo', activeYear)
         .not('alergias', 'is', null)
         .not('alergias', 'eq', '')
         .order('name');

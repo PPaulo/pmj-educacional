@@ -41,8 +41,9 @@ export function OccurrencesPage() {
              setUserRole(profile.role);
              setUserSchoolId(profile.school_id);
              
+             const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
              // Carregar alunos para o Select do formulário
-             let studQuery = supabase.from('students').select('id, name, entry_date');
+             let studQuery = supabase.from('students').select('id, name, entry_date').eq('ano_letivo', activeYear);
              if (profile.role !== 'Admin' && profile.school_id) {
                  studQuery = studQuery.eq('school_id', profile.school_id);
              }
@@ -61,7 +62,12 @@ export function OccurrencesPage() {
   const loadOccurrences = async () => {
     setLoading(true);
     try {
-      let query = supabase.from('occurrences').select('*, students(name)').order('created_at', { ascending: false });
+      const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
+      let query = supabase
+        .from('occurrences')
+        .select('*, students!inner(name, ano_letivo)')
+        .eq('students.ano_letivo', activeYear)
+        .order('created_at', { ascending: false });
       
       if (userRole !== 'Admin' && userSchoolId) {
           query = query.eq('school_id', userSchoolId);

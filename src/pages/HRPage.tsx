@@ -39,6 +39,7 @@ export function HRPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('Todos');
   const [roleFilter, setRoleFilter] = useState('Todos');
+  const [statusFilter, setStatusFilter] = useState('Ativo');
   const [totalEmployees, setTotalEmployees] = useState(0);
   const [allDepartments, setAllDepartments] = useState<string[]>([]);
   const [allRoles, setAllRoles] = useState<string[]>([]);
@@ -107,6 +108,10 @@ export function HRPage() {
           query = query.eq('role', roleFilter);
         }
 
+        if (statusFilter !== 'Todos') {
+          query = query.eq('status', statusFilter);
+        }
+
         if (searchQuery) {
           query = query.or(`name.ilike.%${searchQuery}%,role.ilike.%${searchQuery}%,cpf.ilike.%${searchQuery}%`);
         }
@@ -127,7 +132,7 @@ export function HRPage() {
       }
     };
     loadEmployees();
-  }, [currentPage, pageSize, searchQuery, departmentFilter, roleFilter, schoolFilter, userRole, userSchoolId]);
+  }, [currentPage, pageSize, searchQuery, departmentFilter, roleFilter, statusFilter, schoolFilter, userRole, userSchoolId]);
 
   useEffect(() => {
     const loadUniques = async () => {
@@ -345,7 +350,6 @@ export function HRPage() {
                   </select>
                   <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
                 </div>
-
                 <div className="relative flex-1 sm:flex-none">
                   <select 
                     value={roleFilter}
@@ -356,6 +360,20 @@ export function HRPage() {
                     {allRoles.map(role => (
                       <option key={role} value={role}>{role}</option>
                     ))}
+                  </select>
+                  <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                </div>
+
+                <div className="relative flex-1 sm:flex-none">
+                  <select 
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="appearance-none pl-10 pr-8 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-600 outline-none"
+                  >
+                    <option value="Todos">Todos os Status</option>
+                    <option value="Ativo">Ativo</option>
+                    <option value="Inativo">Inativo</option>
+                    <option value="Afastado">Afastado</option>
                   </select>
                   <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
                 </div>
@@ -401,6 +419,7 @@ export function HRPage() {
                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Funcionário</th>
                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Cargo</th>
                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Departamento</th>
+                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Status</th>
                         <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Ações</th>
                       </tr>
                     </thead>
@@ -425,6 +444,16 @@ export function HRPage() {
                             </td>
                             <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{emp.role}</td>
                             <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{emp.department}</td>
+                            <td className="px-6 py-4">
+                              <span className={cn(
+                                "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                                emp.status === 'Ativo' ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" :
+                                emp.status === 'Inativo' ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" :
+                                "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                              )}>
+                                {emp.status || 'Ativo'}
+                              </span>
+                            </td>
                             <td className="px-6 py-4 text-right">
                               <div className="flex justify-end gap-2">
                                 {userRole === 'Admin' && (
@@ -469,6 +498,7 @@ export function HRPage() {
                                   setSearchQuery('');
                                   setDepartmentFilter('Todos');
                                   setRoleFilter('Todos');
+                                  setStatusFilter('Todos');
                                 }}
                                 className="text-xs text-blue-600 font-bold hover:underline mt-2"
                               >
@@ -506,9 +536,19 @@ export function HRPage() {
                           </span>
                         </div>
 
-                        <div className="pt-2 border-t border-slate-100 dark:border-slate-800/50">
-                          <p className="text-slate-400 text-xs">Cargo</p>
-                          <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm mt-0.5">{emp.role}</p>
+                        <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-800/50">
+                          <div>
+                            <p className="text-slate-400 text-xs">Cargo</p>
+                            <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm mt-0.5">{emp.role}</p>
+                          </div>
+                          <span className={cn(
+                            "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                            emp.status === 'Ativo' ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" :
+                            emp.status === 'Inativo' ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" :
+                            "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                          )}>
+                            {emp.status || 'Ativo'}
+                          </span>
                         </div>
 
                         <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800/50">

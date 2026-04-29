@@ -74,13 +74,21 @@ export function StaffCommunicationPage() {
   const loadEmployees = async (dept: string) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: profile } = await supabase.from('profiles').select('school_id, role').eq('id', user?.id).single();
+      
+      let query = supabase
         .from('employees')
         .select('*')
         .eq('department', dept)
         .neq('status', 'Inativo')
         .order('name');
+
+      if (profile && profile.role !== 'Admin' && profile.school_id) {
+          query = query.eq('school_id', profile.school_id);
+      }
       
+      const { data, error } = await query;
       if (error) throw error;
       setEmployees(data ? snakeToCamel(data) as any : []);
     } catch (err) {
