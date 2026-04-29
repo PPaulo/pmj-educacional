@@ -5,26 +5,20 @@ import {
   Users, 
   GraduationCap, 
   BookOpen, 
-  Wallet, 
   Megaphone, 
   Settings, 
   LogOut,
   School,
   Calendar as CalendarIcon,
   X,
-  AlertCircle,
   AlertTriangle,
   ChevronDown,
-  FolderPlus,
-  FolderOpen,
   FileCheck,
   Soup,
   MessageCircle,
   Building2,
   Clock,
-  Briefcase,
   FileText,
-  ShieldCheck,
   Smartphone
 } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -32,64 +26,56 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
 import { supabase } from '../lib/supabase';
-import { Logo } from './Logo';
 
-// 1. Definição dos itens de navegação agrupados por departamentos (Padrão de Mercado SGE)
+// 1. Definição dos itens de navegação agrupados por departamentos
 const navSections: any[] = [
   {
     title: 'Monitoramento',
     items: [
-      { icon: LayoutDashboard, label: 'Dashboard Inteligente', path: '/dashboard', roles: ['Admin', 'Diretor', 'Secretaria', 'Coordenador'] },
-      { icon: Megaphone, label: 'Mural de Comunicados', path: '/comunicados', roles: ['Admin', 'Diretor', 'Secretaria', 'Professor', 'Coordenador'] },
+      { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', roles: ['Admin', 'Diretor', 'Secretaria', 'Coordenador'] },
+      { icon: Megaphone, label: 'Comunicados', path: '/comunicados', roles: ['Admin', 'Diretor', 'Secretaria', 'Professor', 'Coordenador'] },
     ]
   },
   {
-    title: 'Gestão Pedagógica',
+    title: 'Pedagógico',
     items: [
-      { icon: GraduationCap, label: 'Portal do Professor', path: '/professor', roles: ['Professor'] },
-      { icon: FileCheck, label: 'Centro de Coordenação', path: '/coordenacao', roles: ['Admin', 'Diretor', 'Coordenador'] },
-      { icon: BookOpen, label: 'Turmas', path: '/escola', roles: ['Admin', 'Diretor', 'Secretaria', 'Coordenador'] }, // Nova entrada direta
+      { icon: GraduationCap, label: 'Portal Professor', path: '/professor', roles: ['Professor'] },
+      { icon: FileCheck, label: 'Coordenação', path: '/coordenacao', roles: ['Admin', 'Diretor', 'Coordenador'] },
+      { icon: BookOpen, label: 'Turmas', path: '/escola', roles: ['Admin', 'Diretor', 'Secretaria', 'Coordenador'] },
       { icon: AlertTriangle, label: 'Ocorrências', path: '/ocorrencias', roles: ['Admin', 'Diretor', 'Secretaria', 'Professor', 'Coordenador'] },
     ]
   },
   {
-    title: 'Secretaria e Alunos',
+    title: 'Secretaria',
     items: [
       { 
         icon: Users, 
-        label: 'Gestão de Alunos', 
+        label: 'Alunos', 
         roles: ['Admin', 'Diretor', 'Secretaria'],
         children: [
-          { label: 'Matrículas Ativas', path: '/alunos' },
-          { label: 'Pré-Matrículas Online', path: '/pre-matriculas' },
-          { label: 'Arquivo Passivo', path: '/arquivos' },
-          { label: 'Importação de Atas (IA)', path: '/importacao-atas' },
+          { label: 'Ativos', path: '/alunos' },
+          { label: 'Pré-Matrículas', path: '/pre-matriculas' },
+          { label: 'Arquivado', path: '/arquivos' },
+          { label: 'Importação IA', path: '/importacao-atas' },
         ]
       },
-      { icon: FileText, label: 'Relatórios e BI', path: '/relatorios', roles: ['Admin', 'Diretor', 'Secretaria', 'Coordenador'] },
+      { icon: FileText, label: 'Relatórios', path: '/relatorios', roles: ['Admin', 'Diretor', 'Secretaria', 'Coordenador'] },
     ]
   },
   {
-    title: 'Recursos e Unidade',
+    title: 'Gestão',
     items: [
-      { icon: Soup, label: 'Gestão de Merenda', path: '/merenda', roles: ['Admin', 'Diretor', 'Nutricionista', 'Secretaria'] },
-      { icon: School, label: 'Dados da Unidade', path: '/escola-info', roles: ['Admin', 'Diretor', 'Secretaria'] },
-      { icon: CalendarIcon, label: 'Calendário Escolar', path: '/calendario', roles: ['Admin', 'Diretor', 'Secretaria', 'Professor', 'Coordenador', 'Nutricionista', 'Aluno'] },
+      { icon: Soup, label: 'Merenda', path: '/merenda', roles: ['Admin', 'Diretor', 'Nutricionista', 'Secretaria'] },
+      { icon: School, label: 'Unidade', path: '/escola-info', roles: ['Admin', 'Diretor', 'Secretaria'] },
+      { icon: CalendarIcon, label: 'Calendário', path: '/calendario', roles: ['Admin', 'Diretor', 'Secretaria', 'Professor', 'Coordenador', 'Nutricionista', 'Aluno'] },
     ]
   },
   {
-    title: 'Administrativo e RH',
+    title: 'RH e Canais',
     items: [
-      { icon: Building2, label: 'Recursos Humanos', path: '/rh', roles: ['Admin', 'Diretor', 'Secretaria'] },
-      { icon: Clock, label: 'Registro de Ponto', path: '/ponto', roles: ['Admin', 'Diretor', 'Secretaria', 'Professor', 'Coordenador', 'Nutricionista'] },
-      { icon: Megaphone, label: 'Canais de Comunicação', path: '/comunicacao-rh', roles: ['Admin', 'Diretor', 'Secretaria', 'Professor', 'Coordenador', 'Nutricionista'] },
-    ]
-  },
-  {
-    title: 'Portais Externos',
-    items: [
-      { icon: Smartphone, label: 'Portal do Aluno', path: '/aluno-portal', roles: ['Aluno'] },
-      { icon: MessageCircle, label: 'Portal da Família', path: '/familia', roles: ['Admin', 'Diretor', 'Secretaria', 'Professor', 'Coordenador'] },
+      { icon: Building2, label: 'RH', path: '/rh', roles: ['Admin', 'Diretor', 'Secretaria'] },
+      { icon: MessageCircle, label: 'Família', path: '/familia', roles: ['Admin', 'Diretor', 'Secretaria', 'Professor', 'Coordenador'] },
+      { icon: Smartphone, label: 'Portal Aluno', path: '/aluno-portal', roles: ['Aluno'] },
     ]
   }
 ];
@@ -99,18 +85,21 @@ interface SidebarProps {
   setIsOpen: (isOpen: boolean) => void;
 }
 
-function SubMenu({ item, setIsSidebarOpen }: { item: any, setIsSidebarOpen: (v: boolean) => void, key?: any }) {
+function SubMenu({ item, setIsSidebarOpen }: { item: any, setIsSidebarOpen: (v: boolean) => void }) {
   const [isOpen, setIsOpen] = useState(false);
   
   return (
-    <div>
+    <div className="space-y-0.5">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm font-semibold text-blue-100 hover:bg-white/10 hover:text-white group cursor-pointer"
+        className={cn(
+          "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-sm font-semibold group cursor-pointer",
+          isOpen ? "text-white bg-white/10" : "text-blue-100/70 hover:bg-white/5 hover:text-white"
+        )}
       >
-        <item.icon size={18} className="text-blue-300 group-hover:text-white" />
+        <item.icon size={18} className={cn("transition-colors", isOpen ? "text-blue-300" : "text-blue-200/50 group-hover:text-white")} />
         <span className="flex-1 text-left">{item.label}</span>
-        <ChevronDown size={16} className={cn("ml-auto transition-transform duration-200 text-blue-300 group-hover:text-white", isOpen && "rotate-180")} />
+        <ChevronDown size={14} className={cn("ml-auto transition-transform duration-300 text-blue-200/40 group-hover:text-blue-200", isOpen && "rotate-180")} />
       </button>
       <AnimatePresence>
         {isOpen && (
@@ -118,7 +107,7 @@ function SubMenu({ item, setIsSidebarOpen }: { item: any, setIsSidebarOpen: (v: 
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden pl-7 space-y-1 mt-1 border-l-2 border-white/10 ml-5"
+            className="overflow-hidden space-y-0.5 ml-4 pl-4 border-l border-white/10"
           >
             {item.children.map((child: any) => (
               <NavLink
@@ -126,10 +115,10 @@ function SubMenu({ item, setIsSidebarOpen }: { item: any, setIsSidebarOpen: (v: 
                 to={child.path}
                 onClick={() => setIsSidebarOpen(false)}
                 className={({ isActive }) => cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-xl transition-all text-xs font-bold",
+                  "flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-xs font-bold",
                   isActive 
-                    ? "text-white bg-white/20" 
-                    : "text-blue-200 hover:bg-white/10 hover:text-white"
+                    ? "text-blue-300 bg-white/5" 
+                    : "text-blue-200/40 hover:text-blue-100 hover:bg-white/5"
                 )}
               >
                 <span>{child.label}</span>
@@ -193,7 +182,6 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         const normalizedUserRole = userRole.toLowerCase();
         const normalizedEffectiveRole = effectiveRole.toLowerCase();
 
-        // Admin e Administrador têm acesso total a todos os módulos
         if (normalizedUserRole === 'admin' || normalizedUserRole === 'administrador') return true;
 
         if (normalizedUserRole === 'jovem aprendiz') {
@@ -210,51 +198,56 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
   return (
     <aside className={cn(
-      "fixed inset-y-0 left-0 z-50 w-72 bg-[#1E3A8A] border-r border-white/10 flex flex-col h-screen transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 font-sans shadow-2xl",
+      "fixed inset-y-0 left-0 z-50 w-64 bg-[#1e3a8a] border-r border-white/5 flex flex-col h-screen transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 font-sans shadow-xl",
       isOpen ? "translate-x-0" : "-translate-x-full"
     )}>
-      <div className="p-6 pb-8 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="size-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20">
-             <School className="text-white" size={24} />
+      {/* Header com Logo */}
+      <div className="p-6 flex items-center justify-between">
+        <div className="flex items-center gap-3 group cursor-pointer" onClick={() => navigate('/dashboard')}>
+          <div className="size-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/10 group-hover:bg-white/20 transition-all">
+             <School className="text-white" size={20} />
           </div>
           <div className="flex flex-col">
-            <h1 className="text-white text-base font-black leading-none tracking-tight uppercase">PMJ <span className="text-blue-300 block text-[10px] tracking-widest mt-1">Educacional</span></h1>
+            <h1 className="text-white text-base font-black leading-tight tracking-tight uppercase">PMJ <span className="text-blue-300 block text-[8px] tracking-[0.25em] font-medium">Educacional</span></h1>
           </div>
         </div>
         
-        <button onClick={() => setIsOpen(false)} className="p-2 rounded-lg text-blue-200 hover:bg-white/10 lg:hidden transition-all">
-          <X size={20} />
+        <button onClick={() => setIsOpen(false)} className="p-2 rounded-xl text-blue-200 hover:bg-white/10 lg:hidden transition-all">
+          <X size={18} />
         </button>
       </div>
 
+      {/* Seletor de Ano Simplificado */}
       <div className="px-6 pb-6">
-        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-200/50 mb-1.5 block">Ano Letivo de Trabalho</label>
-        <select 
-          className="w-full bg-white/10 border border-white/10 rounded-lg px-3 py-2 text-sm font-bold text-white outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
-          value={localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString()}
-          onChange={(e) => {
-            const newYear = e.target.value;
-            localStorage.setItem('pmj_ano_letivo', newYear);
-            // Direct redirect to root with hard reload to reset all states and avoid Vercel 404s
-            window.location.href = '/';
-          }}
-        >
-          {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 2 + i).map(year => (
-            <option key={year} value={year} className="text-slate-900">{year}</option>
-          ))}
-        </select>
+        <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
+          <div className="flex items-center justify-between gap-2">
+            <label className="text-[8px] font-bold uppercase tracking-[0.2em] text-blue-200/50">Exercício</label>
+            <select 
+              className="bg-transparent border-none text-xs font-bold text-white outline-none cursor-pointer text-right appearance-none hover:text-blue-300 transition-colors"
+              value={localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString()}
+              onChange={(e) => {
+                localStorage.setItem('pmj_ano_letivo', e.target.value);
+                window.location.href = '/';
+              }}
+            >
+              {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 2 + i).map(year => (
+                <option key={year} value={year} className="bg-blue-900">{year}</option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
-      <nav className="flex-1 px-4 space-y-8 overflow-y-auto pb-8 scrollbar-hide">
+      {/* Navegação Principal */}
+      <nav className="flex-1 px-3 space-y-6 overflow-y-auto pb-8 scrollbar-hide">
         {navSections.map((section, idx) => {
             const visibleItems = filterItems(section.items);
             if (visibleItems.length === 0) return null;
 
             return (
-                <div key={idx} className="space-y-2">
-                    <h3 className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-blue-200/50 mb-3">{section.title}</h3>
-                    <div className="space-y-1">
+                <div key={idx} className="space-y-1">
+                    <h3 className="px-4 text-[8px] font-bold uppercase tracking-[0.3em] text-blue-200/40 mb-2">{section.title}</h3>
+                    <div className="space-y-0.5">
                         {visibleItems.map((item: any) => (
                             item.children ? (
                                 <SubMenu key={item.label} item={item} setIsSidebarOpen={setIsOpen} />
@@ -264,20 +257,20 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                                     to={item.path}
                                     onClick={() => setIsOpen(false)}
                                     className={({ isActive }) => cn(
-                                        "group flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-sm font-semibold",
+                                        "group flex items-center gap-3 px-4 py-2 rounded-xl transition-all text-sm font-semibold relative",
                                         isActive 
                                             ? "bg-white/10 text-white shadow-lg shadow-black/5" 
-                                            : "text-blue-100 hover:bg-white/10 hover:text-white"
+                                            : "text-blue-100/70 hover:bg-white/5 hover:text-white"
                                     )}
                                 >
                                     {({ isActive }) => (
                                         <>
                                             <item.icon size={18} className={cn(
                                                 "transition-colors",
-                                                isActive ? "text-blue-300" : "text-blue-200/70 group-hover:text-white"
+                                                isActive ? "text-blue-300" : "text-blue-200/50 group-hover:text-white"
                                             )} />
-                                            <span>{item.label}</span>
-                                            {isActive && <div className="ml-auto size-1.5 rounded-full bg-blue-300" />}
+                                            <span className="flex-1 truncate">{item.label}</span>
+                                            {isActive && <div className="size-1 rounded-full bg-blue-300 shadow-[0_0_8px_rgba(147,197,253,0.6)]" />}
                                         </>
                                     )}
                                 </NavLink>
@@ -289,33 +282,36 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         })}
       </nav>
 
-      <div className="p-4 border-t border-white/5 space-y-1">
-        {userRole !== 'Aluno' && (
-            <NavLink
-              to="/configuracoes"
-              className={({ isActive }) => cn(
-                "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-sm font-semibold",
-                isActive 
-                  ? "bg-white/10 text-white" 
-                  : "text-blue-100 hover:bg-white/10 hover:text-white"
-              )}
-            >
-              <Settings size={18} />
-              <span>Configurações</span>
-            </NavLink>
-        )}
-        <button 
-          onClick={async () => {
-              sessionStorage.removeItem('student_session');
-              sessionStorage.removeItem('impersonated_user');
-              await supabase.auth.signOut();
-              navigate('/');
-          }}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-rose-300 hover:bg-rose-500/20 hover:text-rose-200 transition-all text-sm font-semibold"
-        >
-          <LogOut size={18} />
-          <span>Sair do Sistema</span>
-        </button>
+      {/* Rodapé Slim */}
+      <div className="p-4 mt-auto border-t border-white/5">
+        <div className="space-y-0.5">
+          {userRole !== 'Aluno' && (
+              <NavLink
+                to="/configuracoes"
+                className={({ isActive }) => cn(
+                  "flex items-center gap-3 px-4 py-2 rounded-xl transition-all text-xs font-semibold",
+                  isActive 
+                    ? "bg-white/10 text-white" 
+                    : "text-blue-200/50 hover:bg-white/5 hover:text-white"
+                )}
+              >
+                <Settings size={16} />
+                <span>Configurações</span>
+              </NavLink>
+          )}
+          <button 
+            onClick={async () => {
+                sessionStorage.removeItem('student_session');
+                sessionStorage.removeItem('impersonated_user');
+                await supabase.auth.signOut();
+                navigate('/');
+            }}
+            className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-rose-300/60 hover:bg-rose-500/10 hover:text-rose-300 transition-all text-xs font-semibold"
+          >
+            <LogOut size={16} />
+            <span>Sair</span>
+          </button>
+        </div>
       </div>
     </aside>
   );
