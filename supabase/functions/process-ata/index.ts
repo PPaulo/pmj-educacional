@@ -29,6 +29,8 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    console.log('Iniciando processamento de imagem com Gemini...');
+
     // 2. Call Google Gemini 1.5 Flash
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
       method: 'POST',
@@ -70,9 +72,20 @@ REGRAS DE EXTRAÇÃO:
       }),
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Erro na API do Gemini:', errorText);
+      return new Response(JSON.stringify({ error: `Erro na API do Gemini: ${response.status} - ${errorText}` }), {
+        status: response.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const result = await response.json();
+    console.log('Resposta do Gemini recebida com sucesso.');
     
     if (!result.candidates || result.candidates.length === 0) {
+       console.error('Gemini retornou estrutura sem candidatos:', JSON.stringify(result));
        throw new Error('O Gemini não retornou nenhum resultado para esta imagem.');
     }
 
