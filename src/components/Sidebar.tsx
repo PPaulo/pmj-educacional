@@ -93,7 +93,7 @@ function SubMenu({ item, setIsSidebarOpen }: { item: any, setIsSidebarOpen: (v: 
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-sm font-semibold group cursor-pointer",
+          "w-full flex items-center gap-3 px-4 py-2 rounded-xl transition-all text-sm font-semibold group cursor-pointer",
           isOpen ? "text-white bg-white/10" : "text-blue-100/70 hover:bg-white/5 hover:text-white"
         )}
       >
@@ -198,7 +198,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
   return (
     <aside className={cn(
-      "fixed inset-y-0 left-0 z-50 w-64 bg-[#1e3a8a] border-r border-white/5 flex flex-col h-screen transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 font-sans shadow-xl",
+      "fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-[#2563eb] to-[#1d4ed8] border-r border-white/10 flex flex-col h-screen transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 font-sans shadow-2xl",
       isOpen ? "translate-x-0" : "-translate-x-full"
     )}>
       {/* Header com Logo */}
@@ -246,7 +246,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
             return (
                 <div key={idx} className="space-y-1">
-                    <h3 className="px-4 text-[8px] font-bold uppercase tracking-[0.3em] text-blue-200/40 mb-2">{section.title}</h3>
+                    <h3 className="px-4 text-[8px] font-bold uppercase tracking-[0.3em] text-blue-200/40 mb-1">{section.title}</h3>
                     <div className="space-y-0.5">
                         {visibleItems.map((item: any) => (
                             item.children ? (
@@ -257,7 +257,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                                     to={item.path}
                                     onClick={() => setIsOpen(false)}
                                     className={({ isActive }) => cn(
-                                        "group flex items-center gap-3 px-4 py-2 rounded-xl transition-all text-sm font-semibold relative",
+                                        "group flex items-center gap-3 px-4 py-1.5 rounded-xl transition-all text-sm font-semibold relative",
                                         isActive 
                                             ? "bg-white/10 text-white shadow-lg shadow-black/5" 
                                             : "text-blue-100/70 hover:bg-white/5 hover:text-white"
