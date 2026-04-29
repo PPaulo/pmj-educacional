@@ -90,6 +90,7 @@ export interface Student {
   serie?: string;
   turno?: string;
   exercicio?: string;
+  anoLetivo?: string;
   motorista?: string;
 
   // Specific Disabilities
