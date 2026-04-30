@@ -3,17 +3,28 @@ import autoTable from 'jspdf-autotable';
 import { Student } from '../types';
 
 const loadImg = (url: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
      const img = new Image();
      img.crossOrigin = 'Anonymous';
      img.onload = () => {
          const canvas = document.createElement('canvas');
-         canvas.width = img.width; canvas.height = img.height;
+         const maxDim = 300;
+         let w = img.width;
+         let h = img.height;
+         if (w > maxDim || h > maxDim) {
+             if (w > h) { h = (h * maxDim) / w; w = maxDim; }
+             else { w = (w * maxDim) / h; h = maxDim; }
+         }
+         canvas.width = w; canvas.height = h;
          const ctx = canvas.getContext('2d');
-         ctx?.drawImage(img, 0, 0);
-         resolve(canvas.toDataURL('image/png'));
+         if (ctx) {
+           ctx.fillStyle = '#FFFFFF';
+           ctx.fillRect(0, 0, w, h);
+           ctx.drawImage(img, 0, 0, w, h);
+         }
+         resolve(canvas.toDataURL('image/jpeg', 0.7));
      };
-     img.onerror = () => resolve(''); // fallback sem quebrar
+     img.onerror = () => resolve('');
      img.src = url;
   });
 };
@@ -65,7 +76,7 @@ export const addReportHeader = async (doc: any, school: any) => {
 };
 
 export const generateStudentRegistrationPDF = async (formData: Partial<Student>, school: any, issuerName?: string) => {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
   const pgWidth = doc.internal.pageSize.width;
 
   await addReportHeader(doc, school);
@@ -185,7 +196,7 @@ export const generateStudentRegistrationPDF = async (formData: Partial<Student>,
 
 
 export const generateStudentLinkageStatementPDF = async (formData: any, school: any, issuerName?: string) => {
-  const doc = new jsPDF() as any;
+  const doc = new jsPDF({ compress: true }) as any;
   const pgWidth = doc.internal.pageSize.width as number;
 
   await addReportHeader(doc, school);
@@ -219,7 +230,7 @@ ${indentStr}Por ser verdade, firmamos a presente.`;
 
 
 export const generateClassListPDF = async (className: string, students: any[], school: any, issuerName?: string) => {
-  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }) as any;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true }) as any;
   const pgWidth = doc.internal.pageSize.width;
 
   const calculateAge = (dateString: string) => {
@@ -269,7 +280,7 @@ export const generateClassListPDF = async (className: string, students: any[], s
 
 
 export const generateTotalStudentsPDF = async (students: any[], classes: any[], school: any, issuerName?: string) => {
-  const doc = new jsPDF() as any;
+  const doc = new jsPDF({ compress: true }) as any;
   const pgWidth = doc.internal.pageSize.width;
 
   await addReportHeader(doc, school);
@@ -314,7 +325,7 @@ export const generateTotalStudentsPDF = async (students: any[], classes: any[], 
 
 
 export const generateReportCardPDF = async (formData: any, grades: any[], school: any, issuerName?: string) => {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' }) as any;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }) as any;
   const pgWidth = doc.internal.pageSize.width;
 
   await addReportHeader(doc, school);
@@ -393,7 +404,7 @@ export const generateReportCardPDF = async (formData: any, grades: any[], school
 
 
 export const generateSchoolTranscriptPDF = async (formData: any, grades: any[], school: any, issuerName?: string) => {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' }) as any;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }) as any;
   const pgWidth = doc.internal.pageSize.width;
 
   await addReportHeader(doc, school);
@@ -428,7 +439,7 @@ export const generateSchoolTranscriptPDF = async (formData: any, grades: any[], 
 
 
 export const generateBolsaFamiliaAttendancePDF = async (formData: any, attendance: any[], school: any, issuerName?: string) => {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' }) as any;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true }) as any;
   const pgWidth = doc.internal.pageSize.width;
 
   const primaryColor: [number, number, number] = [30, 58, 138];
@@ -499,7 +510,7 @@ export const generateBolsaFamiliaAttendancePDF = async (formData: any, attendanc
 };
 
 export const generateParentAttendanceStatementPDF = async (student: any, school: any, issuerName?: string, responsibleData?: { name: string; cpf: string; relation: string; reason?: string, period?: string }) => {
-  const doc = new jsPDF() as any;
+  const doc = new jsPDF({ compress: true }) as any;
   const pgWidth = doc.internal.pageSize.width as number;
 
   await addReportHeader(doc, school);
