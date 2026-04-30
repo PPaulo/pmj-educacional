@@ -19,9 +19,9 @@ const loadImg = (url: string): Promise<string> => {
 };
 
 const CIDADE_UF_DATADOR = 'Padre Bernardo - GO';
-const textColor = [31, 41, 55];
-const labelColor = [100, 116, 139];
-const secondaryColor: [number, number, number] = [71, 85, 105];
+const textColor = [0, 0, 0];
+const labelColor = [0, 0, 0];
+const secondaryColor: [number, number, number] = [0, 0, 0];
 
 const MUNICIPAL_LOGO_URL = '/brasao.png';
 
@@ -47,7 +47,7 @@ export const addReportHeader = async (doc: any, school: any) => {
 
   const centerX = pgWidth / 2;
 
-  doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
+  doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text(ESTADO.toUpperCase(), centerX, 16, { align: 'center' });
   doc.text(PREFEITURA.toUpperCase(), centerX, 21, { align: 'center' });
   doc.setFontSize(9);
@@ -55,7 +55,7 @@ export const addReportHeader = async (doc: any, school: any) => {
   doc.setFontSize(10);
   doc.text((school?.name || 'Unidade Escolar').toUpperCase(), centerX, 31, { align: 'center' });
   if (school?.inep) {
-    doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139);
+    doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(0, 0, 0);
     doc.text(`Código INEP: ${school.inep}`, centerX, 36, { align: 'center' });
   }
 
@@ -70,21 +70,21 @@ export const generateStudentRegistrationPDF = async (formData: Partial<Student>,
 
   await addReportHeader(doc, school);
 
-  const primaryColor: [number, number, number] = [30, 58, 138];
+  const primaryColor: [number, number, number] = [240, 240, 240];
 
   const formatCell = (label: string, value: any) => `${label}\n${value || '---'}`;
 
   let currentY = 55;
   doc.setFillColor(...primaryColor);
   doc.roundedRect(14, currentY, pgWidth - 28, 12, 1, 1, 'F');
-  doc.setFontSize(12); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255);
+  doc.setFontSize(12); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text(`FICHA DE MATRÍCULA: ${formData.registration || '---'}`, pgWidth / 2, currentY + 7.5, { align: 'center' });
   currentY += 16;
 
   const drawSectionHeader = (title: string, yPos: number) => {
-    doc.setFillColor(241, 245, 249);
+    doc.setFillColor(245, 245, 245);
     doc.rect(14, yPos, pgWidth - 28, 7, 'F');
-    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...secondaryColor);
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
     doc.text(title.toUpperCase(), 16, yPos + 4.5);
     return yPos + 8;
   };
@@ -92,8 +92,8 @@ export const generateStudentRegistrationPDF = async (formData: Partial<Student>,
   const autoTableConfig = {
     theme: 'striped' as const,
     styles: { fontSize: 8, cellPadding: 1.2, textColor: textColor },
-    headStyles: { fillColor: [255, 255, 255] as [number, number, number], textColor: labelColor, fontSize: 7 },
-    alternateRowStyles: { fillColor: [248, 250, 252] as [number, number, number] }
+    headStyles: { fillColor: [255, 255, 255] as [number, number, number], textColor: [0, 0, 0], fontSize: 7 },
+    alternateRowStyles: { fillColor: [250, 250, 250] as [number, number, number] }
   };
 
   currentY = drawSectionHeader('1. Identificação do Aluno', currentY);
@@ -190,10 +190,10 @@ export const generateStudentLinkageStatementPDF = async (formData: any, school: 
 
   await addReportHeader(doc, school);
 
-  doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text('DECLARAÇÃO DE VÍNCULO ESCOLAR', pgWidth / 2, 65, { align: 'center' });
 
-  doc.setFontSize(11); doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(0, 0, 0);
   const currentYear = new Date().getFullYear();
   const formatBirth = formData.birthDate ? formData.birthDate.split('-').reverse().join('/') : '---';
   const today = new Date().toLocaleDateString('pt-BR');
@@ -208,9 +208,9 @@ ${indentStr}Por ser verdade, firmamos a presente.`;
 
   doc.text(`${CIDADE_UF_DATADOR}, ${today}.`, pgWidth - 20, 160, { align: 'right' });
 
-  doc.setDrawColor(100, 100, 100);
+  doc.setDrawColor(0, 0, 0);
   doc.line(pgWidth / 2 - 45, 200, pgWidth / 2 + 45, 200);
-  doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text('Direção / Secretaria Escolar', pgWidth / 2, 205, { align: 'center' });
 
   addReportFooter(doc, issuerName);
@@ -235,7 +235,7 @@ export const generateClassListPDF = async (className: string, students: any[], s
 
   await addReportHeader(doc, school);
   
-  doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
+  doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text(`LISTA DE ALUNOS - TURMA ${className.toUpperCase()}`, pgWidth / 2, 55, { align: 'center' });
 
   const bodyData = students.map((std, index) => {
@@ -259,8 +259,8 @@ export const generateClassListPDF = async (className: string, students: any[], s
     head: [['Nº', 'Nome', 'Matrícula', 'Data Nasc.', 'Idade', 'Turma', 'CPF', 'Endereço', 'Responsável', 'Telefone']],
     body: bodyData,
     styles: { fontSize: 7, cellPadding: 1.2 },
-    headStyles: { fillColor: [30, 58, 138], textColor: [255, 255, 255], fontStyle: 'bold' },
-    alternateRowStyles: { fillColor: [248, 250, 252] }
+    headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [250, 250, 250] }
   });
 
   addReportFooter(doc, issuerName);
@@ -274,7 +274,7 @@ export const generateTotalStudentsPDF = async (students: any[], classes: any[], 
 
   await addReportHeader(doc, school);
   
-  doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
+  doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text('RESUMO GERAL DE MATRÍCULAS', pgWidth / 2, 55, { align: 'center' });
 
   // Summary Boxes
@@ -285,11 +285,11 @@ export const generateTotalStudentsPDF = async (students: any[], classes: any[], 
   doc.roundedRect(14, 60, (pgWidth - 32) / 2, 20, 2, 2, 'F');
   doc.roundedRect(pgWidth / 2 + 2, 60, (pgWidth - 32) / 2, 20, 2, 2, 'F');
 
-  doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(71, 85, 105);
+  doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text('TOTAL DE TURMAS', 14 + (pgWidth - 32) / 4, 68, { align: 'center' });
   doc.text('TOTAL DE ALUNOS', pgWidth / 2 + 2 + (pgWidth - 32) / 4, 68, { align: 'center' });
 
-  doc.setFontSize(14); doc.setFont('helvetica', 'bold'); doc.setTextColor(37, 99, 235);
+  doc.setFontSize(14); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text(totalClasses.toString(), 14 + (pgWidth - 32) / 4, 75, { align: 'center' });
   doc.text(totalStudents.toString(), pgWidth / 2 + 2 + (pgWidth - 32) / 4, 75, { align: 'center' });
 
@@ -318,12 +318,12 @@ export const generateReportCardPDF = async (formData: any, grades: any[], school
   const pgWidth = doc.internal.pageSize.width;
 
   await addReportHeader(doc, school);
-  doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
+  doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text('BOLETIM ESCOLAR', pgWidth / 2, 55, { align: 'center' });
 
-  doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text(`ALUNO(A): ${(formData.name || '---').toUpperCase()}`, 14, 65);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('helvetica', 'normal'); doc.setTextColor(0, 0, 0);
   doc.text(`Matrícula: ${formData.registration || '---'}`, 14, 70);
   doc.text(`Turma: ${formData.class || '---'} | Ano: ${formData.exercicio || new Date().getFullYear()}`, 70, 70);
 
@@ -377,7 +377,7 @@ export const generateReportCardPDF = async (formData: any, grades: any[], school
     body: bodyData,
     styles: { fontSize: 7, cellPadding: 1.2, halign: 'center' },
     columnStyles: { 0: { halign: 'left', fontStyle: 'bold', cellWidth: 40 } },
-    headStyles: { fillColor: [30, 58, 138], textColor: [255, 255, 255] }
+    headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] }
   });
 
   let currentY = (doc as any).lastAutoTable.finalY + 25;
@@ -398,10 +398,10 @@ export const generateSchoolTranscriptPDF = async (formData: any, grades: any[], 
 
   await addReportHeader(doc, school);
   
-  doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
+  doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text('HISTÓRICO ESCOLAR PRELIMINAR', pgWidth / 2, 55, { align: 'center' });
 
-  doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(0, 0, 0);
   doc.text(`ALUNO(A): ${(formData.name || '---').toUpperCase()}`, 14, 65);
   doc.text(`Filiação: ${formData.motherName || '---'} e ${formData.fatherName || '---'}`, 14, 70);
   doc.text(`Matrícula: ${formData.registration || '---'} | Inep: ${formData.inepId || '---'}`, 14, 75);
@@ -419,7 +419,7 @@ export const generateSchoolTranscriptPDF = async (formData: any, grades: any[], 
     head: [['Componente Curricular / Disciplina', 'Soma das Notas', 'Resultado da Avaliação']],
     body: bodyData,
     styles: { fontSize: 8, cellPadding: 2 },
-    headStyles: { fillColor: [30, 58, 138] }
+    headStyles: { fillColor: [0, 0, 0] }
   });
 
   addReportFooter(doc, issuerName);
@@ -436,18 +436,18 @@ export const generateBolsaFamiliaAttendancePDF = async (formData: any, attendanc
 
   await addReportHeader(doc, school);
   
-  doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
+  doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text('DECLARAÇÃO DE MATRÍCULA E FREQUÊNCIA', pgWidth / 2, 55, { align: 'center' });
 
-  doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text(`ALUNO(A): ${(formData.name || '---').toUpperCase()}`, 14, 65);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('helvetica', 'normal'); doc.setTextColor(0, 0, 0);
   doc.text(`Matrícula: ${formData.registration || '---'} | CPF: ${formData.cpf || '---'}`, 14, 70);
   doc.text(`Filiação: ${formData.motherName || formData.fatherName || '---'}`, 14, 75);
   doc.text(`Turma: ${formData.class || '---'} | Turno: ${formData.turno || '---'}`, 14, 80);
 
   // Texto formatado para o Programa do Bolsa Família
-  doc.setFontSize(10);
+  doc.setFontSize(10); doc.setTextColor(0, 0, 0);
   const mainText = `Declaramos para os devidos fins de acompanhamento das condicionalidades do Programa Bolsa Família e demais programas sociais, que o(a) aluno(a) acima qualificado(a) está regularmente matriculado(a) nesta unidade escolar no ano letivo de ${new Date().getFullYear()}, apresentando o seguinte registro mensal de frequência:`;
   const splitMainText = doc.splitTextToSize(mainText, pgWidth - 28);
   doc.text(splitMainText, 14, 88, { align: 'justify', maxWidth: pgWidth - 28, lineHeightFactor: 1.5 });
@@ -504,10 +504,10 @@ export const generateParentAttendanceStatementPDF = async (student: any, school:
 
   await addReportHeader(doc, school);
 
-  doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text('DECLARAÇÃO DE COMPARECIMENTO', pgWidth / 2, 65, { align: 'center' });
 
-  doc.setFontSize(11); doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(0, 0, 0);
   const today = new Date().toLocaleDateString('pt-BR');
   const respName = (responsibleData?.name || student.responsibleName || '---').toUpperCase();
   const respCpf = responsibleData?.cpf || student.responsibleCpf || '---';
@@ -525,9 +525,9 @@ ${indentStr}Por ser verdade, firmamos a presente.`;
 
   doc.text(`${CIDADE_UF_DATADOR}, ${today}.`, pgWidth - 20, 160, { align: 'right' });
 
-  doc.setDrawColor(100, 100, 100);
+  doc.setDrawColor(0, 0, 0);
   doc.line(pgWidth / 2 - 45, 200, pgWidth / 2 + 45, 200);
-  doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
   doc.text('Assinatura da Direção / Secretaria', pgWidth / 2, 205, { align: 'center' });
 
   addReportFooter(doc, issuerName);
@@ -540,13 +540,13 @@ export function addReportFooter(doc: any, issuerName?: string) {
   const date = new Date().toLocaleDateString('pt-BR');
   const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   
-  doc.setDrawColor(226, 232, 240); // slate-200
+  doc.setDrawColor(200, 200, 200);
   doc.setLineWidth(0.1);
   doc.line(14, pgHeight - 15, pgWidth - 14, pgHeight - 15);
 
   doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(150, 150, 150);
+  doc.setTextColor(0, 0, 0);
   
   const footerText = `Documento emitido por: ${issuerName || 'Sistema'} | Data: ${date} | Hora: ${time}`;
   doc.text(footerText, pgWidth / 2, pgHeight - 10, { align: 'center' });
