@@ -16,12 +16,22 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
-import { generateStudentRegistrationPDF, generateClassListPDF, generateTotalStudentsPDF, generateStudentLinkageStatementPDF, generateReportCardPDF, generateSchoolTranscriptPDF, generateBolsaFamiliaAttendancePDF } from '../lib/pdf';
+import { 
+  generateStudentRegistrationPDF, 
+  generateClassListPDF, 
+  generateTotalStudentsPDF, 
+  generateStudentLinkageStatementPDF, 
+  generateReportCardPDF, 
+  generateSchoolTranscriptPDF, 
+  generateBolsaFamiliaAttendancePDF,
+  generateParentAttendanceStatementPDF
+} from '../lib/pdf';
 import toast from 'react-hot-toast';
 import { snakeToCamel, sortStudents } from '../lib/utils';
 
 const reportsList = [
   { id: 'declaration', title: 'Declaração de Vínculo', description: 'Atestado de matrícula e frequência regular do aluno.', icon: FileCheck, color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20', scope: 'student' },
+  { id: 'parent_attendance', title: 'Declaração de Comparecimento', description: 'Atestado para pais ou responsáveis que compareceram à escola.', icon: UserSquare, color: 'bg-orange-500/10 text-orange-600 border-orange-500/20', scope: 'student' },
   { id: 'bolsa_familia', title: 'Frequência Bolsa Família', description: 'Acompanhamento de frequência mensal para condicionalidades.', icon: ClipboardList, color: 'bg-rose-500/10 text-rose-600 border-rose-500/20', scope: 'student' },
   { id: 'registration', title: 'Ficha Individual', description: 'Dados cadastrais completos, endereço e responsáveis.', icon: UserSquare, color: 'bg-blue-500/10 text-blue-600 border-blue-500/20', scope: 'student' },
   { id: 'report', title: 'Boletim Escolar', description: 'Notas e faltas segmentadas por bimestre e disciplina.', icon: ClipboardList, color: 'bg-purple-500/10 text-purple-600 border-purple-500/20', scope: 'student' },
@@ -40,9 +50,14 @@ export function ReportsPage() {
   const [selectedClass, setSelectedClass] = useState<any>(null);
   const [school, setSchool] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [attendanceRecipient, setAttendanceRecipient] = useState<'father' | 'mother' | 'responsible'>('responsible');
+  const [attendanceReason, setAttendanceReason] = useState('tratar de assuntos de interesse do(a) referido(a) estudante');
+  const [attendanceStartTime, setAttendanceStartTime] = useState('');
+  const [attendanceEndTime, setAttendanceEndTime] = useState('');
 
   // Admin Controls
   const [userRole, setUserRole] = useState('Secretaria');
+  const [userName, setUserName] = useState('');
   const [userSchoolId, setUserSchoolId] = useState<string | null>(null);
   const [schoolFilter, setSchoolFilter] = useState('Todas');
   const [schoolsList, setSchoolsList] = useState<any[]>([]);
@@ -60,6 +75,7 @@ export function ReportsPage() {
            
          if (profile) {
              setUserRole(profile.role);
+             setUserName(profile.name);
              setUserSchoolId(profile.school_id);
              if (profile.school_info) setSchool(profile.school_info);
              
@@ -119,6 +135,10 @@ export function ReportsPage() {
     setSelectedReport(report);
     setSelectedStudent(null);
     setSearchQuery('');
+    setAttendanceRecipient('responsible');
+    setAttendanceReason('tratar de assuntos de interesse do(a) referido(a) estudante');
+    setAttendanceStartTime('');
+    setAttendanceEndTime('');
     setIsModalOpen(true);
   };
 
@@ -133,29 +153,44 @@ export function ReportsPage() {
     setLoading(true);
     try {
       if (selectedReport.id === 'declaration') {
-        generateStudentLinkageStatementPDF(selectedStudent, school);
+        await generateStudentLinkageStatementPDF(selectedStudent, school, userName);
         toast.success('Declaração de Vínculo gerada com sucesso!');
+      } else if (selectedReport.id === 'parent_attendance') {
+        let respData = { 
+          name: selectedStudent.responsibleName, 
+          cpf: selectedStudent.responsibleCpf, 
+          relation: 'Responsável Legal',
+          reason: attendanceReason,
+          period: (attendanceStartTime && attendanceEndTime) 
+            ? `no período das ${attendanceStartTime} às ${attendanceEndTime} horas` 
+            : `às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} horas`
+        };
+        if (attendanceRecipient === 'father') respData = { ...respData, name: selectedStudent.fatherName, relation: 'Pai' };
+        if (attendanceRecipient === 'mother') respData = { ...respData, name: selectedStudent.motherName, relation: 'Mãe' };
+        
+        await generateParentAttendanceStatementPDF(selectedStudent, school, userName, respData);
+        toast.success('Declaração de Comparecimento gerada com sucesso!');
       } else if (selectedReport.id === 'registration') {
-        generateStudentRegistrationPDF(selectedStudent, school);
+        await generateStudentRegistrationPDF(selectedStudent, school, userName);
         toast.success('Ficha Individual gerada com sucesso!');
       } else if (selectedReport.id === 'total_students') {
-        generateTotalStudentsPDF(students, classes, school);
+        await generateTotalStudentsPDF(students, classes, school, userName);
         toast.success(`Relatório: Total de Alunos (${students.length}) gerado com sucesso!`);
       } else if (selectedReport.id === 'class_list') {
         const classStudents = students.filter(s => s.class === selectedClass.name);
-        generateClassListPDF(selectedClass.name, classStudents, school);
+        await generateClassListPDF(selectedClass.name, classStudents, school, userName);
         toast.success(`Lista de Alunos da Turma ${selectedClass.name} (${classStudents.length}) gerada com sucesso!`);
       } else if (selectedReport.id === 'report') {
         const { data: grades } = await supabase.from('grades').select('*').eq('student_id', selectedStudent.id);
-        generateReportCardPDF(selectedStudent, grades || [], school);
+        await generateReportCardPDF(selectedStudent, grades || [], school, userName);
         toast.success('Boletim Escolar gerado com sucesso!');
       } else if (selectedReport.id === 'history') {
         const { data: grades } = await supabase.from('grades').select('*').eq('student_id', selectedStudent.id);
-        generateSchoolTranscriptPDF(selectedStudent, grades || [], school);
+        await generateSchoolTranscriptPDF(selectedStudent, grades || [], school, userName);
         toast.success('Histórico Escolar gerado com sucesso!');
       } else if (selectedReport.id === 'bolsa_familia') {
         const { data: attendance } = await supabase.from('attendance').select('*').eq('student_id', selectedStudent.id);
-        generateBolsaFamiliaAttendancePDF(selectedStudent, attendance || [], school);
+        await generateBolsaFamiliaAttendancePDF(selectedStudent, attendance || [], school, userName);
         toast.success('Declaração Bolsa Família gerada com sucesso!');
       } else {
         toast.success(`Relatório "${selectedReport.title}" gerado com sucesso!`);
@@ -282,6 +317,69 @@ export function ReportsPage() {
                         <p className="p-4 text-center text-xs text-slate-400">Nenhum aluno encontrado.</p>
                       )}
                     </div>
+
+                    {selectedReport.id === 'parent_attendance' && selectedStudent && (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/50 space-y-3">
+                        <p className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider">Emitir em nome de:</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { id: 'responsible', label: 'Responsável', name: selectedStudent.responsibleName },
+                            { id: 'father', label: 'Pai', name: selectedStudent.fatherName },
+                            { id: 'mother', label: 'Mãe', name: selectedStudent.motherName }
+                          ].map(opt => (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              onClick={() => setAttendanceRecipient(opt.id as any)}
+                              className={`flex flex-col items-center p-2 rounded-lg border transition-all ${attendanceRecipient === opt.id ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-400'}`}
+                            >
+                              <span className="text-[10px] font-bold">{opt.label}</span>
+                              <span className="text-[9px] opacity-70 truncate w-full text-center">{opt.name || 'N/A'}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {selectedReport.id === 'parent_attendance' && selectedStudent && (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Motivo do Comparecimento:</label>
+                        <textarea 
+                          value={attendanceReason}
+                          onChange={(e) => setAttendanceReason(e.target.value)}
+                          placeholder="Ex: participar de reunião pedagógica..."
+                          className="w-full p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm min-h-[80px] focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                        />
+                        <p className="text-[10px] text-slate-400">O texto acima completará a frase: "...compareceu a esta instituição para [motivo]."</p>
+                      </motion.div>
+                    )}
+
+                    {selectedReport.id === 'parent_attendance' && selectedStudent && (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-800/50 space-y-3">
+                        <label className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider">Período do Comparecimento:</label>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1">
+                            <label className="text-[9px] text-slate-400 block mb-1">Início</label>
+                            <input 
+                              type="time" 
+                              value={attendanceStartTime}
+                              onChange={(e) => setAttendanceStartTime(e.target.value)}
+                              className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <label className="text-[9px] text-slate-400 block mb-1">Fim</label>
+                            <input 
+                              type="time" 
+                              value={attendanceEndTime}
+                              onChange={(e) => setAttendanceEndTime(e.target.value)}
+                              className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                            />
+                          </div>
+                        </div>
+                        <p className="text-[9px] text-slate-400">Se deixado em branco, o sistema usará o horário atual.</p>
+                      </motion.div>
+                    )}
                   </>
                 )}
 

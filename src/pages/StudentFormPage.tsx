@@ -41,6 +41,8 @@ export function StudentFormPage() {
 
   const [userSchoolId, setUserSchoolId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>('Secretaria');
+  const [schoolInfo, setSchoolInfo] = useState<any>(null);
+  const [userName, setUserName] = useState<string>('');
 
   useEffect(() => {
     const initData = async () => {
@@ -56,6 +58,12 @@ export function StudentFormPage() {
           role = profile.role;
           setUserSchoolId(sId);
           setUserRole(role);
+          setUserName(profile.name || '');
+
+          if (sId) {
+            const { data: school } = await supabase.from('school_info').select('*').eq('id', sId).single();
+            setSchoolInfo(school);
+          }
         }
       }
 
@@ -727,7 +735,7 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement 
                   <button type="button" onClick={() => navigate("/alunos")} className="flex-1 px-4 py-2.5 border rounded-xl font-bold">Voltar</button>
                   <button
                     type="button"
-                    onClick={() => generateStudentRegistrationPDF(formData)}
+                    onClick={() => generateStudentRegistrationPDF(formData as any, schoolInfo, userName)}
                     className="flex-1 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"
                   >
                     <FileText size={18} />

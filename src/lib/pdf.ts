@@ -18,40 +18,63 @@ const loadImg = (url: string): Promise<string> => {
   });
 };
 
-export const generateStudentRegistrationPDF = async (formData: Partial<Student>, school?: any) => {
+const CIDADE_UF_DATADOR = 'Padre Bernardo - GO';
+const textColor = [31, 41, 55];
+const labelColor = [100, 116, 139];
+const secondaryColor: [number, number, number] = [71, 85, 105];
+
+const MUNICIPAL_LOGO_URL = '/brasao.png';
+
+export const addReportHeader = async (doc: any, school: any) => {
+  const pgWidth = doc.internal.pageSize.width;
+  const ESTADO = 'ESTADO DO GOIÁS';
+  const PREFEITURA = 'PREFEITURA MUNICIPAL DE PADRE BERNARDO';
+  const SECRETARIA = 'SECRETARIA MUNICIPAL DE EDUCAÇÃO';
+
+  // Logo da Prefeitura (Esquerda)
+  const prefImgData = await loadImg(MUNICIPAL_LOGO_URL);
+  if (prefImgData) {
+      doc.addImage(prefImgData, 'PNG', 14, 10, 22, 22);
+  }
+
+  // Logo da Escola (Direita)
+  if (school?.logo_url) {
+      const schoolImgData = await loadImg(school.logo_url);
+      if (schoolImgData) {
+          doc.addImage(schoolImgData, 'PNG', pgWidth - 36, 10, 22, 22);
+      }
+  }
+
+  const centerX = pgWidth / 2;
+
+  doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
+  doc.text(ESTADO.toUpperCase(), centerX, 16, { align: 'center' });
+  doc.text(PREFEITURA.toUpperCase(), centerX, 21, { align: 'center' });
+  doc.setFontSize(9);
+  doc.text(SECRETARIA.toUpperCase(), centerX, 26, { align: 'center' });
+  doc.setFontSize(10);
+  doc.text((school?.name || 'Unidade Escolar').toUpperCase(), centerX, 31, { align: 'center' });
+  if (school?.inep) {
+    doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139);
+    doc.text(`Código INEP: ${school.inep}`, centerX, 36, { align: 'center' });
+  }
+
+  doc.setDrawColor(203, 213, 225);
+  doc.setLineWidth(0.2);
+  doc.line(14, 45, pgWidth - 14, 45);
+};
+
+export const generateStudentRegistrationPDF = async (formData: Partial<Student>, school: any, issuerName?: string) => {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pgWidth = doc.internal.pageSize.width;
 
+  await addReportHeader(doc, school);
+
   const primaryColor: [number, number, number] = [30, 58, 138];
-  const secondaryColor: [number, number, number] = [71, 85, 105];
-  const textColor: [number, number, number] = [15, 23, 42];
-  const labelColor: [number, number, number] = [100, 116, 139];
-
-  doc.setFillColor(248, 250, 252);
-  doc.roundedRect(14, 10, pgWidth - 28, 32, 2, 2, 'F');
-
-  if (school?.logo_url) {
-      const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'PNG', 16, 12, 28, 28);
-  }
-
-  const startX = school?.logo_url ? 48 : 18;
-
-  doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...secondaryColor);
-  doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 17);
-  doc.text('Secretaria Municipal de Educação', startX, 22);
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(...primaryColor);
-  doc.text((school?.name || 'ESCOLA MUNICIPAL PADRE RUY').toUpperCase(), startX, 29);
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...labelColor);
-  doc.text('Resolução :RESOLUÇÃO - CME Nº 017 - Início: 19/9/2024 - Fim: 31/12/2028', startX, 36);
-
-  doc.setFontSize(8); doc.setTextColor(...labelColor);
-  doc.text('Página 1 de 1', pgWidth - 45, 16);
-  doc.text(`Emitido em: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`, pgWidth - 45, 21);
 
   const formatCell = (label: string, value: any) => `${label}\n${value || '---'}`;
 
-  let currentY = 48;
+  let currentY = 55;
   doc.setFillColor(...primaryColor);
   doc.roundedRect(14, currentY, pgWidth - 28, 12, 1, 1, 'F');
   doc.setFontSize(12); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255);
@@ -156,62 +179,46 @@ export const generateStudentRegistrationPDF = async (formData: Partial<Student>,
   doc.line(120, currentY, 185, currentY);
   doc.text('Secretaria Escolar / Direção', 152.5, currentY + 4, { align: 'center' });
 
-  doc.save(`Ficha_${(formData.name || 'Aluno').replace(/\s+/g, '_')}.pdf`);
+  addReportFooter(doc, issuerName);
+  window.open(doc.output('bloburl'), '_blank');
 };
 
-export const generateStudentLinkageStatementPDF = async (formData: any, school: any) => {
+
+export const generateStudentLinkageStatementPDF = async (formData: any, school: any, issuerName?: string) => {
   const doc = new jsPDF() as any;
   const pgWidth = doc.internal.pageSize.width as number;
 
-  const ESTADO = 'ESTADO DO GOIÁS';
-  const PREFEITURA = 'PREFEITURA MUNICIPAL DE PADRE BERNARDO';
-  const SECRETARIA = 'SECRETARIA DE EDUCAÇÃO';
-  const CIDADE_UF_DATADOR = 'Padre Bernardo - GO';
-
-  if (school?.logo_url) {
-      const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'PNG', 16, 15, 28, 28);
-  }
-
-  const startX = school?.logo_url ? (pgWidth / 2) + 15 : pgWidth / 2;
-
-  doc.setFontSize(12); doc.setFont('helvetica', 'bold');
-  doc.text(ESTADO.toUpperCase(), startX, 20, { align: 'center' });
-  doc.text(PREFEITURA.toUpperCase(), startX, 26, { align: 'center' });
-  doc.setFontSize(10);
-  doc.text(SECRETARIA.toUpperCase(), startX, 31, { align: 'center' });
-  doc.setFontSize(11);
-  doc.text((school?.name || 'ESCOLA MUNICIPAL').toUpperCase(), startX, 36, { align: 'center' });
-
-  doc.setDrawColor(203, 213, 225);
-  doc.line(14, 36, pgWidth - 14, 36);
+  await addReportHeader(doc, school);
 
   doc.setFontSize(14); doc.setFont('helvetica', 'bold');
-  doc.text('DECLARAÇÃO DE VÍNCULO ESCOLAR', pgWidth / 2, 60, { align: 'center' });
+  doc.text('DECLARAÇÃO DE VÍNCULO ESCOLAR', pgWidth / 2, 65, { align: 'center' });
 
   doc.setFontSize(11); doc.setFont('helvetica', 'normal');
   const currentYear = new Date().getFullYear();
   const formatBirth = formData.birthDate ? formData.birthDate.split('-').reverse().join('/') : '---';
   const today = new Date().toLocaleDateString('pt-BR');
 
-  const text = `Declaramos para os devidos fins de direito que o(a) aluno(a) ${formData.name.toUpperCase()}, portador(a) da Matrícula nº ${formData.registration || '---'} e Código INEP ${formData.inepId || '---'}, nascido(a) em ${formatBirth}, filho(a) de ${formData.motherName || '---'} e ${formData.fatherName || '---'}, encontra-se regularmente matriculado(a) e frequentando as aulas nesta instituição de ensino no ano letivo de ${formData.exercicio || currentYear}, cursando a série ${formData.serie || '---'} na Turma ${formData.class || '---'} no Turno ${formData.turno || '---'}.
+  const indentStr = "\u00A0".repeat(Math.floor(20 / (doc.getTextWidth("\u00A0") || 1)));
+  const text = `${indentStr}Declaramos para os devidos fins de direito que o(a) aluno(a) ${formData.name.toUpperCase()}, portador(a) da Matrícula nº ${formData.registration || '---'} e Código INEP ${formData.inepId || '---'}, nascido(a) em ${formatBirth}, filho(a) de ${formData.motherName || '---'} e ${formData.fatherName || '---'}, encontra-se regularmente matriculado(a) e frequentando as aulas nesta instituição de ensino no ano letivo de ${formData.exercicio || currentYear}, cursando a série ${formData.serie || '---'} na Turma ${formData.class || '---'} no Turno ${formData.turno || '---'}.
 
-Por ser verdade, firmamos a presente.`;
+${indentStr}Por ser verdade, firmamos a presente.`;
 
   const splitText = doc.splitTextToSize(text, pgWidth - 40);
-  doc.text(splitText, 20, 85, { align: 'justify', maxWidth: pgWidth - 40 });
+  doc.text(splitText, 20, 85, { align: 'justify', maxWidth: pgWidth - 40, lineHeightFactor: 1.5 });
 
-  doc.text(`${CIDADE_UF_DATADOR}, ${today}.`, pgWidth / 2, 160, { align: 'center' });
+  doc.text(`${CIDADE_UF_DATADOR}, ${today}.`, pgWidth - 20, 160, { align: 'right' });
 
   doc.setDrawColor(100, 100, 100);
   doc.line(pgWidth / 2 - 45, 200, pgWidth / 2 + 45, 200);
   doc.setFontSize(10); doc.setFont('helvetica', 'bold');
   doc.text('Direção / Secretaria Escolar', pgWidth / 2, 205, { align: 'center' });
 
-  doc.save(`Declaracao_${(formData.name || 'Aluno').replace(/\s+/g, '_')}.pdf`);
+  addReportFooter(doc, issuerName);
+  window.open(doc.output('bloburl'), '_blank');
 };
 
-export const generateClassListPDF = async (className: string, students: any[], school: any) => {
+
+export const generateClassListPDF = async (className: string, students: any[], school: any, issuerName?: string) => {
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }) as any;
   const pgWidth = doc.internal.pageSize.width;
 
@@ -226,23 +233,10 @@ export const generateClassListPDF = async (className: string, students: any[], s
     return `${age} anos`;
   };
 
-  doc.setFillColor(248, 250, 252);
-  doc.roundedRect(14, 10, pgWidth - 28, 28, 2, 2, 'F');
-
-  if (school?.logo_url) {
-      const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'PNG', 17, 12, 24, 24);
-  }
-
-  const startX = school?.logo_url ? 46 : 18;
-
-  doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(71, 85, 105);
-  doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 17);
-  doc.text('Secretaria Municipal de Educação', startX, 22);
-  doc.text((school?.name || 'ESCOLA MUNICIPAL').toUpperCase(), startX, 28);
+  await addReportHeader(doc, school);
   
   doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
-  doc.text(`LISTA DE ALUNOS - TURMA ${className.toUpperCase()}`, pgWidth / 2, 46, { align: 'center' });
+  doc.text(`LISTA DE ALUNOS - TURMA ${className.toUpperCase()}`, pgWidth / 2, 55, { align: 'center' });
 
   const bodyData = students.map((std, index) => {
     const bDate = std.birthDate || std.birth_date;
@@ -269,46 +263,35 @@ export const generateClassListPDF = async (className: string, students: any[], s
     alternateRowStyles: { fillColor: [248, 250, 252] }
   });
 
-  doc.save(`Lista_Alunos_${className.replace(/\s+/g, '_')}.pdf`);
+  addReportFooter(doc, issuerName);
+  window.open(doc.output('bloburl'), '_blank');
 };
 
-export const generateTotalStudentsPDF = async (students: any[], classes: any[], school: any) => {
+
+export const generateTotalStudentsPDF = async (students: any[], classes: any[], school: any, issuerName?: string) => {
   const doc = new jsPDF() as any;
   const pgWidth = doc.internal.pageSize.width;
 
-  doc.setFillColor(248, 250, 252);
-  doc.roundedRect(14, 10, pgWidth - 28, 30, 2, 2, 'F');
-
-  if (school?.logo_url) {
-      const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'PNG', 16, 12, 26, 26);
-  }
-
-  const startX = school?.logo_url ? 46 : 18;
-
-  doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(71, 85, 105);
-  doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 16);
-  doc.text('Secretaria Municipal de Educação', startX, 21);
-  doc.text((school?.name || 'ESCOLA MUNICIPAL').toUpperCase(), startX, 26);
+  await addReportHeader(doc, school);
   
   doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
-  doc.text('RESUMO GERAL DE MATRÍCULAS', pgWidth / 2, 42, { align: 'center' });
+  doc.text('RESUMO GERAL DE MATRÍCULAS', pgWidth / 2, 55, { align: 'center' });
 
   // Summary Boxes
   const totalStudents = students.length;
   const totalClasses = classes.length;
 
   doc.setFillColor(241, 245, 249);
-  doc.roundedRect(14, 48, (pgWidth - 32) / 2, 20, 2, 2, 'F');
-  doc.roundedRect(pgWidth / 2 + 2, 48, (pgWidth - 32) / 2, 20, 2, 2, 'F');
+  doc.roundedRect(14, 60, (pgWidth - 32) / 2, 20, 2, 2, 'F');
+  doc.roundedRect(pgWidth / 2 + 2, 60, (pgWidth - 32) / 2, 20, 2, 2, 'F');
 
   doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(71, 85, 105);
-  doc.text('TOTAL DE TURMAS', 14 + (pgWidth - 32) / 4, 56, { align: 'center' });
-  doc.text('TOTAL DE ALUNOS', pgWidth / 2 + 2 + (pgWidth - 32) / 4, 56, { align: 'center' });
+  doc.text('TOTAL DE TURMAS', 14 + (pgWidth - 32) / 4, 68, { align: 'center' });
+  doc.text('TOTAL DE ALUNOS', pgWidth / 2 + 2 + (pgWidth - 32) / 4, 68, { align: 'center' });
 
   doc.setFontSize(14); doc.setFont('helvetica', 'bold'); doc.setTextColor(37, 99, 235);
-  doc.text(totalClasses.toString(), 14 + (pgWidth - 32) / 4, 63, { align: 'center' });
-  doc.text(totalStudents.toString(), pgWidth / 2 + 2 + (pgWidth - 32) / 4, 63, { align: 'center' });
+  doc.text(totalClasses.toString(), 14 + (pgWidth - 32) / 4, 75, { align: 'center' });
+  doc.text(totalStudents.toString(), pgWidth / 2 + 2 + (pgWidth - 32) / 4, 75, { align: 'center' });
 
   const groups: { [key: string]: number } = {};
   students.forEach(s => { const key = s.class || 'Sem Turma'; groups[key] = (groups[key] || 0) + 1; });
@@ -316,7 +299,7 @@ export const generateTotalStudentsPDF = async (students: any[], classes: any[], 
   const bodyData = Object.entries(groups).map(([cls, count]) => [cls, count]);
   
   autoTable(doc, {
-    startY: 75,
+    startY: 85,
     head: [['Turma', 'Quantidade de Alunos']],
     body: bodyData,
     styles: { fontSize: 9, cellPadding: 2 },
@@ -325,33 +308,24 @@ export const generateTotalStudentsPDF = async (students: any[], classes: any[], 
     footStyles: { fillColor: [241, 245, 249], textColor: [15, 23, 42], fontStyle: 'bold' }
   });
 
-  doc.save(`Resumo_Geral_Alunos.pdf`);
+  addReportFooter(doc, issuerName);
+  window.open(doc.output('bloburl'), '_blank');
 };
 
-export const generateReportCardPDF = async (formData: any, grades: any[], school: any) => {
+
+export const generateReportCardPDF = async (formData: any, grades: any[], school: any, issuerName?: string) => {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' }) as any;
   const pgWidth = doc.internal.pageSize.width;
 
-  doc.setFillColor(248, 250, 252); doc.roundedRect(14, 10, pgWidth - 28, 30, 2, 2, 'F');
-
-  if (school?.logo_url) {
-      const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'PNG', 16, 12, 26, 26);
-  }
-
-  const startX = school?.logo_url ? 46 : 18;
-
-  doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(71, 85, 105);
-  doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 16);
-  doc.text(`Secretaria Municipal de Educação | ${(school?.name || 'ESCOLA MUNICIPAL').toUpperCase()}`, startX, 21);
+  await addReportHeader(doc, school);
   doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
-  doc.text('BOLETIM ESCOLAR', pgWidth / 2, 42, { align: 'center' });
+  doc.text('BOLETIM ESCOLAR', pgWidth / 2, 55, { align: 'center' });
 
   doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-  doc.text(`ALUNO(A): ${(formData.name || '---').toUpperCase()}`, 14, 50);
+  doc.text(`ALUNO(A): ${(formData.name || '---').toUpperCase()}`, 14, 65);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Matrícula: ${formData.registration || '---'}`, 14, 55);
-  doc.text(`Turma: ${formData.class || '---'} | Ano: ${formData.exercicio || new Date().getFullYear()}`, 70, 55);
+  doc.text(`Matrícula: ${formData.registration || '---'}`, 14, 70);
+  doc.text(`Turma: ${formData.class || '---'} | Ano: ${formData.exercicio || new Date().getFullYear()}`, 70, 70);
 
   const subjects = ['Português', 'Matemática', 'História', 'Geografia', 'Ciências', 'Artes', 'Educação Física'];
   const periods = ['1º Bimestre', '2º Bimestre', '3º Bimestre', '4º Bimestre'];
@@ -382,7 +356,7 @@ export const generateReportCardPDF = async (formData: any, grades: any[], school
   });
 
   autoTable(doc, {
-    startY: 62,
+    startY: 75,
     head: [
       [
         { content: 'Disciplina', rowSpan: 2, styles: { valign: 'middle', halign: 'center' } },
@@ -413,32 +387,24 @@ export const generateReportCardPDF = async (formData: any, grades: any[], school
   doc.line(130, currentY, 185, currentY);
   doc.text('Direção / Secretaria', 157.5, currentY + 4, { align: 'center' });
 
-  doc.save(`Boletim_${(formData.name || 'Aluno').replace(/\s+/g, '_')}.pdf`);
+  addReportFooter(doc, issuerName);
+  window.open(doc.output('bloburl'), '_blank');
 };
 
-export const generateSchoolTranscriptPDF = async (formData: any, grades: any[], school: any) => {
+
+export const generateSchoolTranscriptPDF = async (formData: any, grades: any[], school: any, issuerName?: string) => {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' }) as any;
   const pgWidth = doc.internal.pageSize.width;
 
-  doc.setFillColor(248, 250, 252); doc.roundedRect(14, 10, pgWidth - 28, 30, 2, 2, 'F');
-
-  if (school?.logo_url) {
-      const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'PNG', 16, 12, 26, 26);
-  }
-
-  const startX = school?.logo_url ? 46 : 18;
-
-  doc.setFontSize(8); doc.setTextColor(71, 85, 105);
-  doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 16); doc.text(`Secretaria de Educação | ${(school?.name || 'ESCOLA MUNICIPAL').toUpperCase()}`, startX, 21);
+  await addReportHeader(doc, school);
   
   doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
-  doc.text('HISTÓRICO ESCOLAR PRELIMINAR', pgWidth / 2, 42, { align: 'center' });
+  doc.text('HISTÓRICO ESCOLAR PRELIMINAR', pgWidth / 2, 55, { align: 'center' });
 
   doc.setFontSize(9); doc.setFont('helvetica', 'normal');
-  doc.text(`ALUNO(A): ${(formData.name || '---').toUpperCase()}`, 14, 52);
-  doc.text(`Filiação: ${formData.motherName || '---'} e ${formData.fatherName || '---'}`, 14, 57);
-  doc.text(`Matrícula: ${formData.registration || '---'} | Inep: ${formData.inepId || '---'}`, 14, 62);
+  doc.text(`ALUNO(A): ${(formData.name || '---').toUpperCase()}`, 14, 65);
+  doc.text(`Filiação: ${formData.motherName || '---'} e ${formData.fatherName || '---'}`, 14, 70);
+  doc.text(`Matrícula: ${formData.registration || '---'} | Inep: ${formData.inepId || '---'}`, 14, 75);
 
   const subjects = ['Português', 'Matemática', 'História', 'Geografia', 'Ciências', 'Artes', 'Educação Física'];
 
@@ -449,51 +415,42 @@ export const generateSchoolTranscriptPDF = async (formData: any, grades: any[], 
   });
 
   autoTable(doc, {
-    startY: 70,
+    startY: 85,
     head: [['Componente Curricular / Disciplina', 'Soma das Notas', 'Resultado da Avaliação']],
     body: bodyData,
     styles: { fontSize: 8, cellPadding: 2 },
     headStyles: { fillColor: [30, 58, 138] }
   });
 
-  doc.save(`Historico_${(formData.name || 'Aluno').replace(/\s+/g, '_')}.pdf`);
+  addReportFooter(doc, issuerName);
+  window.open(doc.output('bloburl'), '_blank');
 };
 
-export const generateBolsaFamiliaAttendancePDF = async (formData: any, attendance: any[], school: any) => {
+
+export const generateBolsaFamiliaAttendancePDF = async (formData: any, attendance: any[], school: any, issuerName?: string) => {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' }) as any;
   const pgWidth = doc.internal.pageSize.width;
 
   const primaryColor: [number, number, number] = [30, 58, 138];
   const secondaryColor: [number, number, number] = [71, 85, 105];
 
-  doc.setFillColor(248, 250, 252); doc.roundedRect(14, 10, pgWidth - 28, 30, 2, 2, 'F');
-
-  if (school?.logo_url) {
-      const imgData = await loadImg(school.logo_url);
-      if (imgData) doc.addImage(imgData, 'PNG', 16, 12, 26, 26);
-  }
-
-  const startX = school?.logo_url ? 46 : 18;
-
-  doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...secondaryColor);
-  doc.text('Estado de Goiás - MUNICÍPIO DE PADRE BERNARDO', startX, 16);
-  doc.text(`Secretaria Municipal de Educação | ${(school?.name || 'ESCOLA MUNICIPAL').toUpperCase()}`, startX, 21);
+  await addReportHeader(doc, school);
   
   doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
-  doc.text('DECLARAÇÃO DE MATRÍCULA E FREQUÊNCIA', pgWidth / 2, 42, { align: 'center' });
+  doc.text('DECLARAÇÃO DE MATRÍCULA E FREQUÊNCIA', pgWidth / 2, 55, { align: 'center' });
 
   doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-  doc.text(`ALUNO(A): ${(formData.name || '---').toUpperCase()}`, 14, 52);
+  doc.text(`ALUNO(A): ${(formData.name || '---').toUpperCase()}`, 14, 65);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Matrícula: ${formData.registration || '---'} | CPF: ${formData.cpf || '---'}`, 14, 57);
-  doc.text(`Filiação: ${formData.motherName || formData.fatherName || '---'}`, 14, 62);
-  doc.text(`Turma: ${formData.class || '---'} | Turno: ${formData.turno || '---'}`, 14, 67);
+  doc.text(`Matrícula: ${formData.registration || '---'} | CPF: ${formData.cpf || '---'}`, 14, 70);
+  doc.text(`Filiação: ${formData.motherName || formData.fatherName || '---'}`, 14, 75);
+  doc.text(`Turma: ${formData.class || '---'} | Turno: ${formData.turno || '---'}`, 14, 80);
 
   // Texto formatado para o Programa do Bolsa Família
   doc.setFontSize(10);
   const mainText = `Declaramos para os devidos fins de acompanhamento das condicionalidades do Programa Bolsa Família e demais programas sociais, que o(a) aluno(a) acima qualificado(a) está regularmente matriculado(a) nesta unidade escolar no ano letivo de ${new Date().getFullYear()}, apresentando o seguinte registro mensal de frequência:`;
   const splitMainText = doc.splitTextToSize(mainText, pgWidth - 28);
-  doc.text(splitMainText, 14, 75);
+  doc.text(splitMainText, 14, 88, { align: 'justify', maxWidth: pgWidth - 28, lineHeightFactor: 1.5 });
 
   const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   
@@ -514,7 +471,7 @@ export const generateBolsaFamiliaAttendancePDF = async (formData: any, attendanc
   });
 
   autoTable(doc, {
-    startY: 92,
+    startY: 105,
     head: [['Mês de Referência', 'Dias Letivos', 'Presenças', 'Faltas', 'Percentual de Frequência']],
     body: bodyData,
     styles: { fontSize: 8, cellPadding: 2, halign: 'center' },
@@ -530,12 +487,68 @@ export const generateBolsaFamiliaAttendancePDF = async (formData: any, attendanc
 
   currentY += 20;
   doc.setFontSize(9); doc.setTextColor(15, 23, 42);
-  doc.text(`Padre Bernardo - GO, ${new Date().toLocaleDateString('pt-BR')}.`, pgWidth / 2, currentY, { align: 'center' });
+  doc.text(`Padre Bernardo - GO, ${new Date().toLocaleDateString('pt-BR')}.`, pgWidth - 20, currentY, { align: 'right' });
 
   currentY += 25;
   doc.setDrawColor(200);
   doc.line(60, currentY, 150, currentY);
   doc.text('Assinatura da Direção / Secretaria Escolar', pgWidth / 2, currentY + 4, { align: 'center' });
 
-  doc.save(`Frequencia_BolsaFamilia_${(formData.name || 'Aluno').replace(/\s+/g, '_')}.pdf`);
+  addReportFooter(doc, issuerName);
+  window.open(doc.output('bloburl'), '_blank');
 };
+
+export const generateParentAttendanceStatementPDF = async (student: any, school: any, issuerName?: string, responsibleData?: { name: string; cpf: string; relation: string; reason?: string, period?: string }) => {
+  const doc = new jsPDF() as any;
+  const pgWidth = doc.internal.pageSize.width as number;
+
+  await addReportHeader(doc, school);
+
+  doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+  doc.text('DECLARAÇÃO DE COMPARECIMENTO', pgWidth / 2, 65, { align: 'center' });
+
+  doc.setFontSize(11); doc.setFont('helvetica', 'normal');
+  const today = new Date().toLocaleDateString('pt-BR');
+  const respName = (responsibleData?.name || student.responsibleName || '---').toUpperCase();
+  const respCpf = responsibleData?.cpf || student.responsibleCpf || '---';
+  const relation = (responsibleData?.relation || 'RESPONSÁVEL LEGAL').toUpperCase();
+  const reason = responsibleData?.reason || 'tratar de assuntos de interesse do(a) referido(a) estudante';
+  const period = responsibleData?.period || `às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} horas`;
+
+  const indentStr = "\u00A0".repeat(Math.floor(20 / (doc.getTextWidth("\u00A0") || 1)));
+  const text = `${indentStr}Declaramos para os devidos fins que o(a) Sr(a). ${respName}, portador(a) do CPF ${respCpf}, na qualidade de ${relation} do(a) aluno(a) ${student.name.toUpperCase()}, matriculado(a) nesta unidade de ensino na Turma ${student.class || '---'} no Turno ${student.turno || '---'}, compareceu a esta instituição no dia ${today} ${period}, para ${reason}.
+
+${indentStr}Por ser verdade, firmamos a presente.`;
+
+  const splitText = doc.splitTextToSize(text, pgWidth - 40);
+  doc.text(splitText, 20, 90, { align: 'justify', maxWidth: pgWidth - 40, lineHeightFactor: 1.5 });
+
+  doc.text(`${CIDADE_UF_DATADOR}, ${today}.`, pgWidth - 20, 160, { align: 'right' });
+
+  doc.setDrawColor(100, 100, 100);
+  doc.line(pgWidth / 2 - 45, 200, pgWidth / 2 + 45, 200);
+  doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+  doc.text('Assinatura da Direção / Secretaria', pgWidth / 2, 205, { align: 'center' });
+
+  addReportFooter(doc, issuerName);
+  window.open(doc.output('bloburl'), '_blank');
+};
+
+export function addReportFooter(doc: any, issuerName?: string) {
+  const pgWidth = doc.internal.pageSize.width;
+  const pgHeight = doc.internal.pageSize.height;
+  const date = new Date().toLocaleDateString('pt-BR');
+  const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  
+  doc.setDrawColor(226, 232, 240); // slate-200
+  doc.setLineWidth(0.1);
+  doc.line(14, pgHeight - 15, pgWidth - 14, pgHeight - 15);
+
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(150, 150, 150);
+  
+  const footerText = `Documento emitido por: ${issuerName || 'Sistema'} | Data: ${date} | Hora: ${time}`;
+  doc.text(footerText, pgWidth / 2, pgHeight - 10, { align: 'center' });
+}
+

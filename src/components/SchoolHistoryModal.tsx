@@ -6,6 +6,7 @@ import { Student, SchoolHistory, SubjectRecord } from '../types';
 import { SCHOOL_HISTORY } from '../data';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { addReportFooter, addReportHeader } from '../lib/pdf';
 
 const SUBJECT_GROUPS = {
   'Ensino Fundamental': [
@@ -40,10 +41,12 @@ const SUBJECT_GROUPS = {
 interface SchoolHistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  student: Student | null;
+  student: any;
+  issuerName?: string;
+  school?: any;
 }
 
-export function SchoolHistoryModal({ isOpen, onClose, student }: SchoolHistoryModalProps) {
+export function SchoolHistoryModal({ isOpen, onClose, student, issuerName, school }: SchoolHistoryModalProps) {
   const [history, setHistory] = useState<SchoolHistory[]>(SCHOOL_HISTORY);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<SchoolHistory | null>(null);
@@ -154,24 +157,26 @@ export function SchoolHistoryModal({ isOpen, onClose, student }: SchoolHistoryMo
     }
   };
 
-  const handleGeneratePDF = (autoSign = false) => {
+  const handleGeneratePDF = async (autoSign = false) => {
     if (!student) return;
-    const doc = new jsPDF();
+    const doc = new jsPDF() as any;
+    const pgWidth = doc.internal.pageSize.width;
+
+    await addReportHeader(doc, school);
     
-    doc.setFontSize(20);
-    doc.setTextColor(37, 99, 235);
-    doc.text('Histórico Escolar', 14, 22);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(60);
-    doc.text(`Aluno: ${student.name}`, 14, 32);
-    doc.text(`Matrícula: ${student.registration}`, 14, 38);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text('HISTÓRICO ACADÊMICO', pgWidth / 2, 60, { align: 'center' });
     
     doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 14, 46);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    doc.text(`ALUNO(A): ${(student.name || '').toUpperCase()}`, 14, 72);
+    doc.text(`Matrícula: ${student.registration || '---'} | Inep: ${student.inepId || '---'}`, 14, 77);
+    doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, pgWidth - 14, 72, { align: 'right' });
 
-    let currentY = 55;
+    let currentY = 85;
 
     if (studentHistory.length === 0) {
       doc.text('Nenhum registro acadêmico encontrado.', 14, currentY);
@@ -252,7 +257,8 @@ export function SchoolHistoryModal({ isOpen, onClose, student }: SchoolHistoryMo
       }
     }
 
-    doc.save(`Historico_${student.name.replace(/\s+/g, '_')}.pdf`);
+    addReportFooter(doc, issuerName);
+    window.open(doc.output('bloburl'), '_blank');
     
     if (autoSign) {
         toast.success('PDF Gerado. Redirecionando para Assinaturas Gov.br...');

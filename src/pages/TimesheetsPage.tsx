@@ -5,6 +5,7 @@ import { Clock, Calendar, CheckCircle, List, MapPin, FileSignature, ExternalLink
 import { motion, AnimatePresence } from 'framer-motion';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { addReportFooter } from '../lib/pdf';
 
 export function TimesheetsPage() {
     const [loading, setLoading] = useState(false);
@@ -177,6 +178,7 @@ export function TimesheetsPage() {
              doc.text('Assinatura do Funcionário', 105, finalY + 45, { align: 'center' });
              doc.text('(Documento a ser assinado eletronicamente via Gov.br)', 105, finalY + 50, { align: 'center' });
 
+             addReportFooter(doc, userProfile?.name);
              // Baixa o PDF
              doc.save(`folha_de_ponto_${userProfile.name.replace(/\s+/g, '_').toLowerCase()}.pdf`);
              

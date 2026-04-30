@@ -47,9 +47,11 @@ export function StudentsPage() {
   const [totalStudents, setTotalStudents] = useState(0);
 
   const [userRole, setUserRole] = useState('Secretaria');
+  const [userName, setUserName] = useState('');
   const [userSchoolId, setUserSchoolId] = useState<string | null>(null);
   const [schoolFilter, setSchoolFilter] = useState('Todas');
   const [schoolsList, setSchoolsList] = useState<any[]>([]);
+  const [schoolInfo, setSchoolInfo] = useState<any>(null);
 
   // Deletion state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -72,11 +74,17 @@ export function StudentsPage() {
     const loadConfig = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: profile } = await supabase.from('profiles').select('role, school_id').eq('id', user.id).single();
+        const { data: profile } = await supabase.from('profiles').select('name, role, school_id').eq('id', user.id).single();
         if (profile) {
+          setUserName(profile.name);
           setUserRole(profile.role);
           setUserSchoolId(profile.school_id);
           
+          if (profile.school_id) {
+            const { data: school } = await supabase.from('school_info').select('*').eq('id', profile.school_id).single();
+            setSchoolInfo(school);
+          }
+
           if (profile.role === 'Admin') {
               const { data } = await supabase.from('school_info').select('id, name');
               setSchoolsList(data || []);
@@ -320,7 +328,7 @@ export function StudentsPage() {
               </select>
               <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
             </div>
-            <button onClick={() => generateTotalStudentsPDF(snakeToCamel(students), schoolsList.find(s => s.id === schoolFilter))} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors dark:text-white">
+            <button onClick={() => generateTotalStudentsPDF(snakeToCamel(students), schoolsList.find(s => s.id === schoolFilter), userName)} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors dark:text-white">
               <Download size={16} />
               Exportar Resumo
             </button>
@@ -405,15 +413,15 @@ export function StudentsPage() {
                                   <Printer size={16} />
                               </button>
                               <div className="absolute right-0 bottom-full mb-2 hidden group-hover/menu:block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 p-1 w-48 animate-in fade-in slide-in-from-bottom-2">
-                                  <button onClick={() => generateStudentRegistrationPDF(student, schoolsList.find(s => s.id === student.schoolId))} className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                                  <button onClick={() => generateStudentRegistrationPDF(student, schoolsList.find(s => s.id === student.schoolId), userName)} className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
                                       <FileText size={14} className="text-blue-500" /> Ficha de Matrícula
                                   </button>
-                                  <button onClick={() => generateStudentLinkageStatementPDF(student, schoolsList.find(s => s.id === student.schoolId))} className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                                  <button onClick={() => generateStudentLinkageStatementPDF(student, schoolsList.find(s => s.id === student.schoolId), userName)} className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
                                       <ClipboardList size={14} className="text-emerald-500" /> Declaração de Vínculo
                                   </button>
                                   <button onClick={async () => {
                                       const { data: att } = await supabase.from('attendance').select('*').eq('student_id', student.id);
-                                      generateBolsaFamiliaAttendancePDF(student, att || [], schoolsList.find(s => s.id === student.schoolId));
+                                      generateBolsaFamiliaAttendancePDF(student, att || [], schoolsList.find(s => s.id === student.schoolId), userName);
                                   }} className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
                                       <Users size={14} className="text-amber-500" /> Bolsa Família (Freq.)
                                   </button>
@@ -530,7 +538,7 @@ export function StudentsPage() {
                   </div>
 
                   <div className="flex flex-wrap justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800/50">
-                    <button onClick={() => generateStudentRegistrationPDF(student)} className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition-colors" title="Imprimir Ficha"><Printer size={16} /></button>
+                    <button onClick={() => generateStudentRegistrationPDF(student, schoolInfo, userName)} className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition-colors" title="Imprimir Ficha"><Printer size={16} /></button>
                     <button onClick={() => handleHistoryClick(student)} className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 transition-colors" title="Histórico"><GraduationCap size={16} /></button>
                     <button onClick={() => { setSelectedStudent(student); setIsGradesModalOpen(true); }} className="p-2 rounded-lg bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-100 transition-colors" title="Notas e Faltas"><ClipboardList size={16} /></button>
                     <button onClick={() => handleEditClick(student)} className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition-colors" title="Editar"><Edit2 size={16} /></button>
@@ -633,6 +641,8 @@ export function StudentsPage() {
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
         student={studentForHistory}
+        issuerName={userName}
+        school={schoolInfo}
       />
 
       {selectedStudent && (
