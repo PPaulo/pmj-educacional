@@ -56,6 +56,7 @@ export function ReportsPage() {
   const [attendanceReason, setAttendanceReason] = useState('tratar de assuntos de interesse do(a) referido(a) estudante');
   const [attendanceStartTime, setAttendanceStartTime] = useState('');
   const [attendanceEndTime, setAttendanceEndTime] = useState('');
+  const [transferTargetGrade, setTransferTargetGrade] = useState('');
 
   // Admin Controls
   const [userRole, setUserRole] = useState('Secretaria');
@@ -141,6 +142,7 @@ export function ReportsPage() {
     setAttendanceReason('tratar de assuntos de interesse do(a) referido(a) estudante');
     setAttendanceStartTime('');
     setAttendanceEndTime('');
+    setTransferTargetGrade('');
     setIsModalOpen(true);
   };
 
@@ -195,7 +197,7 @@ export function ReportsPage() {
         await generateBolsaFamiliaAttendancePDF(selectedStudent, attendance || [], school, userName);
         toast.success('Declaração Bolsa Família gerada com sucesso!');
       } else if (selectedReport.id === 'transfer') {
-        await generateStudentTransferDeclarationPDF(selectedStudent, school, userName);
+        await generateStudentTransferDeclarationPDF(selectedStudent, school, userName, transferTargetGrade);
         toast.success('Declaração de Transferência gerada com sucesso!');
       } else {
         toast.success(`Relatório "${selectedReport.title}" gerado com sucesso!`);
@@ -383,6 +385,20 @@ export function ReportsPage() {
                           </div>
                         </div>
                         <p className="text-[9px] text-slate-400">Se deixado em branco, o sistema usará o horário atual.</p>
+                      </motion.div>
+                    )}
+
+                    {selectedReport.id === 'transfer' && selectedStudent && (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-800/50 space-y-2">
+                        <label className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Apto para Matrícula na Série:</label>
+                        <input 
+                          type="text" 
+                          value={transferTargetGrade}
+                          onChange={(e) => setTransferTargetGrade(e.target.value)}
+                          placeholder="Ex: 9º Ano, 1ª Série EM..."
+                          className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:ring-2 focus:ring-indigo-600 outline-none transition-all"
+                        />
+                        <p className="text-[9px] text-slate-400">O texto completará: "...encontra-se apto a matricular-se na série [valor]".</p>
                       </motion.div>
                     )}
                   </>

@@ -545,7 +545,7 @@ ${indentStr}Por ser verdade, firmamos a presente.`;
   window.open(doc.output('bloburl'), '_blank');
 };
 
-export const generateStudentTransferDeclarationPDF = async (formData: any, school: any, issuerName?: string) => {
+export const generateStudentTransferDeclarationPDF = async (formData: any, school: any, issuerName?: string, targetGrade?: string) => {
   const doc = new jsPDF({ compress: true }) as any;
   const pgWidth = doc.internal.pageSize.width as number;
 
@@ -560,7 +560,8 @@ export const generateStudentTransferDeclarationPDF = async (formData: any, schoo
   const today = new Date().toLocaleDateString('pt-BR');
 
   const indentStr = "\u00A0".repeat(Math.floor(20 / (doc.getTextWidth("\u00A0") || 1)));
-  const text = `${indentStr}Declaramos para os devidos fins que o(a) aluno(a) ${formData.name.toUpperCase()}, portador(a) da Matrícula nº ${formData.registration || '---'} e Código INEP ${formData.inepId || '---'}, nascido(a) em ${formatBirth}, filho(a) de ${formData.motherName || '---'} e ${formData.fatherName || '---'}, esteve regularmente matriculado(a) nesta unidade de ensino no ano letivo de ${formData.exercicio || currentYear}, cursando a série ${formData.serie || '---'} na Turma ${formData.class || '---'} no Turno ${formData.turno || '---'}.
+  const fitStatement = targetGrade ? ` e encontra-se apto(a) a matricular-se na série ${targetGrade.toUpperCase()}` : '';
+  const text = `${indentStr}Declaramos para os devidos fins que o(a) aluno(a) ${formData.name.toUpperCase()}, portador(a) da Matrícula nº ${formData.registration || '---'} e Código INEP ${formData.inepId || '---'}, nascido(a) em ${formatBirth}, filho(a) de ${formData.motherName || '---'} e ${formData.fatherName || '---'}, esteve regularmente matriculado(a) nesta unidade de ensino no ano letivo de ${formData.exercicio || currentYear}, cursando a série ${formData.serie || '---'} na Turma ${formData.class || '---'} no Turno ${formData.turno || '---'}${fitStatement}.
   
 ${indentStr}O referido aluno encontra-se aguardando a expedição do seu Histórico Escolar, que será entregue no prazo de 30 (trinta) dias.
 
