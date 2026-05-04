@@ -42,6 +42,27 @@ const reportsList = [
   { id: 'total_students', title: 'Total de Alunos', description: 'Relatório consolidado com a quantidade geral de matrículas.', icon: BarChart2, color: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20', scope: 'general' },
 ];
 
+const getNextGrade = (currentSerie: string) => {
+  if (!currentSerie) return '';
+  const match = currentSerie.match(/(\d+)/);
+  if (!match) return currentSerie;
+  
+  const num = parseInt(match[1], 10);
+  const isEnsinoMedio = currentSerie.toLowerCase().includes('médio') || currentSerie.toLowerCase().includes('em') || currentSerie.toLowerCase().includes('série');
+  
+  if (currentSerie.toLowerCase().includes('ano')) {
+    if (num < 9) return `${num + 1}º Ano`;
+    if (num === 9) return `1ª Série EM`;
+  }
+  
+  if (isEnsinoMedio) {
+    if (num < 3) return `${num + 1}ª Série EM`;
+    return 'Ensino Médio Completo';
+  }
+  
+  return currentSerie;
+};
+
 export function ReportsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<any>(null);
@@ -145,6 +166,12 @@ export function ReportsPage() {
     setTransferTargetGrade('');
     setIsModalOpen(true);
   };
+
+  useEffect(() => {
+    if (selectedReport?.id === 'transfer' && selectedStudent) {
+      setTransferTargetGrade(getNextGrade(selectedStudent.serie));
+    }
+  }, [selectedStudent, selectedReport]);
 
   const handleGenerate = async (autoSign = false) => {
     if (selectedReport.scope === 'student' && !selectedStudent) {

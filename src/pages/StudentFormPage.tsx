@@ -48,23 +48,27 @@ export function StudentFormPage() {
     const initData = async () => {
       const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
       
-      const { data: { user } } = await supabase.auth.getUser();
-      let sId = null;
-      let role = 'Secretaria';
-      if (user) {
-        const { data: profile } = await supabase.from('profiles').select('school_id, role').eq('id', user.id).single();
-        if (profile) {
-          sId = profile.school_id;
-          role = profile.role;
-          setUserSchoolId(sId);
-          setUserRole(role);
-          setUserName(profile.name || '');
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        let sId = null;
+        let role = 'Secretaria';
+        if (user) {
+          const { data: profile } = await supabase.from('profiles').select('school_id, role, name').eq('id', user.id).maybeSingle();
+          if (profile) {
+            sId = profile.school_id;
+            role = profile.role;
+            setUserSchoolId(sId);
+            setUserRole(role);
+            setUserName(profile.name || '');
 
-          if (sId) {
-            const { data: school } = await supabase.from('school_info').select('*').eq('id', sId).single();
-            setSchoolInfo(school);
+            if (sId) {
+              const { data: school } = await supabase.from('school_info').select('*').eq('id', sId).maybeSingle();
+              if (school) setSchoolInfo(school);
+            }
           }
         }
+      } catch (err) {
+        console.error('Erro ao inicializar dados:', err);
       }
 
       let q = supabase.from('classes').select('name').eq('year', activeYear);
@@ -188,7 +192,7 @@ export function StudentFormPage() {
     }
   };
 
-const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     
     if (type === 'checkbox') {
@@ -198,32 +202,32 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement 
     }
 
     if (name === 'cpf' || name === 'responsibleCpf') {
-      setFormData(prev => ({ ...prev, [name]: maskCPF(value) }));
+      setFormData(prev => ({ ...prev, [name]: maskCPF(value || '') }));
       return;
     }
 
     if (name === 'cep') {
-      setFormData(prev => ({ ...prev, [name]: maskCEP(value) }));
+      setFormData(prev => ({ ...prev, [name]: maskCEP(value || '') }));
       return;
     }
 
     if (name === 'certidaoNumero') {
-      setFormData(prev => ({ ...prev, [name]: maskCertidao(value) }));
+      setFormData(prev => ({ ...prev, [name]: maskCertidao(value || '') }));
       return;
     }
 
     if (name === 'nis') {
-      setFormData(prev => ({ ...prev, [name]: maskNIS(value) }));
+      setFormData(prev => ({ ...prev, [name]: maskNIS(value || '') }));
       return;
     }
 
     if (name === 'cartaoSus') {
-      setFormData(prev => ({ ...prev, [name]: maskSUS(value) }));
+      setFormData(prev => ({ ...prev, [name]: maskSUS(value || '') }));
       return;
     }
 
     if (name.includes('Phone') || name === 'fatherPhoneResidencial' || name === 'fatherPhoneCelular' || name === 'fatherPhoneTrabalho' || name === 'motherPhoneResidencial' || name === 'motherPhoneCelular' || name === 'motherPhoneTrabalho') {
-      setFormData(prev => ({ ...prev, [name]: maskPhone(value) }));
+      setFormData(prev => ({ ...prev, [name]: maskPhone(value || '') }));
       return;
     }
 
@@ -735,7 +739,10 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement 
                   <button type="button" onClick={() => navigate("/alunos")} className="flex-1 px-4 py-2.5 border rounded-xl font-bold">Voltar</button>
                   <button
                     type="button"
-                    onClick={() => generateStudentRegistrationPDF(formData as any, schoolInfo, userName)}
+                    onClick={() => {
+                      if (!schoolInfo) return toast.error('Dados da escola ainda não carregados.');
+                      generateStudentRegistrationPDF(formData as any, schoolInfo, userName);
+                    }}
                     className="flex-1 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"
                   >
                     <FileText size={18} />
