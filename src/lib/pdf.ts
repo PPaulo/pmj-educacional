@@ -545,6 +545,41 @@ ${indentStr}Por ser verdade, firmamos a presente.`;
   window.open(doc.output('bloburl'), '_blank');
 };
 
+export const generateStudentTransferDeclarationPDF = async (formData: any, school: any, issuerName?: string) => {
+  const doc = new jsPDF({ compress: true }) as any;
+  const pgWidth = doc.internal.pageSize.width as number;
+
+  await addReportHeader(doc, school);
+
+  doc.setFontSize(14); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
+  doc.text('DECLARAÇÃO DE TRANSFERÊNCIA', pgWidth / 2, 65, { align: 'center' });
+
+  doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(0, 0, 0);
+  const currentYear = new Date().getFullYear();
+  const formatBirth = formData.birthDate ? formData.birthDate.split('-').reverse().join('/') : '---';
+  const today = new Date().toLocaleDateString('pt-BR');
+
+  const indentStr = "\u00A0".repeat(Math.floor(20 / (doc.getTextWidth("\u00A0") || 1)));
+  const text = `${indentStr}Declaramos para os devidos fins que o(a) aluno(a) ${formData.name.toUpperCase()}, portador(a) da Matrícula nº ${formData.registration || '---'} e Código INEP ${formData.inepId || '---'}, nascido(a) em ${formatBirth}, filho(a) de ${formData.motherName || '---'} e ${formData.fatherName || '---'}, esteve regularmente matriculado(a) nesta unidade de ensino no ano letivo de ${formData.exercicio || currentYear}, cursando a série ${formData.serie || '---'} na Turma ${formData.class || '---'} no Turno ${formData.turno || '---'}.
+  
+${indentStr}O referido aluno encontra-se aguardando a expedição do seu Histórico Escolar, que será entregue no prazo de 30 (trinta) dias.
+
+${indentStr}Por ser verdade, firmamos a presente.`;
+
+  const splitText = doc.splitTextToSize(text, pgWidth - 40);
+  doc.text(splitText, 20, 85, { align: 'justify', maxWidth: pgWidth - 40, lineHeightFactor: 1.5 });
+
+  doc.text(`${CIDADE_UF_DATADOR}, ${today}.`, pgWidth - 20, 160, { align: 'right' });
+
+  doc.setDrawColor(0, 0, 0);
+  doc.line(pgWidth / 2 - 45, 200, pgWidth / 2 + 45, 200);
+  doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(0, 0, 0);
+  doc.text('Direção / Secretaria Escolar', pgWidth / 2, 205, { align: 'center' });
+
+  addReportFooter(doc, issuerName);
+  window.open(doc.output('bloburl'), '_blank');
+};
+
 export function addReportFooter(doc: any, issuerName?: string) {
   const pgWidth = doc.internal.pageSize.width;
   const pgHeight = doc.internal.pageSize.height;

@@ -24,7 +24,8 @@ import {
   generateReportCardPDF, 
   generateSchoolTranscriptPDF, 
   generateBolsaFamiliaAttendancePDF,
-  generateParentAttendanceStatementPDF
+  generateParentAttendanceStatementPDF,
+  generateStudentTransferDeclarationPDF
 } from '../lib/pdf';
 import toast from 'react-hot-toast';
 import { snakeToCamel, sortStudents } from '../lib/utils';
@@ -36,6 +37,7 @@ const reportsList = [
   { id: 'registration', title: 'Ficha Individual', description: 'Dados cadastrais completos, endereço e responsáveis.', icon: UserSquare, color: 'bg-blue-500/10 text-blue-600 border-blue-500/20', scope: 'student' },
   { id: 'report', title: 'Boletim Escolar', description: 'Notas e faltas segmentadas por bimestre e disciplina.', icon: ClipboardList, color: 'bg-purple-500/10 text-purple-600 border-purple-500/20', scope: 'student' },
   { id: 'history', title: 'Histórico Escolar', description: 'Registro completo da trajetória acadêmica do aluno.', icon: History, color: 'bg-amber-500/10 text-amber-600 border-amber-500/20', scope: 'student' },
+  { id: 'transfer', title: 'Declaração de Transferência', description: 'Documento provisório enquanto o histórico é processado.', icon: FileSignature, color: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20', scope: 'student' },
   { id: 'class_list', title: 'Alunos por Turma', description: 'Listagem completa de estudantes matriculados por sala.', icon: Users, color: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20', scope: 'class' },
   { id: 'total_students', title: 'Total de Alunos', description: 'Relatório consolidado com a quantidade geral de matrículas.', icon: BarChart2, color: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20', scope: 'general' },
 ];
@@ -192,6 +194,9 @@ export function ReportsPage() {
         const { data: attendance } = await supabase.from('attendance').select('*').eq('student_id', selectedStudent.id);
         await generateBolsaFamiliaAttendancePDF(selectedStudent, attendance || [], school, userName);
         toast.success('Declaração Bolsa Família gerada com sucesso!');
+      } else if (selectedReport.id === 'transfer') {
+        await generateStudentTransferDeclarationPDF(selectedStudent, school, userName);
+        toast.success('Declaração de Transferência gerada com sucesso!');
       } else {
         toast.success(`Relatório "${selectedReport.title}" gerado com sucesso!`);
       }

@@ -30,6 +30,7 @@ import { Student } from '../types';
 import { 
   generateStudentRegistrationPDF, 
   generateStudentLinkageStatementPDF,
+  generateStudentTransferDeclarationPDF,
   generateBolsaFamiliaAttendancePDF,
   generateTotalStudentsPDF
 } from '../lib/pdf';
@@ -418,6 +419,9 @@ export function StudentsPage() {
                                   </button>
                                   <button onClick={() => generateStudentLinkageStatementPDF(student, schoolsList.find(s => s.id === student.schoolId), userName)} className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
                                       <ClipboardList size={14} className="text-emerald-500" /> Declaração de Vínculo
+                                  </button>
+                                  <button onClick={() => generateStudentTransferDeclarationPDF(student, schoolsList.find(s => s.id === student.schoolId), userName)} className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                                      <FileSignature size={14} className="text-indigo-500" /> Declaração de Transferência
                                   </button>
                                   <button onClick={async () => {
                                       const { data: att } = await supabase.from('attendance').select('*').eq('student_id', student.id);
