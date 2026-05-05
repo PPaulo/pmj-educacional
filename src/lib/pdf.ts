@@ -30,8 +30,8 @@ const loadImg = (url: string): Promise<string> => {
 };
 
 const CIDADE_UF_DATADOR = 'Padre Bernardo - GO';
-const textColor = [0, 0, 0];
-const labelColor = [0, 0, 0];
+const textColor: [number, number, number] = [0, 0, 0];
+const labelColor: [number, number, number] = [0, 0, 0];
 const secondaryColor: [number, number, number] = [0, 0, 0];
 
 const MUNICIPAL_LOGO_URL = '/brasao.png';

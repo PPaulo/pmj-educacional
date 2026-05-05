@@ -29,6 +29,8 @@ export function AnnouncementsPage() {
   const [schoolsList, setSchoolsList] = useState<any[]>([]);
 
   // Admin Controls
+  const [userRole, setUserRole] = useState('Secretaria');
+  const [userId, setUserId] = useState<string | null>(null);
   const [userSchoolId, setUserSchoolId] = useState<string | null>(null);
 
   useEffect(() => {

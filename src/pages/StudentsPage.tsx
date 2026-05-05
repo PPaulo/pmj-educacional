@@ -14,7 +14,8 @@ import {
   GraduationCap,
   Printer,
   ClipboardList,
-  FileText
+  FileText,
+  FileSignature
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { snakeToCamel, camelToSnake } from '../lib/utils';

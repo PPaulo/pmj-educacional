@@ -48,10 +48,11 @@ export function StudentFormPage() {
     const initData = async () => {
       const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
       
+      let sId = null;
+      let role = 'Secretaria';
+
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        let sId = null;
-        let role = 'Secretaria';
         if (user) {
           const { data: profile } = await supabase.from('profiles').select('school_id, role, name').eq('id', user.id).maybeSingle();
           if (profile) {
