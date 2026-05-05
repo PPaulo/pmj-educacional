@@ -227,111 +227,252 @@ export function SchoolHistoryModal({ isOpen, onClose, student, issuerName, schoo
 
     await addReportHeader(doc, school);
     
-    doc.setFontSize(14);
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 116, 139);
+    doc.text('SECRETARIA MUNICIPAL DE EDUCAÇÃO', pgWidth / 2, 16, { align: 'center' });
+    doc.text('GOVERNO DE PADRE BERNARDO / GO', pgWidth / 2, 21, { align: 'center' });
+    
+    doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
-    doc.text('HISTÓRICO ESCOLAR', pgWidth / 2, 55, { align: 'center' });
+    doc.text('HISTÓRICO ESCOLAR DO ENSINO FUNDAMENTAL', pgWidth / 2, 31, { align: 'center' });
     
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
-    doc.text('IDENTIFICAÇÃO DO(A) ALUNO(A)', 14, 65);
-    doc.line(14, 66, pgWidth - 14, 66);
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    const birthStr = student.birthDate ? student.birthDate.split('-').reverse().join('/') : '---';
-    const placeStr = `${student.birthCity || '---'} - ${student.birthState || '---'}`;
     
-    doc.text(`NOME: ${(student.name || '').toUpperCase()}`, 14, 72);
-    doc.text(`DATA NASC: ${birthStr}`, pgWidth - 60, 72);
-    doc.text(`NATURALIDADE: ${placeStr.toUpperCase()}`, 14, 77);
-    doc.text(`MATRÍCULA: ${student.registration || '---'}`, pgWidth - 60, 77);
-    doc.text(`FILIAÇÃO: ${(student.motherName || '---').toUpperCase()} E ${(student.fatherName || '---').toUpperCase()}`, 14, 82);
-    doc.text(`CÓDIGO INEP: ${student.inepId || '---'}`, pgWidth - 60, 82);
-
-    let currentY = 90;
+    // School Info Section (Estabelecimento)
+    let currentY = 42;
+    doc.text('Estabelecimento:', 14, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text((school?.name || 'Escola Municipal Padre Ruy').toUpperCase(), 43, currentY);
+    
+    currentY += 5;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Endereço:', 14, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text((school?.street || 'Avenida Brasil esquina com Avenida Minas Gerais').toUpperCase(), 32, currentY);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Bairro:', pgWidth - 65, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text((school?.neighborhood || 'Mariápolis').toUpperCase(), pgWidth - 52, currentY);
+    
+    currentY += 5;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Cidade:', 14, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text((school?.city || 'Padre Bernardo').toUpperCase(), 29, currentY);
+    doc.setFont('helvetica', 'bold');
+    doc.text('UF:', 100, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text((school?.uf || 'GO').toUpperCase(), 107, currentY);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CEP:', 120, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text((school?.cep || '73.700-000').toUpperCase(), 130, currentY);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Fone:', pgWidth - 65, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text((school?.phone || '(61) 3697-1155').toUpperCase(), pgWidth - 54, currentY);
+    
+    currentY += 5;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Autorização:', 14, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Resolução CME/CP nº 17 início: 19/09/2024, fim: 31/12/2028', 36, currentY);
+    
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.1);
+    doc.line(14, currentY + 2, pgWidth - 14, currentY + 2);
+    
+    // Student Info Section
+    currentY += 8;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Aluno(a):', 14, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text((student.name || '').toUpperCase(), 32, currentY);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Matrícula:', 100, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(student.registration || '---', 120, currentY);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Cód. INEP:', 150, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(student.inepId || '---', 170, currentY);
+    
+    currentY += 5;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Data de Nasc.:', 14, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(student.birthDate ? student.birthDate.split('-').reverse().join('/') : '---', 40, currentY);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Sexo:', 65, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(student.gender || '---', 76, currentY);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Naturalidade:', 100, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text((student.birthCity || '---').toUpperCase(), 125, currentY);
+    doc.setFont('helvetica', 'bold');
+    doc.text('UF:', pgWidth - 30, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text((student.birthState || '---').toUpperCase(), pgWidth - 23, currentY);
+    
+    currentY += 5;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Filiação:', 14, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${(student.motherName || '---').toUpperCase()} e ${(student.fatherName || '---').toUpperCase()}`, 30, currentY);
+    
+    currentY += 4;
 
     if (studentHistory.length === 0) {
-      doc.text('Nenhum registro acadêmico encontrado.', 14, currentY);
+      doc.text('Nenhum registro acadêmico encontrado.', 14, currentY + 10);
     } else {
       const sortedHistory = [...studentHistory].sort((a, b) => Number(a.academicYear) - Number(b.academicYear));
 
-      doc.setFont('helvetica', 'bold');
-      doc.text('RESUMO DO DESEMPENHO ACADÊMICO', 14, currentY);
-      currentY += 2;
+      // 1. Matrix Table (Fixed Columns: G4 to 5º ano)
+      const grades = ['G4', 'G5', '1º ano', '2º ano', '3º ano', '4º ano', '5º ano'];
+      const defaultSubjects = [
+        'Língua Portuguesa', 'Matemática', 'Ciências', 
+        'Língua Estrangeira (Inglês)', 'Geografia', 'História', 
+        'Educação Física', 'Educação Artística', 'Ensino Religioso'
+      ];
+
+      const head = [
+        [
+          { content: 'COMPONENTES CURRICULARES', rowSpan: 2, styles: { valign: 'middle', halign: 'center', cellWidth: 8, fontSize: 6 } },
+          { content: '', rowSpan: 2, styles: { cellWidth: 45 } },
+          ...grades.map(g => ({ content: g, colSpan: 2, styles: { halign: 'center', fontSize: 8 } }))
+        ],
+        [
+          ...grades.flatMap(() => [
+            { content: 'Nota', styles: { halign: 'center', fontSize: 6 } },
+            { content: 'CH', styles: { halign: 'center', fontSize: 6 } }
+          ])
+        ]
+      ];
+
+      const body = defaultSubjects.map(subjectName => {
+        const row = [
+          '', // Vertical text space
+          subjectName,
+          ...grades.flatMap(gradeName => {
+            const record = sortedHistory.find(h => h.grade.toLowerCase().includes(gradeName.toLowerCase()));
+            const subjectRecord = record?.subjects?.find(s => s.name.toLowerCase().includes(subjectName.toLowerCase()));
+            return [
+              subjectRecord?.grade || '-',
+              subjectRecord?.workload || '-'
+            ];
+          })
+        ];
+        return row;
+      });
+
+      // Additional rows for totals and results
+      body.push([
+        '', 'Carga Horária',
+        ...grades.flatMap(gradeName => {
+          const record = sortedHistory.find(h => h.grade.toLowerCase().includes(gradeName.toLowerCase()));
+          return [
+            { content: record?.workload || '--', colSpan: 2, styles: { halign: 'center' } }
+          ];
+        })
+      ]);
+      body.push([
+        '', '% Frequência',
+        ...grades.flatMap(gradeName => {
+          const record = sortedHistory.find(h => h.grade.toLowerCase().includes(gradeName.toLowerCase()));
+          return [
+            { content: record?.attendance || '--', colSpan: 2, styles: { halign: 'center' } }
+          ];
+        })
+      ]);
+      body.push([
+        '', 'Resultado Final',
+        ...grades.flatMap(gradeName => {
+          const record = sortedHistory.find(h => h.grade.toLowerCase().includes(gradeName.toLowerCase()));
+          return [
+            { content: record ? (record.result === 'Aprovado' ? 'Aprovado(a)' : record.result) : '--', colSpan: 2, styles: { halign: 'center', fontSize: 6 } }
+          ];
+        })
+      ]);
 
       autoTable(doc, {
         startY: currentY,
         theme: 'grid',
-        headStyles: { fillColor: [37, 99, 235] },
-        head: [['Ano/Série', 'Unidade Escolar', 'Cidade/UF', 'C.H.', 'Freq.', 'Resultado']],
-        body: sortedHistory.map(record => [
-          `${formatYear(record.academicYear)}\n${record.grade}`,
-          record.schoolName,
-          'Padre Bernardo - GO',
-          record.workload,
-          record.attendance,
-          record.result
-        ]),
-        styles: { fontSize: 7, cellPadding: 1.5 },
-        headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' }
+        styles: { fontSize: 7, cellPadding: 0.8, textColor: [0, 0, 0], font: 'helvetica', lineWidth: 0.1, lineColor: 0 },
+        headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
+        columnStyles: {
+          0: { cellWidth: 8 },
+          1: { cellWidth: 45 }
+        },
+        head: head,
+        body: body,
+        didDrawCell: (data) => {
+          if (data.section === 'body' && data.column.index === 0 && data.row.index === 0) {
+            // Draw the vertical text manually in the first column's spanned area
+            const cell = data.cell;
+            // The text should span the subjects part.
+            // Simplified: we'll draw it in the first cell of the body
+            doc.saveContext();
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'bold');
+            const x = cell.x + 5;
+            const y = cell.y + 45; // Roughly centered in the subject rows
+            doc.setTextColor(0, 0, 0);
+            doc.text('COMPONENTES CURRICULARES', x, y, { angle: 90, align: 'center' });
+            doc.restoreContext();
+          }
+        }
+      });
+      
+      currentY = (doc as any).lastAutoTable.finalY + 6;
+
+      // 2. School History Table (Bottom)
+      autoTable(doc, {
+        startY: currentY,
+        theme: 'grid',
+        head: [['Série', 'Ano Letivo', 'Unidade de Ensino', 'Município', 'UF']],
+        body: grades.map(gradeName => {
+          const record = sortedHistory.find(h => h.grade.toLowerCase().includes(gradeName.toLowerCase()));
+          return [
+            gradeName,
+            record ? formatYear(record.academicYear) : '',
+            record?.schoolName || (record ? school?.name : '--'),
+            record ? 'Padre Bernardo' : '',
+            record ? 'GO' : ''
+          ];
+        }),
+        styles: { fontSize: 7, cellPadding: 1, halign: 'center', textColor: [0, 0, 0], lineWidth: 0.1, lineColor: 0 },
+        headStyles: { fillColor: [255, 255, 255], fontStyle: 'bold', textColor: [0, 0, 0] },
+        columnStyles: {
+          2: { halign: 'left', cellWidth: 70 }
+        }
       });
 
-      currentY = (doc as any).lastAutoTable.finalY + 10;
+      currentY = (doc as any).lastAutoTable.finalY + 5;
 
-      // 2. Subjects Table (Years as columns)
-      const allSubjects = new Set<string>();
-      sortedHistory.forEach(record => {
-        record.subjects?.forEach(sub => allSubjects.add(sub.name));
-      });
-      const uniqueSubjects = Array.from(allSubjects).sort();
-
-      if (uniqueSubjects.length > 0) {
-        const head = [['Disciplina', ...sortedHistory.map(h => `${formatYear(h.academicYear)}\n${h.grade}`)]];
-        const body = uniqueSubjects.map(subjectName => {
-          const row = [subjectName];
-          sortedHistory.forEach(record => {
-            const subjectRecord = record.subjects?.find(s => s.name.toLowerCase() === subjectName.toLowerCase());
-            if (subjectRecord) {
-              row.push(`N: ${subjectRecord.grade} | F: ${subjectRecord.absences}`);
-            } else {
-              row.push('-');
-            }
-          });
-          return row;
-        });
-
-        autoTable(doc, {
-          startY: currentY,
-          theme: 'grid',
-          headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold', halign: 'center' },
-          columnStyles: { 0: { fontStyle: 'bold', halign: 'left', cellWidth: 40 } },
-          bodyStyles: { halign: 'center', fontSize: 7 },
-          head: head,
-          body: body,
-        });
-
-        currentY = (doc as any).lastAutoTable.finalY + 10;
-      }
-
-      // 3. Condensed Observations
-      const observations = sortedHistory
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Observações:', 14, currentY);
+      doc.setDrawColor(0);
+      doc.rect(14, currentY + 1, pgWidth - 28, 15);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6);
+      const standardObservations = [
+        '* RESOLUÇÃO Nº 06/11/2020, ART. 18 - PARÁGRAFO ÚNICO;',
+        '** RESOLUÇÃO Nº 06/11/2020, ART. 59 - INCISO II E PARÁGRAFO 1º'
+      ];
+      
+      const customObs = sortedHistory
         .filter(h => h.observations && h.observations.trim() !== '')
-        .map(h => `${formatYear(h.academicYear)} (${h.grade}): ${h.observations}`);
-
-      if (observations.length > 0) {
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'bold');
-        doc.text('OBSERVAÇÕES E NOTAS COMPLEMENTARES', 14, currentY);
-        currentY += 5;
+        .map(h => `[${formatYear(h.academicYear)}] ${h.observations}`);
         
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8);
-        const obsText = observations.join('\n\n');
-        const splitObs = doc.splitTextToSize(obsText, pgWidth - 28);
-        doc.text(splitObs, 14, currentY);
-        currentY += (splitObs.length * 4) + 10;
-      }
+      const allObs = [...standardObservations, ...customObs].join('\n');
+      doc.text(allObs, 16, currentY + 5);
+      
+      currentY += 25;
 
       // Footer Signatures
       if (currentY > doc.internal.pageSize.height - 40) {
@@ -341,19 +482,13 @@ export function SchoolHistoryModal({ isOpen, onClose, student, issuerName, schoo
         currentY = Math.max(currentY, doc.internal.pageSize.height - 60);
       }
 
-      doc.setDrawColor(200);
-      doc.line(20, currentY, 90, currentY);
-      doc.line(pgWidth - 90, currentY, pgWidth - 20, currentY);
+      doc.line(14, currentY, 90, currentY);
+      doc.line(pgWidth - 90, currentY, pgWidth - 14, currentY);
       
-      doc.setFontSize(8);
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
-      doc.text('SECRETÁRIO(A) ESCOLAR', 55, currentY + 5, { align: 'center' });
-      doc.text('DIRETOR(A) / COORDENADOR(A)', pgWidth - 55, currentY + 5, { align: 'center' });
-      
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(7);
-      doc.text('Carimbo e Assinatura', 55, currentY + 9, { align: 'center' });
-      doc.text('Carimbo e Assinatura', pgWidth - 55, currentY + 9, { align: 'center' });
+      doc.text('Diretor(a)', 52, currentY + 5, { align: 'center' });
+      doc.text('Secretário(a)', pgWidth - 52, currentY + 5, { align: 'center' });
       }
     }
 
