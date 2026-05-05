@@ -3,7 +3,8 @@ import { X, Plus, Edit2, Trash2, GraduationCap, FileText, FileSignature, Externa
 import { motion, AnimatePresence } from 'motion/react';
 import toast from 'react-hot-toast';
 import { Student, SchoolHistory, SubjectRecord } from '../types';
-import { SCHOOL_HISTORY } from '../data';
+import { supabase } from '../lib/supabase';
+import { camelToSnake, snakeToCamel } from '../lib/utils';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { addReportFooter, addReportHeader } from '../lib/pdf';
@@ -48,7 +49,8 @@ interface SchoolHistoryModalProps {
 }
 
 export function SchoolHistoryModal({ isOpen, onClose, student, issuerName, school }: SchoolHistoryModalProps) {
-  const [history, setHistory] = useState<SchoolHistory[]>(SCHOOL_HISTORY);
+  const [history, setHistory] = useState<SchoolHistory[]>([]);
+  const [loading, setLoading] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<SchoolHistory | null>(null);
   
@@ -63,14 +65,37 @@ export function SchoolHistoryModal({ isOpen, onClose, student, issuerName, schoo
     subjects: []
   });
 
-  const studentHistory = history.filter(h => h.studentId === student?.id).sort((a, b) => Number(b.academicYear) - Number(a.academicYear));
+  const studentHistory = history.sort((a, b) => Number(b.academicYear) - Number(a.academicYear));
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen && student) {
+      loadHistory();
+    } else {
+      setHistory([]);
       setIsFormOpen(false);
       setEditingRecord(null);
     }
-  }, [isOpen]);
+  }, [isOpen, student]);
+
+  const loadHistory = async () => {
+    if (!student?.id) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('school_history')
+        .select('*')
+        .eq('student_id', student.id)
+        .order('academic_year', { ascending: false });
+
+      if (error) throw error;
+      setHistory(snakeToCamel(data || []));
+    } catch (err) {
+      console.error('Erro ao carregar histórico:', err);
+      toast.error('Erro ao carregar histórico escolar.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOpenForm = (record?: SchoolHistory) => {
     if (record) {
@@ -135,26 +160,63 @@ export function SchoolHistoryModal({ isOpen, onClose, student, issuerName, schoo
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!student) return;
 
-    if (editingRecord) {
-      setHistory(prev => prev.map(h => h.id === editingRecord.id ? { ...h, ...formData } : h));
-    } else {
-      const newRecord: SchoolHistory = {
-        id: Math.random().toString(36).substr(2, 9),
-        studentId: student.id,
-        ...formData
+    try {
+      const payload = {
+        student_id: student.id,
+        school_name: formData.schoolName,
+        academic_year: formData.academicYear,
+        grade: formData.grade,
+        result: formData.result,
+        attendance: formData.attendance,
+        workload: formData.workload,
+        observations: formData.observations,
+        subjects: formData.subjects
       };
-      setHistory(prev => [...prev, newRecord]);
+
+      if (editingRecord) {
+        const { error } = await supabase
+          .from('school_history')
+          .update(payload)
+          .eq('id', editingRecord.id);
+        
+        if (error) throw error;
+        toast.success('Registro atualizado!');
+      } else {
+        const { error } = await supabase
+          .from('school_history')
+          .insert(payload);
+        
+        if (error) throw error;
+        toast.success('Novo registro adicionado!');
+      }
+      
+      loadHistory();
+      handleCloseForm();
+    } catch (err) {
+      console.error('Erro ao salvar histórico:', err);
+      toast.error('Erro ao salvar registro.');
     }
-    handleCloseForm();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir este registro?')) {
-      setHistory(prev => prev.filter(h => h.id !== id));
+      try {
+        const { error } = await supabase
+          .from('school_history')
+          .delete()
+          .eq('id', id);
+        
+        if (error) throw error;
+        toast.success('Registro excluído!');
+        loadHistory();
+      } catch (err) {
+        console.error('Erro ao excluir histórico:', err);
+        toast.error('Erro ao excluir registro.');
+      }
     }
   };
 

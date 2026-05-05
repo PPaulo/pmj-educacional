@@ -12,12 +12,14 @@ import {
   Plus, 
   FolderOpen,
   X,
-  Eye
+  Eye,
+  GraduationCap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 import { snakeToCamel } from '../lib/utils';
+import { SchoolHistoryModal } from '../components/SchoolHistoryModal';
 
 export function ArchivePage() {
   const [students, setStudents] = useState<any[]>([]);
@@ -37,6 +39,11 @@ export function ArchivePage() {
   // Manual creation state
   const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false);
   const [newStudent, setNewStudent] = useState({ name: '', birthDate: '', motherName: '', fatherName: '' });
+
+  // School History state
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [schoolInfo, setSchoolInfo] = useState<any>(null);
+  const [userName, setUserName] = useState('');
 
 
 
@@ -64,18 +71,20 @@ export function ArchivePage() {
       if (!user) return;
       
       const { data: profile } = await supabase.from('profiles').select('school_id, role').eq('id', user.id).single();
-      const activeYear = localStorage.getItem('pmj_ano_letivo') || new Date().getFullYear().toString();
-
       let query = supabase
         .from('students')
         .select('id, name, birth_date, mother_name, father_name, registration')
         .neq('status', 'Ativo')
-        .eq('ano_letivo', activeYear)
         .order('name');
       
       if (profile && profile.role !== 'Admin' && profile.school_id) {
         query = query.eq('school_id', profile.school_id);
+        
+        const { data: schoolData } = await supabase.from('schools').select('*').eq('id', profile.school_id).single();
+        setSchoolInfo(schoolData);
       }
+
+      setUserName(profile?.name || user.email?.split('@')[0] || 'Usuário');
       
       const { data, error } = await query;
       if (!error) setStudents(snakeToCamel(data || []));
@@ -339,6 +348,16 @@ export function ArchivePage() {
                     </div>
                   </div>
 
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setIsHistoryModalOpen(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-md shadow-blue-600/20"
+                    >
+                      <GraduationCap size={18} />
+                      <span>Histórico Escolar</span>
+                    </button>
+                  </div>
+
                   {/* ACTION BAR PARA ARQUIVOS */}
                   <form onSubmit={handleUpload} className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                       <input 
@@ -501,6 +520,16 @@ export function ArchivePage() {
         cancelText="Cancelar"
         variant="danger"
       />
+
+      {selectedStudent && (
+        <SchoolHistoryModal 
+          isOpen={isHistoryModalOpen}
+          onClose={() => setIsHistoryModalOpen(false)}
+          student={selectedStudent}
+          school={schoolInfo}
+          issuerName={userName}
+        />
+      )}
 
     </>
   );
