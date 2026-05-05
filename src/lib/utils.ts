@@ -62,3 +62,15 @@ export function sortStudents(students: any[]) {
     }
   });
 }
+
+export const formatYear = (value: any) => {
+  if (!value) return '';
+  const valStr = String(value);
+  if (valStr.includes('-')) return valStr.split('-')[0];
+  if (valStr.includes('/')) {
+    const parts = valStr.split('/');
+    if (parts[0].length === 4) return parts[0];
+    if (parts[2].length === 4) return parts[2];
+  }
+  return valStr;
+};

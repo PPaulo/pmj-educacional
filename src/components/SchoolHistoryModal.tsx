@@ -7,6 +7,7 @@ import { SCHOOL_HISTORY } from '../data';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { addReportFooter, addReportHeader } from '../lib/pdf';
+import { formatYear } from '../lib/utils';
 
 const SUBJECT_GROUPS = {
   'Ensino Fundamental': [
@@ -191,7 +192,7 @@ export function SchoolHistoryModal({ isOpen, onClose, student, issuerName, schoo
         headStyles: { fillColor: [37, 99, 235] },
         head: [['Ano/Série', 'Escola', 'C.H.', 'Freq.', 'Resultado']],
         body: sortedHistory.map(record => [
-          `${record.academicYear} - ${record.grade}`,
+          `${formatYear(record.academicYear)} - ${record.grade}`,
           record.schoolName,
           record.workload,
           record.attendance,
@@ -209,7 +210,7 @@ export function SchoolHistoryModal({ isOpen, onClose, student, issuerName, schoo
       const uniqueSubjects = Array.from(allSubjects).sort();
 
       if (uniqueSubjects.length > 0) {
-        const head = [['Disciplina', ...sortedHistory.map(h => `${h.academicYear}\n${h.grade}`)]];
+        const head = [['Disciplina', ...sortedHistory.map(h => `${formatYear(h.academicYear)}\n${h.grade}`)]];
         const body = uniqueSubjects.map(subjectName => {
           const row = [subjectName];
           sortedHistory.forEach(record => {
@@ -239,7 +240,7 @@ export function SchoolHistoryModal({ isOpen, onClose, student, issuerName, schoo
       // 3. Condensed Observations
       const observations = sortedHistory
         .filter(h => h.observations && h.observations.trim() !== '')
-        .map(h => `${h.academicYear} (${h.grade}): ${h.observations}`);
+        .map(h => `${formatYear(h.academicYear)} (${h.grade}): ${h.observations}`);
 
       if (observations.length > 0) {
         doc.setFontSize(12);
@@ -521,7 +522,7 @@ export function SchoolHistoryModal({ isOpen, onClose, student, issuerName, schoo
                           <div className="flex justify-between items-start mb-2">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="text-lg font-bold text-slate-900 dark:text-white">{record.academicYear}</span>
+                                <span className="text-lg font-bold text-slate-900 dark:text-white">{formatYear(record.academicYear)}</span>
                                 <span className="text-sm font-medium text-slate-500 dark:text-slate-400">• {record.grade}</span>
                               </div>
                               <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{record.schoolName}</p>

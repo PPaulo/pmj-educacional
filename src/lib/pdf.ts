@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Student } from '../types';
+import { formatYear } from './utils';
 
 const loadImg = (url: string): Promise<string> => {
   return new Promise((resolve) => {
@@ -35,6 +36,7 @@ const labelColor: [number, number, number] = [0, 0, 0];
 const secondaryColor: [number, number, number] = [0, 0, 0];
 
 const MUNICIPAL_LOGO_URL = '/brasao.png';
+
 
 export const addReportHeader = async (doc: any, school: any) => {
   const pgWidth = doc.internal.pageSize.width;
@@ -179,7 +181,8 @@ export const generateStudentRegistrationPDF = async (formData: Partial<Student>,
   currentY = drawSectionHeader('5. Matrícula Escolar', currentY);
   autoTable(doc, {
     ...autoTableConfig, startY: currentY,
-    body: [[{ content: formatCell('TURMA', formData.class) }, { content: formatCell('SÉRIE', formData.serie) }, { content: formatCell('TURNO', formData.turno) }, { content: formatCell('ANO LETIVO', formData.exercicio) }]]
+    body: [[{ content: formatCell('TURMA', formData.class) }, { content: formatCell('SÉRIE', formData.serie) }, { content: formatCell('TURNO', formData.turno) }, { content: formatCell('ANO LETIVO', formatYear(formData.exercicio)) }]]
+
   });
   currentY = (doc as any).lastAutoTable.finalY + 20;
 
@@ -210,7 +213,7 @@ export const generateStudentLinkageStatementPDF = async (formData: any, school: 
   const today = new Date().toLocaleDateString('pt-BR');
 
   const indentStr = "\u00A0".repeat(Math.floor(20 / (doc.getTextWidth("\u00A0") || 1)));
-  const text = `${indentStr}Declaramos para os devidos fins de direito que o(a) aluno(a) ${formData.name.toUpperCase()}, portador(a) da Matrícula nº ${formData.registration || '---'} e Código INEP ${formData.inepId || '---'}, nascido(a) em ${formatBirth}, filho(a) de ${formData.motherName || '---'} e ${formData.fatherName || '---'}, encontra-se regularmente matriculado(a) e frequentando as aulas nesta instituição de ensino no ano letivo de ${formData.exercicio || currentYear}, cursando a série ${formData.serie || '---'} na Turma ${formData.class || '---'} no Turno ${formData.turno || '---'}.
+  const text = `${indentStr}Declaramos para os devidos fins de direito que o(a) aluno(a) ${formData.name.toUpperCase()}, portador(a) da Matrícula nº ${formData.registration || '---'} e Código INEP ${formData.inepId || '---'}, nascido(a) em ${formatBirth}, filho(a) de ${formData.motherName || '---'} e ${formData.fatherName || '---'}, encontra-se regularmente matriculado(a) e frequentando as aulas nesta instituição de ensino no ano letivo de ${formatYear(formData.exercicio) || currentYear}, cursando a série ${formData.serie || '---'} na Turma ${formData.class || '---'} no Turno ${formData.turno || '---'}.
 
 ${indentStr}Por ser verdade, firmamos a presente.`;
 
@@ -336,7 +339,8 @@ export const generateReportCardPDF = async (formData: any, grades: any[], school
   doc.text(`ALUNO(A): ${(formData.name || '---').toUpperCase()}`, 14, 65);
   doc.setFont('helvetica', 'normal'); doc.setTextColor(0, 0, 0);
   doc.text(`Matrícula: ${formData.registration || '---'}`, 14, 70);
-  doc.text(`Turma: ${formData.class || '---'} | Ano: ${formData.exercicio || new Date().getFullYear()}`, 70, 70);
+  doc.text(`Turma: ${formData.class || '---'} | Ano: ${formatYear(formData.exercicio) || new Date().getFullYear()}`, 70, 70);
+
 
   const subjects = ['Português', 'Matemática', 'História', 'Geografia', 'Ciências', 'Artes', 'Educação Física'];
   const periods = ['1º Bimestre', '2º Bimestre', '3º Bimestre', '4º Bimestre'];
@@ -561,7 +565,7 @@ export const generateStudentTransferDeclarationPDF = async (formData: any, schoo
 
   const indentStr = "\u00A0".repeat(Math.floor(20 / (doc.getTextWidth("\u00A0") || 1)));
   const fitStatement = targetGrade ? ` e encontra-se apto(a) a matricular-se na série ${targetGrade.toUpperCase()}` : '';
-  const text = `${indentStr}Declaramos para os devidos fins que o(a) aluno(a) ${formData.name.toUpperCase()}, portador(a) da Matrícula nº ${formData.registration || '---'} e Código INEP ${formData.inepId || '---'}, nascido(a) em ${formatBirth}, filho(a) de ${formData.motherName || '---'} e ${formData.fatherName || '---'}, esteve regularmente matriculado(a) nesta unidade de ensino no ano letivo de ${formData.exercicio || currentYear}, cursando a série ${formData.serie || '---'} na Turma ${formData.class || '---'} no Turno ${formData.turno || '---'}${fitStatement}.
+  const text = `${indentStr}Declaramos para os devidos fins que o(a) aluno(a) ${formData.name.toUpperCase()}, portador(a) da Matrícula nº ${formData.registration || '---'} e Código INEP ${formData.inepId || '---'}, nascido(a) em ${formatBirth}, filho(a) de ${formData.motherName || '---'} e ${formData.fatherName || '---'}, esteve regularmente matriculado(a) nesta unidade de ensino no ano letivo de ${formatYear(formData.exercicio) || currentYear}, cursando a série ${formData.serie || '---'} na Turma ${formData.class || '---'} no Turno ${formData.turno || '---'}${fitStatement}.
   
 ${indentStr}O referido aluno encontra-se aguardando a expedição do seu Histórico Escolar, que será entregue no prazo de 30 (trinta) dias.
 
