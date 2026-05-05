@@ -229,37 +229,52 @@ export function SchoolHistoryModal({ isOpen, onClose, student, issuerName, schoo
     
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(15, 23, 42);
-    doc.text('HISTÓRICO ACADÊMICO', pgWidth / 2, 60, { align: 'center' });
+    doc.setTextColor(0, 0, 0);
+    doc.text('HISTÓRICO ESCOLAR', pgWidth / 2, 55, { align: 'center' });
     
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(71, 85, 105);
-    doc.text(`ALUNO(A): ${(student.name || '').toUpperCase()}`, 14, 72);
-    doc.text(`Matrícula: ${student.registration || '---'} | Inep: ${student.inepId || '---'}`, 14, 77);
-    doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, pgWidth - 14, 72, { align: 'right' });
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text('IDENTIFICAÇÃO DO(A) ALUNO(A)', 14, 65);
+    doc.line(14, 66, pgWidth - 14, 66);
 
-    let currentY = 85;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    const birthStr = student.birthDate ? student.birthDate.split('-').reverse().join('/') : '---';
+    const placeStr = `${student.birthCity || '---'} - ${student.birthState || '---'}`;
+    
+    doc.text(`NOME: ${(student.name || '').toUpperCase()}`, 14, 72);
+    doc.text(`DATA NASC: ${birthStr}`, pgWidth - 60, 72);
+    doc.text(`NATURALIDADE: ${placeStr.toUpperCase()}`, 14, 77);
+    doc.text(`MATRÍCULA: ${student.registration || '---'}`, pgWidth - 60, 77);
+    doc.text(`FILIAÇÃO: ${(student.motherName || '---').toUpperCase()} E ${(student.fatherName || '---').toUpperCase()}`, 14, 82);
+    doc.text(`CÓDIGO INEP: ${student.inepId || '---'}`, pgWidth - 60, 82);
+
+    let currentY = 90;
 
     if (studentHistory.length === 0) {
       doc.text('Nenhum registro acadêmico encontrado.', 14, currentY);
     } else {
-      // Sort history chronologically (oldest to newest)
       const sortedHistory = [...studentHistory].sort((a, b) => Number(a.academicYear) - Number(b.academicYear));
 
-      // 1. Summary Table
+      doc.setFont('helvetica', 'bold');
+      doc.text('RESUMO DO DESEMPENHO ACADÊMICO', 14, currentY);
+      currentY += 2;
+
       autoTable(doc, {
         startY: currentY,
         theme: 'grid',
         headStyles: { fillColor: [37, 99, 235] },
-        head: [['Ano/Série', 'Escola', 'C.H.', 'Freq.', 'Resultado']],
+        head: [['Ano/Série', 'Unidade Escolar', 'Cidade/UF', 'C.H.', 'Freq.', 'Resultado']],
         body: sortedHistory.map(record => [
-          `${formatYear(record.academicYear)} - ${record.grade}`,
+          `${formatYear(record.academicYear)}\n${record.grade}`,
           record.schoolName,
+          'Padre Bernardo - GO',
           record.workload,
           record.attendance,
           record.result
         ]),
+        styles: { fontSize: 7, cellPadding: 1.5 },
+        headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' }
       });
 
       currentY = (doc as any).lastAutoTable.finalY + 10;
@@ -288,10 +303,10 @@ export function SchoolHistoryModal({ isOpen, onClose, student, issuerName, schoo
 
         autoTable(doc, {
           startY: currentY,
-          theme: 'striped',
-          headStyles: { fillColor: [100, 116, 139], halign: 'center' },
-          columnStyles: { 0: { fontStyle: 'bold', halign: 'left' } },
-          bodyStyles: { halign: 'center' },
+          theme: 'grid',
+          headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold', halign: 'center' },
+          columnStyles: { 0: { fontStyle: 'bold', halign: 'left', cellWidth: 40 } },
+          bodyStyles: { halign: 'center', fontSize: 7 },
           head: head,
           body: body,
         });
@@ -305,18 +320,40 @@ export function SchoolHistoryModal({ isOpen, onClose, student, issuerName, schoo
         .map(h => `${formatYear(h.academicYear)} (${h.grade}): ${h.observations}`);
 
       if (observations.length > 0) {
-        doc.setFontSize(12);
-        doc.setTextColor(37, 99, 235);
-        doc.text('Observações Gerais', 14, currentY);
-        currentY += 6;
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.text('OBSERVAÇÕES E NOTAS COMPLEMENTARES', 14, currentY);
+        currentY += 5;
+        
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        const obsText = observations.join('\n\n');
+        const splitObs = doc.splitTextToSize(obsText, pgWidth - 28);
+        doc.text(splitObs, 14, currentY);
+        currentY += (splitObs.length * 4) + 10;
+      }
 
-        doc.setFontSize(10);
-        doc.setTextColor(60);
-        observations.forEach(obs => {
-          const splitObs = doc.splitTextToSize(obs, 180);
-          doc.text(splitObs, 14, currentY);
-          currentY += (splitObs.length * 5) + 2;
-        });
+      // Footer Signatures
+      if (currentY > doc.internal.pageSize.height - 40) {
+        doc.addPage();
+        currentY = 30;
+      } else {
+        currentY = Math.max(currentY, doc.internal.pageSize.height - 60);
+      }
+
+      doc.setDrawColor(200);
+      doc.line(20, currentY, 90, currentY);
+      doc.line(pgWidth - 90, currentY, pgWidth - 20, currentY);
+      
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.text('SECRETÁRIO(A) ESCOLAR', 55, currentY + 5, { align: 'center' });
+      doc.text('DIRETOR(A) / COORDENADOR(A)', pgWidth - 55, currentY + 5, { align: 'center' });
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.text('Carimbo e Assinatura', 55, currentY + 9, { align: 'center' });
+      doc.text('Carimbo e Assinatura', pgWidth - 55, currentY + 9, { align: 'center' });
       }
     }
 
